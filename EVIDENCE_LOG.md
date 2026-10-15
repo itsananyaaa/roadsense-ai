@@ -138,3 +138,47 @@ Executed against the raw Pascal-VOC XML annotations streamed via HTTP Range requ
 | **yolov8n.pt** | CPU | 3.16M | 6.25 MB | 40.33 ms | 24.8 FPS |
 
 - **Conclusion:** Both `yolo26n` and `yolo11n` execute well within the real-time threshold (<20 ms on MPS, <45 ms on CPU), suitable for responsive on-device interactive inference.
+
+---
+
+## 6. Phase 2 Foundation Verification
+- **Date & Time:** 2026-10-15T20:55:03+04:00
+- **Commands Executed:**
+  ```bash
+  /opt/miniconda3/envs/ml/bin/python core/health.py
+  /opt/miniconda3/envs/ml/bin/pytest tests/ -v
+  ```
+- **Diagnostic Output:**
+  ```text
+  --- ROADSENSE AI HEALTH CHECK ---
+  is_operational: True
+  python_version: 3.10.20
+  os_info: Darwin 25.5.0 (arm64)
+  torch_version: 2.12.1
+  accelerator: Apple Metal Performance Shaders (MPS)
+  ultralytics_version: 8.4.177
+  active_checkpoint_path: /Users/ananyabiju/Desktop/roadsense-ai/yolo26n.pt
+  checkpoint_status: PRETRAINED_BASELINE
+  database_status: CREATED_EMPTY
+  incident_count: 0
+  writable_paths: {'data': True, 'evidence': True, 'models': True, 'reports': True}
+  diagnostics: ['Pretrained COCO baseline detected. Not fine-tuned on road damage.']
+  ```
+- **Test Output:**
+  ```text
+  ============================= test session starts ==============================
+  platform darwin -- Python 3.10.20, pytest-9.1.1
+  collecting ... collected 9 items
+  tests/test_app_foundation.py::test_main_app_loads_cleanly PASSED         [ 11%]
+  tests/test_app_foundation.py::test_demo_dataset_button_click PASSED      [ 22%]
+  tests/test_db.py::test_insert_and_retrieve_incident PASSED               [ 33%]
+  tests/test_db.py::test_update_review_status PASSED                       [ 44%]
+  tests/test_db.py::test_spatial_clustering_haversine PASSED               [ 55%]
+  tests/test_priority.py::test_priority_determinism PASSED                 [ 66%]
+  tests/test_priority.py::test_priority_pothole_vs_crack PASSED            [ 77%]
+  tests/test_priority.py::test_priority_score_boundaries PASSED            [ 88%]
+  tests/test_priority.py::test_repeat_count_cap PASSED                     [100%]
+  ============================== 9 passed in 1.18s ===============================
+  ```
+- **Finding:** Foundation layer operates with zero defects. Streamlit AppTest verifies clean boot and interactive state changes. All priority formula boundaries and SQLite parameterized queries pass tests.
+

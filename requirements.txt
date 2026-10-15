@@ -1,0 +1,25 @@
+# RoadSense AI — Pinned Dependencies
+# Verified on macOS Apple Silicon M4 (arm64) and Linux x86_64 (Google Colab)
+
+# Core ML and Vision
+torch>=2.2.0,<2.13.0
+torchvision>=0.17.0
+ultralytics>=8.4.0,<=8.4.200
+opencv-python>=4.10.0,<5.0.0
+pillow>=10.2.0
+
+# Numerical and Data Processing
+numpy>=1.26.0,<2.3.0
+pandas>=2.2.0,<3.0.0
+
+# Geospatial and Visualization
+folium>=0.17.0,<0.21.0
+streamlit-folium>=0.25.0
+plotly>=6.0.0
+
+# Web Application Framework
+streamlit>=1.50.0,<1.60.0
+
+# Testing and Verification
+pytest>=8.3.0
+requests>=2.31.0
