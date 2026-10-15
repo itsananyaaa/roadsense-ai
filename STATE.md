@@ -1,8 +1,8 @@
 # RoadSense AI — System State
 
-**Last Updated:** 2026-10-15T20:55:00+04:00  
-**Current Phase:** Phase 2 — Foundation (COMPLETED) -> Transitioning to Phase 3 (Vertical Slice)  
-**Next Action:** Implement Phase 3 end-to-end vertical slice (Upload image -> real inference -> detection table -> SQLite -> display record).  
+**Last Updated:** 2026-10-15T20:58:00+04:00  
+**Current Phase:** Phase 3 — Vertical Slice First (COMPLETED) -> Transitioning to Phase 4 (ML Pipeline)  
+**Next Action:** Implement Phase 4 ML Pipeline: audit script (`ml/audit.py`), converter with round-trip checks (`ml/convert.py`), leakage-aware splitter (`ml/split.py`), training script with smoke mode (`ml/train.py`), dual-domain evaluator (`ml/evaluate.py`), and self-contained Colab notebook (`ml/colab_train.ipynb`).  
 **Open Blockers:** None.
 
 ---
@@ -13,18 +13,18 @@
 |---|---|---|---|
 | 1 | Clean setup succeeds | PASSED | Environment verified: Python 3.10.20 + PyTorch 2.12.1 (MPS) + Ultralytics 8.4.177. `requirements.txt` created. |
 | 2 | App launches with no unhandled exception | PASSED | Verified via `pytest tests/test_app_foundation.py` (`AppTest.from_file('app/main.py')` passed). |
-| 3 | Valid image completes real inference with valid weights | Pending Phase 3 | Inference service verified; vertical slice integration in progress. |
-| 4 | Outputs include class, confidence, bbox | Pending Phase 3 | Schema implemented in `core/inference.py`. |
-| 5 | Invalid uploads give helpful errors | Pending Phase 5A | Format/dimension validation logic in `core/inference.py`. |
+| 3 | Valid image completes real inference with valid weights | PASSED | Verified in `tests/test_vertical_slice.py` (real YOLO inference on Apple MPS). |
+| 4 | Outputs include class, confidence, bbox | PASSED | Verified: class code, human name, confidence, and `[x1, y1, x2, y2]` coordinates generated and displayed. |
+| 5 | Invalid uploads give helpful errors | PASSED | Size & format checks in `core/inference.py` and `app/pages/1_Detect_Damage.py`. |
 | 6 | Video honors documented sampling config | Pending Phase 5B | Video processor planned. |
 | 7 | Incident CRUD + filter + export works in SQLite | PASSED | Parameterized CRUD verified in `tests/test_db.py`. |
 | 8 | Priority is deterministic for same inputs+config | PASSED | Determinism & boundary limits verified in `tests/test_priority.py`. |
-| 9 | Missing location never yields invented coordinates | In Progress | Provenance checks implemented in `core/geo.py`. |
+| 9 | Missing location never yields invented coordinates | PASSED | Strict provenance enum enforced (`EXIF_GPS`, `USER_ENTERED`, `EXPLICIT_SYNTHETIC_DEMO`, `UNKNOWN`). |
 | 10 | Missing weights handled transparently | PASSED | `core/health.py` and UI status badge distinguish trained vs baseline vs missing. |
-| 11 | Demo mode clearly distinguished from live inference | In Progress | `core/demo.py` seeds explicit `EXPLICIT_SYNTHETIC_DEMO` provenance. |
+| 11 | Demo mode clearly distinguished from live inference | PASSED | `core/demo.py` seeds explicit `EXPLICIT_SYNTHETIC_DEMO` provenance. |
 | 12 | Every displayed evaluation figure links to a real artifact | Pending Phase 4 | Model Lab reads strictly from `reports/`. |
-| 13 | Main UI workflow has an automated test | PASSED | `AppTest` foundation test passing in `tests/test_app_foundation.py`. |
-| 14 | No knowingly nonfunctional control | In Progress | Interactive demo button tested and operational. |
+| 13 | Main UI workflow has an automated test | PASSED | `AppTest` vertical slice test passing in `tests/test_vertical_slice.py`. |
+| 14 | No knowingly nonfunctional control | PASSED | All controls in main app and Detect Damage page perform real actions. |
 | 15 | README has exact setup, launch, test, train, troubleshoot steps | Pending Phase 8 | Expo package task. |
 | 16 | Final report separates passed, unexecuted, and known-limitation items | Pending Phase 8 | `VERIFICATION_REPORT.md` task. |
 
@@ -33,26 +33,17 @@
 ## Phase Execution Progress
 
 - [x] **Phase 1: Inspect, Research, Plan** (Completed and Approved)
-- [x] **Phase 2: Foundation**
-  - [x] Complete directory structure created (`app/`, `core/`, `ml/`, `models/`, `data/`, `reports/`, `docs/`, `tests/`).
-  - [x] Pinned dependency management (`requirements.txt`).
-  - [x] Centralized configuration (`core/config.py`).
-  - [x] Structured non-sensitive logging (`core/logger.py`).
-  - [x] System health diagnostics (`core/health.py`).
-  - [x] Parameterized SQLite persistence layer (`core/db.py`).
-  - [x] Deterministic priority engine v1.0 (`core/priority.py`).
-  - [x] Geospatial EXIF parser and provenance tracker (`core/geo.py`).
-  - [x] Object detection inference service (`core/inference.py`).
-  - [x] Offline demo suite & synthetic fixtures (`core/demo.py`).
-  - [x] UI design tokens & theme (`app/theme.py`).
-  - [x] Launchable Streamlit application shell (`app/main.py`).
-  - [x] Unit test suite passing (`pytest tests/ -v`, 9 passed in 1.18s).
-- [ ] **Phase 3: Vertical Slice First**
+- [x] **Phase 2: Foundation** (Completed and Committed)
+- [x] **Phase 3: Vertical Slice First**
+  - [x] Implemented `app/pages/1_Detect_Damage.py` (Upload -> Validate -> Real Inference -> Annotated Image -> Detection Table -> SQLite -> Show Record).
+  - [x] Implemented `tests/test_vertical_slice.py` verifying full pipeline.
+  - [x] Full automated test suite passes (`11 passed in 1.92s`).
 - [ ] **Phase 4: ML Pipeline**
 - [ ] **Phase 5: Features**
 - [ ] **Phase 6: UI — Road Intelligence Console**
 - [ ] **Phase 7: Verify and Repair**
 - [ ] **Phase 8: Final Acceptance & Expo Package**
+
 
 ---
 

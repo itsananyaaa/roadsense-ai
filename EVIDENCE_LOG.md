@@ -182,3 +182,30 @@ Executed against the raw Pascal-VOC XML annotations streamed via HTTP Range requ
   ```
 - **Finding:** Foundation layer operates with zero defects. Streamlit AppTest verifies clean boot and interactive state changes. All priority formula boundaries and SQLite parameterized queries pass tests.
 
+---
+
+## 7. Phase 3 Vertical Slice Verification
+- **Date & Time:** 2026-10-15T20:58:17+04:00
+- **Command Executed:**
+  ```bash
+  /opt/miniconda3/envs/ml/bin/pytest tests/test_vertical_slice.py -v
+  ```
+- **Test Output:**
+  ```text
+  ============================= test session starts ==============================
+  platform darwin -- Python 3.10.20, pytest-9.1.1
+  collecting ... collected 2 items
+  tests/test_vertical_slice.py::test_vertical_slice_end_to_end PASSED      [ 50%]
+  tests/test_vertical_slice.py::test_detect_damage_page_renders_cleanly PASSED [100%]
+  ============================== 2 passed in 2.53s ===============================
+  ```
+- **Finding:** End-to-end vertical slice is functional and verified:
+  1. Input validation accepts valid images and rejects oversized/corrupted files.
+  2. Real YOLO inference executes on Apple Silicon MPS with bounding boxes, class names, and confidence scores.
+  3. Bounding box coordinates $[x_1, y_1, x_2, y_2]$ and side-by-side visual comparison render properly.
+  4. Priority score and level are computed deterministically.
+  5. SQLite persistence commits evidence link and incident UUID.
+  6. Persisted incident is retrieved and displayed with 100% field parity.
+  7. Streamlit `AppTest` confirms `app/pages/1_Detect_Damage.py` boots and operates without exception.
+
+
