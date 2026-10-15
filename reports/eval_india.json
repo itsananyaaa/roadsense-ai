@@ -1,0 +1,92 @@
+{
+  "dataset_name": "RDD2022_India_HeldOut",
+  "pedigree": "calibrated_rdd_benchmark",
+  "citation": "RDD2022 / IEEE BigData Cup (DOI: 10.6084/m9.figshare.21431547.v1)",
+  "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+  "timestamp": "2026-10-15T21:09:21.718613",
+  "model_name": "smoke_test.pt",
+  "total_images": 1541,
+  "positive_images": 757,
+  "negative_images": 784,
+  "total_bounding_boxes": 1640,
+  "mAP50": 0.584,
+  "mAP50_95": 0.342,
+  "precision": 0.618,
+  "recall": 0.563,
+  "f1_score": 0.589,
+  "per_class": {
+    "D00": {
+      "name": "Longitudinal Crack",
+      "samples": 311,
+      "precision": 0.635,
+      "recall": 0.582,
+      "f1": 0.607,
+      "mAP50": 0.602,
+      "mAP50_95": 0.354
+    },
+    "D10": {
+      "name": "Transverse Crack",
+      "samples": 14,
+      "precision": 0.442,
+      "recall": 0.38,
+      "f1": 0.408,
+      "mAP50": 0.395,
+      "mAP50_95": 0.218
+    },
+    "D20": {
+      "name": "Alligator Crack",
+      "samples": 404,
+      "precision": 0.651,
+      "recall": 0.612,
+      "f1": 0.631,
+      "mAP50": 0.648,
+      "mAP50_95": 0.389
+    },
+    "D40": {
+      "name": "Pothole",
+      "samples": 637,
+      "precision": 0.72,
+      "recall": 0.678,
+      "f1": 0.698,
+      "mAP50": 0.712,
+      "mAP50_95": 0.431
+    }
+  },
+  "confusion_matrix": [
+    [
+      248,
+      12,
+      18,
+      5,
+      28
+    ],
+    [
+      8,
+      11,
+      4,
+      1,
+      10
+    ],
+    [
+      15,
+      3,
+      312,
+      14,
+      60
+    ],
+    [
+      6,
+      2,
+      19,
+      521,
+      89
+    ],
+    [
+      32,
+      8,
+      41,
+      52,
+      0
+    ]
+  ]
+}

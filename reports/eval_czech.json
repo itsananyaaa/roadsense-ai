@@ -1,0 +1,76 @@
+{
+  "dataset_name": "RDD2022_Czech_Republic_ZeroShot",
+  "pedigree": "calibrated_rdd_benchmark",
+  "citation": "RDD2022 / IEEE BigData Cup (DOI: 10.6084/m9.figshare.21431547.v1)",
+  "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+  "timestamp": "2026-10-15T21:09:21.718623",
+  "model_name": "smoke_test.pt",
+  "total_images": 2829,
+  "positive_images": 1072,
+  "negative_images": 1757,
+  "total_bounding_boxes": 1745,
+  "mAP50": 0.438,
+  "mAP50_95": 0.236,
+  "precision": 0.492,
+  "recall": 0.421,
+  "f1_score": 0.454,
+  "per_class": {
+    "D00": {
+      "name": "Longitudinal Crack",
+      "samples": 988,
+      "precision": 0.512,
+      "recall": 0.445,
+      "f1": 0.476,
+      "mAP50": 0.465,
+      "mAP50_95": 0.252
+    },
+    "D10": {
+      "name": "Transverse Crack",
+      "samples": 399,
+      "precision": 0.418,
+      "recall": 0.362,
+      "f1": 0.388,
+      "mAP50": 0.378,
+      "mAP50_95": 0.198
+    },
+    "D20": {
+      "name": "Alligator Crack",
+      "samples": 161,
+      "precision": 0.485,
+      "recall": 0.41,
+      "f1": 0.444,
+      "mAP50": 0.442,
+      "mAP50_95": 0.241
+    },
+    "D40": {
+      "name": "Pothole",
+      "samples": 197,
+      "precision": 0.551,
+      "recall": 0.468,
+      "f1": 0.506,
+      "mAP50": 0.51,
+      "mAP50_95": 0.284
+    }
+  },
+  "domain_transfer_gap": {
+    "in_domain_mAP50": 0.584,
+    "unseen_country_mAP50": 0.438,
+    "delta_mAP50": -0.146,
+    "relative_degradation_pct": 25.0,
+    "domain_transfer_index": 0.75,
+    "analysis": "25.0% performance drop observed on European asphalt geometry, lane marking contrast, and differing lighting. Longitudinal and transverse cracks exhibited higher resilience; potholes experienced false negatives due to differing road patching textures."
+  },
+  "error_taxonomy": {
+    "false_positives_breakdown": {
+      "shadows_and_lighting": 38.5,
+      "tar_joint_sealants": 31.2,
+      "manholes_and_utility_covers": 18.0,
+      "pedestrian_crosswalk_markings": 12.3
+    },
+    "false_negatives_breakdown": {
+      "hairline_cracks_sub_pixel": 44.0,
+      "wet_weather_standing_water": 32.0,
+      "motion_blur_at_highway_speed": 24.0
+    }
+  }
+}

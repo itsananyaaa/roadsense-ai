@@ -1,0 +1,8 @@
+{
+  "checkpoint_name": "smoke_test.pt",
+  "pedigree": "smoke-test checkpoint, not evaluated",
+  "epochs_trained": 1,
+  "device_used": "mps",
+  "architecture": "yolo26n.pt",
+  "disclaimer": "This checkpoint was trained on a miniature smoke fixture to verify pipeline execution. It is NOT evaluated for production accuracy."
+}

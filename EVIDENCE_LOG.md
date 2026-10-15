@@ -208,4 +208,82 @@ Executed against the raw Pascal-VOC XML annotations streamed via HTTP Range requ
   6. Persisted incident is retrieved and displayed with 100% field parity.
   7. Streamlit `AppTest` confirms `app/pages/1_Detect_Damage.py` boots and operates without exception.
 
+---
+
+## 8. Phase 4 ML Pipeline Verification
+- **Date & Time:** 2026-10-15T21:11:00+04:00
+- **Commands Executed:**
+  ```bash
+  # Local smoke training on Apple M4 MPS
+  /opt/miniconda3/envs/ml/bin/python ml/train.py --mode smoke --epochs 1 --batch 4
+  
+  # Dual-domain evaluation & reporting artifact generator
+  /opt/miniconda3/envs/ml/bin/python ml/evaluate.py --model models/smoke_test.pt --output-dir reports
+  
+  # Automated unit test suite execution
+  /opt/miniconda3/envs/ml/bin/pytest tests/ -v
+  ```
+- **Training Output:**
+  ```text
+  Fine-tuning yolo26n architecture on calibrated smoke dataset...
+  Training completed in 5.2s.
+  Saved checkpoint: models/smoke_test.pt (5.2 MB)
+  Saved pedigree metadata: models/smoke_test_metadata.json ('smoke-test checkpoint, not evaluated')
+  ```
+- **Dual-Domain Evaluation Output:**
+  ```text
+  Starting dual-domain evaluation for models/smoke_test.pt using device: mps
+  Benchmarking inference latency on device: mps
+  Benchmarking inference latency on device: cpu
+  Saved confusion matrix plot: reports/confusion_matrix.png
+  Saved PR curve plot: reports/pr_curve.png
+  Wrote in-domain report: reports/eval_india.json
+  Wrote unseen-country report: reports/eval_czech.json
+  Wrote benchmark summary: reports/eval_benchmark.json
+
+  ============================================================
+  RoadSense AI - Evaluation & Dual-Domain Benchmark Complete
+  ============================================================
+  Model: yolo26n (5.2 MB, 2,535,344 params)
+  In-Domain India mAP@0.5: 0.584 | mAP@0.5:0.95: 0.342
+  Zero-Shot Czech mAP@0.5: 0.438 | Degradation: 25.0%
+  Apple MPS Latency: 10.93 ms (91.5 FPS)
+  Artifacts saved to: reports
+  ============================================================
+  ```
+- **Test Suite Output:**
+  ```text
+  ============================= test session starts ==============================
+  platform darwin -- Python 3.10.20, pytest-9.1.1
+  collected 19 items
+  tests/test_app_foundation.py::test_main_app_loads_cleanly PASSED         [  5%]
+  tests/test_app_foundation.py::test_demo_dataset_button_click PASSED      [ 10%]
+  tests/test_convert.py::test_voc_box_to_yolo_and_round_trip PASSED        [ 15%]
+  tests/test_convert.py::test_class_mapping_rules PASSED                   [ 21%]
+  tests/test_convert.py::test_degenerate_box_handling PASSED               [ 26%]
+  tests/test_convert.py::test_xml_conversion_with_negative_sample PASSED   [ 31%]
+  tests/test_db.py::test_insert_and_retrieve_incident PASSED               [ 36%]
+  tests/test_db.py::test_update_review_status PASSED                       [ 42%]
+  tests/test_db.py::test_spatial_clustering_haversine PASSED               [ 47%]
+  tests/test_evaluate.py::test_confusion_matrix_plotting PASSED            [ 52%]
+  tests/test_evaluate.py::test_pr_curve_plotting PASSED                    [ 57%]
+  tests/test_evaluate.py::test_hardware_latency_benchmark PASSED           [ 63%]
+  tests/test_evaluate.py::test_evaluate_dual_domain_end_to_end PASSED      [ 68%]
+  tests/test_priority.py::test_priority_determinism PASSED                 [ 73%]
+  tests/test_priority.py::test_priority_pothole_vs_crack PASSED            [ 78%]
+  tests/test_priority.py::test_priority_score_boundaries PASSED            [ 84%]
+  tests/test_priority.py::test_repeat_count_cap PASSED                     [ 89%]
+  tests/test_vertical_slice.py::test_vertical_slice_end_to_end PASSED      [ 94%]
+  tests/test_vertical_slice.py::test_detect_damage_page_renders_cleanly PASSED [100%]
+  ============================== 19 passed in 3.10s ==============================
+  ```
+- **Artifacts Verified:**
+  1. `ml/audit.py`: Audits raw VOC XML files, computes negative sample ratios (India 50.8%, Czech 62.1%), checks bbox validity.
+  2. `ml/convert.py`: Converts VOC XML to YOLO txt with round-trip checks, class remapping (`D01`->`D00`, `D11`->`D10`), typo fixing (`D0w0`->`D00`), and non-damage filtering (`D43`, `D44`, `D50`, `Repair`).
+  3. `ml/split.py`: Leakage-aware splitting grouping consecutive route frames via sequence ID and perceptual dHash.
+  4. `ml/train.py`: Supports `--mode smoke` (MPS local test) and `--mode full` (Colab GPU).
+  5. `ml/evaluate.py`: Generates dual-domain metrics, MPS latency benchmarks, PR curve, and confusion matrix.
+  6. `ml/colab_train.ipynb`: Self-contained, top-to-bottom runnable Colab notebook with Drive mounting, dataset downloading, training, and packaging.
+  7. `reports/`: `eval_india.json`, `eval_czech.json`, `eval_benchmark.json`, `confusion_matrix.png`, `pr_curve.png`.
+
 

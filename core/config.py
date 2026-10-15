@@ -32,6 +32,20 @@ SMOKE_MODEL_PATH = MODELS_DIR / "smoke_test.pt"
 YOLO26_PRETRAINED_PATH = BASE_DIR / "yolo26n.pt"
 YOLO11_PRETRAINED_PATH = BASE_DIR / "yolo11n.pt"
 
+
+def get_active_model_path() -> Path:
+    """Return the highest-precedence available model checkpoint path."""
+    if PRIMARY_MODEL_PATH.exists():
+        return PRIMARY_MODEL_PATH
+    if SMOKE_MODEL_PATH.exists():
+        return SMOKE_MODEL_PATH
+    if YOLO26_PRETRAINED_PATH.exists():
+        return YOLO26_PRETRAINED_PATH
+    if YOLO11_PRETRAINED_PATH.exists():
+        return YOLO11_PRETRAINED_PATH
+    return PRIMARY_MODEL_PATH
+
+
 # Ensure runtime directories exist
 for _path in [DATA_DIR, EVIDENCE_DIR, DEMO_DIR, MANIFESTS_DIR, MODELS_DIR, REPORTS_DIR]:
     _path.mkdir(parents=True, exist_ok=True)

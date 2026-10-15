@@ -26,6 +26,8 @@ RDD2022/
 *.mp4
 *.avi
 *.mov
+!reports/*.png
+!docs/*.png
 /tmp/
 
 # Python & virtual environments
