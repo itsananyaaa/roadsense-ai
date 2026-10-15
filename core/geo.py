@@ -4,12 +4,21 @@ Handles EXIF GPS extraction with strict provenance labeling.
 Enforces Non-Negotiable Integrity Rule: Never invent or hallucinate GPS coordinates.
 """
 
+from enum import Enum
 from typing import Dict, Any, Optional, Tuple
 from PIL import Image, ExifTags
 
 from core.logger import get_logger
 
 logger = get_logger("roadsense.geo")
+
+
+class LocationProvenance(str, Enum):
+    """Explicit provenance taxonomy for all geospatial coordinates."""
+    EXIF_GPS = "EXIF_GPS"
+    USER_ENTERED = "USER_ENTERED"
+    EXPLICIT_SYNTHETIC_DEMO = "EXPLICIT_SYNTHETIC_DEMO"
+    UNKNOWN = "UNKNOWN"
 
 
 def extract_exif_gps(image_path: str) -> Tuple[Optional[float], Optional[float], str]:

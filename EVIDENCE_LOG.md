@@ -286,4 +286,56 @@ Executed against the raw Pascal-VOC XML annotations streamed via HTTP Range requ
   6. `ml/colab_train.ipynb`: Self-contained, top-to-bottom runnable Colab notebook with Drive mounting, dataset downloading, training, and packaging.
   7. `reports/`: `eval_india.json`, `eval_czech.json`, `eval_benchmark.json`, `confusion_matrix.png`, `pr_curve.png`.
 
+---
+
+## 9. Phase 5 & 6 Features and UI Verification (Road Intelligence Console)
+- **Date & Time:** 2026-10-15T21:26:24+04:00
+- **Commands Executed:**
+  ```bash
+  /opt/miniconda3/envs/ml/bin/pytest tests/ -v
+  ```
+- **Test Suite Output:**
+  ```text
+  ============================= test session starts ==============================
+  platform darwin -- Python 3.10.20, pytest-9.1.1
+  collected 26 items
+  tests/test_all_pages.py::test_page_1_detect_damage PASSED                [  3%]
+  tests/test_all_pages.py::test_page_2_video_intelligence PASSED           [  7%]
+  tests/test_all_pages.py::test_page_3_incident_map PASSED                 [ 11%]
+  tests/test_all_pages.py::test_page_4_priority_center PASSED              [ 15%]
+  tests/test_all_pages.py::test_page_5_model_lab PASSED                    [ 19%]
+  tests/test_all_pages.py::test_page_6_reports_history PASSED              [ 23%]
+  tests/test_all_pages.py::test_page_7_about_methodology PASSED            [ 26%]
+  tests/test_app_foundation.py::test_main_app_loads_cleanly PASSED         [ 30%]
+  tests/test_app_foundation.py::test_demo_dataset_button_click PASSED      [ 34%]
+  tests/test_convert.py::test_voc_box_to_yolo_and_round_trip PASSED        [ 38%]
+  tests/test_convert.py::test_class_mapping_rules PASSED                   [ 42%]
+  tests/test_convert.py::test_degenerate_box_handling PASSED               [ 46%]
+  tests/test_convert.py::test_xml_conversion_with_negative_sample PASSED   [ 50%]
+  tests/test_db.py::test_insert_and_retrieve_incident PASSED               [ 53%]
+  tests/test_db.py::test_update_review_status PASSED                       [ 57%]
+  tests/test_db.py::test_spatial_clustering_haversine PASSED               [ 61%]
+  tests/test_evaluate.py::test_confusion_matrix_plotting PASSED            [ 65%]
+  tests/test_evaluate.py::test_pr_curve_plotting PASSED                    [ 69%]
+  tests/test_evaluate.py::test_hardware_latency_benchmark PASSED           [ 73%]
+  tests/test_evaluate.py::test_evaluate_dual_domain_end_to_end PASSED      [ 76%]
+  tests/test_priority.py::test_priority_determinism PASSED                 [ 80%]
+  tests/test_priority.py::test_priority_pothole_vs_crack PASSED            [ 84%]
+  tests/test_priority.py::test_priority_score_boundaries PASSED            [ 88%]
+  tests/test_priority.py::test_repeat_count_cap PASSED                     [ 92%]
+  tests/test_vertical_slice.py::test_vertical_slice_end_to_end PASSED      [ 96%]
+  tests/test_vertical_slice.py::test_detect_damage_page_renders_cleanly PASSED [100%]
+  ============================== 26 passed in 3.41s ==============================
+  ```
+- **Features & Pages Verified:**
+  1. `core/video.py`: Video processor with sampling rate control, temporal de-duplication, keyframe extraction, and calibrated dashcam generator.
+  2. `app/pages/1_Detect_Damage.py`: Single/batch image analysis with original vs annotated view, coordinates table, priority badge, and SQLite persistence.
+  3. `app/pages/2_Video_Intelligence.py`: Continuous dashcam processing, sampling rate slider, damage distribution tally, keyframe gallery, and batch incident logger.
+  4. `app/pages/3_Incident_Map.py`: Geospatial defect explorer with OpenStreetMap/Leaflet integration, color-coded priority markers, linked photo evidence drawer, and offline Plotly fallback.
+  5. `app/pages/4_Priority_Center.py`: Deterministic triage queue (Priority Score v1.0 descending), interactive municipal policy tuner, human-in-the-loop verification, and work order dispatch CSV export.
+  6. `app/pages/5_Model_Lab.py`: Evaluated benchmark studio reading physical JSON/PNG artifacts in `reports/`, Apple MPS latency analysis, dual-domain transfer comparison, and error taxonomy.
+  7. `app/pages/6_Reports_History.py`: Municipal asset inventory with search, sorting, full CSV export, and RFC 7946 GeoJSON FeatureCollection export.
+  8. `app/pages/7_About_Methodology.py`: Academic citations (RDD2022 / CRDDC), CC BY 4.0 license attribution, pavement distress engineering taxonomy (`D00`, `D10`, `D20`, `D40`), priority formula specification, and civil engineering notice.
+
+
 

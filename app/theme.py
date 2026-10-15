@@ -219,3 +219,71 @@ def render_safety_notice() -> None:
         """,
         unsafe_allow_html=True,
     )
+
+
+def setup_page(page_title: str, page_icon: str = "🛣️", layout: str = "wide") -> None:
+    """Safely configure page metadata and inject theme and brand headers."""
+    try:
+        st.set_page_config(
+            page_title=page_title,
+            page_icon=page_icon,
+            layout=layout,
+            initial_sidebar_state="expanded"
+        )
+    except Exception:
+        # Ignore if page config was already set in session
+        pass
+    apply_theme()
+    render_brand_header()
+    render_safety_notice()
+
+
+def render_safety_banner() -> None:
+    """Render the high-visibility civil engineering notice at the top of an analytical page."""
+    st.markdown(
+        """
+        <div style="background: #1e293b; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 6px; margin-bottom: 1.2rem; font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">
+            <strong style="color: #f59e0b;">Civil Engineering Advisory:</strong> AI detection confidence is an empirical perception metric, not an in-situ structural severity rating. RoadSense AI assists municipal road maintenance prioritization and does not replace certified on-site geotechnical engineering audits.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_status_badge(status: str, extra_info: str = "") -> None:
+    """Render a standardized model status badge with optional extra info."""
+    badge_classes = {
+        "EVALUATED_TRAINED": "rs-badge rs-badge-low",
+        "SMOKE_CHECKPOINT": "rs-badge rs-badge-amber",
+        "PRETRAINED_BASELINE": "rs-badge rs-badge-high",
+        "MISSING": "rs-badge rs-badge-critical",
+    }
+    badge_labels = {
+        "EVALUATED_TRAINED": "Fine-Tuned & Evaluated Checkpoint",
+        "SMOKE_CHECKPOINT": "Smoke-Test Checkpoint (Local MPS)",
+        "PRETRAINED_BASELINE": "Pretrained COCO Baseline",
+        "MISSING": "Checkpoint Missing (Demo Mode Available)",
+    }
+    cls = badge_classes.get(status, "rs-badge rs-badge-amber")
+    label = badge_labels.get(status, status)
+    extra_str = f" &nbsp;|&nbsp; <span>{extra_info}</span>" if extra_info else ""
+
+    st.markdown(
+        f"<div style='margin-bottom: 0.8rem;'><span class='{cls}'>{label}</span>{extra_str}</div>",
+        unsafe_allow_html=True
+    )
+
+
+def render_card_start(title: str = "") -> None:
+    """Open a styled analytical card container."""
+    title_html = f"<h4 style='margin-top: 0; color: #0f172a;'>{title}</h4>" if title else ""
+    st.markdown(
+        f"<div class='rs-card'>{title_html}",
+        unsafe_allow_html=True
+    )
+
+
+def render_card_end() -> None:
+    """Close an analytical card container."""
+    st.markdown("</div>", unsafe_allow_html=True)
+

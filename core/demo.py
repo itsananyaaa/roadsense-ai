@@ -202,3 +202,12 @@ def seed_demo_database(reset_existing: bool = True) -> int:
 
     logger.info(f"Seeded {count} demo incidents into database.")
     return count
+
+
+def seed_demo_incidents_if_empty(force: bool = False) -> int:
+    """Convenience alias: seeds calibrated demo incidents if database is empty or if forced."""
+    from core.db import get_incident_count
+    if force or get_incident_count() == 0:
+        return seed_demo_database(reset_existing=force)
+    return 0
+

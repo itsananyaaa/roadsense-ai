@@ -126,3 +126,16 @@ def calculate_priority(
         },
         rationale=rationale,
     )
+
+
+def get_priority_level(score: float) -> str:
+    """Map numeric priority score to human-readable priority tier."""
+    if score >= config.PRIORITY_LEVELS["CRITICAL"]["min_score"]:
+        return "CRITICAL"
+    elif score >= config.PRIORITY_LEVELS["HIGH"]["min_score"]:
+        return "HIGH"
+    elif score >= config.PRIORITY_LEVELS["MODERATE"]["min_score"]:
+        return "MODERATE"
+    else:
+        return "LOW"
+

@@ -317,6 +317,14 @@ def get_summary_statistics(db_path: Optional[Path] = None) -> Dict[str, Any]:
         }
 
 
+def get_incident_count(db_path: Optional[Path] = None) -> int:
+    """Return total count of incidents in the database."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT count(*) FROM incidents")
+        return int(cursor.fetchone()[0])
+
+
 def clear_all_incidents(confirm: bool = False, db_path: Optional[Path] = None) -> bool:
     """Safely reset incidents table when explicitly confirmed."""
     if not confirm:
