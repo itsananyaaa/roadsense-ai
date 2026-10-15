@@ -141,6 +141,9 @@ ROAD_CLASS_WEIGHTS: Dict[str, float] = {
     "UNKNOWN": 0.5,               # Default baseline when unverified
 }
 
+# Supported incident triage review statuses
+REVIEW_STATUSES: tuple[str, ...] = ("PENDING", "VERIFIED", "MODIFIED", "REJECTED")
+
 PRIORITY_LEVELS: Dict[str, Dict[str, Any]] = {
     "CRITICAL": {
         "min_score": 75.0,

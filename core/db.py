@@ -110,9 +110,9 @@ def insert_incident(
     """
     params = (
         inc_uuid,
-        image_path,
-        thumbnail_path,
-        video_source_path,
+        str(image_path),
+        str(thumbnail_path) if thumbnail_path else None,
+        str(video_source_path) if video_source_path else None,
         video_frame_number,
         checkpoint_id,
         json.dumps(detected_classes),

@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoadSense AI — Municipal Pavement Intelligence & Triage Console</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛣️</text></svg>">
+  
+  <!-- Leaflet CSS for Dark Maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Custom Modern Obsidian Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- -----------------------------------------------------------------
+         Top Header & Navigation Bar (Resq.io Style)
+         ----------------------------------------------------------------- -->
+    <header class="top-header">
+      <!-- Brand Logo -->
+      <div class="brand-section" onclick="switchTab('overview')">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19L10 5L14 19"></path>
+            <path d="M20 19L14 5"></path>
+            <line x1="8" y1="13" x2="16" y2="13"></line>
+          </svg>
+        </div>
+        <div class="brand-title">RoadSense<span>.ai</span></div>
+        <div class="brand-badge">PRO v2.0</div>
+      </div>
+
+      <!-- Centered Pill Navigation Switcher -->
+      <nav class="nav-pill-container">
+        <button class="nav-tab-btn active" data-tab="overview">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Overview
+        </button>
+        <button class="nav-tab-btn" data-tab="detect-damage">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          Detect Damage
+        </button>
+        <button class="nav-tab-btn" data-tab="video-intelligence">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+          Video Intelligence
+        </button>
+        <button class="nav-tab-btn" data-tab="incident-map">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+          Incident Map
+        </button>
+        <button class="nav-tab-btn" data-tab="priority-center">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+          Priority Center
+        </button>
+        <button class="nav-tab-btn" data-tab="model-lab">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          Model Lab
+        </button>
+        <button class="nav-tab-btn" data-tab="reports-history">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          Reports
+        </button>
+        <button class="nav-tab-btn" data-tab="methodology">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          Methodology
+        </button>
+      </nav>
+
+      <!-- Right Header Actions -->
+      <div class="header-actions">
+        <button class="demo-seed-btn" id="headerSeedDemoBtn" title="Seed realistic demo distress incidents into SQLite">
+          ✨ Load Demo Data
+        </button>
+
+        <button class="icon-btn" id="headerCopilotBtn" title="Open AI Inspector Copilot">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <div class="icon-badge">AI</div>
+        </button>
+
+        <button class="icon-btn" title="System Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <div class="icon-badge">3</div>
+        </button>
+
+        <div class="user-profile-chip" title="Active Municipal Inspector Profile">
+          <img class="user-profile-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=160&auto=format&fit=crop&q=80" alt="Avatar" />
+          <span class="user-profile-name">Caroline</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- =================================================================
+         TAB 1: OVERVIEW DASHBOARD (DIRECT RESQ.IO REPLICA)
+         ================================================================= -->
+    <main id="tab-overview" class="tab-content active">
+      
+      <!-- Welcome Header & Top KPIs -->
+      <section class="overview-top-section">
+        <div class="welcome-title-group">
+          <h1>Welcome in, <span class="accent-name">Caroline</span></h1>
+          
+          <!-- 4 Progress Pills -->
+          <div class="progress-pills-row">
+            <div class="progress-pill-item">
+              <span class="progress-pill-label">On-call shifts</span>
+              <span class="progress-pill-badge pink">20%</span>
+            </div>
+            <div class="progress-pill-item">
+              <span class="progress-pill-label">Status pages</span>
+              <span class="progress-pill-badge white">25%</span>
+            </div>
+            <div class="progress-pill-item">
+              <span class="progress-pill-label">Alerts used</span>
+              <span class="progress-pill-badge glass">40%</span>
+            </div>
+            <div class="progress-pill-item">
+              <span class="progress-pill-label">Reports</span>
+              <span class="progress-pill-badge striped">15%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top-Right 3 Large KPI Stats -->
+        <div class="kpi-counters-group">
+          <div class="kpi-counter-item">
+            <div class="kpi-value-row">
+              <span class="kpi-badge green">↗ +12%</span>
+              <span class="kpi-number" id="kpiCriticalVal">38</span>
+            </div>
+            <span class="kpi-label">Critical issues</span>
+          </div>
+
+          <div class="kpi-counter-item">
+            <div class="kpi-value-row">
+              <span class="kpi-badge green">↗ +24%</span>
+              <span class="kpi-number" id="kpiRoutesVal">26</span>
+            </div>
+            <span class="kpi-label">Days spent</span>
+          </div>
+
+          <div class="kpi-counter-item">
+            <div class="kpi-value-row">
+              <span class="kpi-badge orange">↘ -64%</span>
+              <span class="kpi-number" id="kpiTotalVal">103</span>
+            </div>
+            <span class="kpi-label">Overnight work</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Middle Row: Summary + Frequency Spline + Vulnerability 3D Card -->
+      <section class="dashboard-grid-row three-col">
+        
+        <!-- 1. Summary Card -->
+        <div class="glass-card">
+          <div class="card-header-flex">
+            <h2 class="card-title">Summary</h2>
+          </div>
+          
+          <div class="summary-status-list">
+            <div class="summary-status-item">
+              <div class="status-left">
+                <span class="status-dot blue"></span>
+                <span>Triage</span>
+              </div>
+              <span class="status-count-badge" id="summaryTriageCount">1234</span>
+            </div>
+
+            <div class="summary-status-item">
+              <div class="status-left">
+                <span class="status-dot green"></span>
+                <span>Fixing</span>
+              </div>
+              <span class="status-count-badge" id="summaryFixingCount">0</span>
+            </div>
+
+            <div class="summary-status-item">
+              <div class="status-left">
+                <span class="status-dot pink"></span>
+                <span>Investigating</span>
+              </div>
+              <span class="status-count-badge" id="summaryInvestigatingCount">24</span>
+            </div>
+          </div>
+
+          <div class="summary-footnote">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span id="summaryFootnoteText">Incidents frequency spiked in September, show higher system pressure</span>
+          </div>
+        </div>
+
+        <!-- 2. Incident Frequency Card (Dual Glowing Spline Lines) -->
+        <div class="glass-card">
+          <div class="card-header-flex">
+            <h2 class="card-title">Incident frequency</h2>
+            <div class="filter-pills-bar">
+              <button class="filter-pill-btn">12 months</button>
+              <button class="filter-pill-btn active">30 days</button>
+              <button class="filter-pill-btn">1 week</button>
+            </div>
+          </div>
+
+          <div class="spline-chart-container">
+            <svg id="incidentFrequencySvg" class="chart-svg" viewBox="0 0 640 220"></svg>
+            <div class="chart-tooltip-pin">
+              <strong>7 September</strong>
+              <span>318 Incidents</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Vulnerability Card (Layered 3D Electric Blue Card) -->
+        <div class="hazard-highlight-card">
+          <div>
+            <div class="hazard-card-top">
+              <h2 class="hazard-card-title" id="hazardTitle">Vulnerability</h2>
+              <div class="hazard-arrow-btn" onclick="switchTab('priority-center')" title="View in Priority Center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+              </div>
+            </div>
+            <p class="hazard-desc" id="hazardDesc">
+              Encryption ensures supplier data remains consistently secure from breaches
+            </p>
+          </div>
+
+          <div class="hazard-layered-pills">
+            <div class="layered-pill">
+              <span>Priority</span>
+              <span class="layered-badge" id="hazardPriorityBadge">3</span>
+            </div>
+            <div class="layered-pill">
+              <span>Thread</span>
+              <span class="layered-badge" id="hazardScoreBadge">1</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Bottom Row: Active Incidents + Statistics Bubble + AI Assistant -->
+      <section class="dashboard-grid-row bottom-row">
+
+        <!-- 4. Active Incidents Card -->
+        <div class="glass-card">
+          <div class="card-header-flex">
+            <h2 class="card-title">Active incidents</h2>
+            <div class="filter-pills-bar">
+              <button class="filter-pill-btn active">Newest ∨</button>
+              <button class="filter-pill-btn">All ∨</button>
+            </div>
+          </div>
+
+          <div class="active-incidents-list" id="activeIncidentsList">
+            <!-- Populated via JavaScript -->
+            <div class="active-incident-row">
+              <div class="incident-top-meta">
+                <span class="incident-status-tag white">Fixing</span>
+                <div class="incident-id-time">
+                  <span>INC-0000</span>
+                  <span>7h 7m</span>
+                </div>
+              </div>
+              <div class="incident-summary-text">
+                The system failed to send the summary update the message to all users
+              </div>
+              <div class="incident-inspector-profile">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80" alt="Tommy" />
+                <div class="inspector-text-group">
+                  <span class="inspector-name-str">Tommy White</span>
+                  <span class="inspector-email-str">tommywh@gmail.com</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="active-incident-row">
+              <div class="incident-top-meta">
+                <span class="incident-status-tag blue">Investigating</span>
+                <div class="incident-id-time">
+                  <span>INC-0000</span>
+                  <span>7h 7m</span>
+                </div>
+              </div>
+              <div class="incident-summary-text">
+                High error rate in user service and issues
+              </div>
+              <div class="incident-inspector-profile">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80" alt="Elizabeth" />
+                <div class="inspector-text-group">
+                  <span class="inspector-name-str">Elizabeth Belle</span>
+                  <span class="inspector-email-str">eliebelle@gmail.com</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Statistics Card (Overlapping Radial Bubbles) -->
+        <div class="glass-card">
+          <div class="card-header-flex">
+            <h2 class="card-title">Statistics</h2>
+            <div class="card-action-icon" onclick="switchTab('reports-history')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+          </div>
+
+          <div class="stats-bubble-wrapper">
+            <!-- Big Pink Bubble (64% Investigating / Potholes) -->
+            <div class="bubble-circle bubble-main">
+              <span class="bubble-pct" id="statPotholePct">64%</span>
+              <span class="bubble-lbl">Investigating</span>
+            </div>
+
+            <!-- Blue Bubble (26% Triage / Longitudinal) -->
+            <div class="bubble-circle bubble-secondary">
+              <span class="bubble-pct" id="statLongitudinalPct">26%</span>
+              <span class="bubble-lbl">Triage</span>
+            </div>
+
+            <!-- Striped Hatched Circle (15% Fixing / Alligator) -->
+            <div class="bubble-circle bubble-hatched">
+              <span class="bubble-pct" id="statAlligatorPct">15%</span>
+              <span class="bubble-lbl">Fixing</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. AI Assistant Card -->
+        <div class="glass-card copilot-assistant-card">
+          <div>
+            <div class="copilot-greeting">
+              <h3>Hi, Caroline 👋</h3>
+              <p>How can I help you?</p>
+            </div>
+
+            <!-- 2x2 Grid of Actions -->
+            <div class="copilot-actions-grid">
+              <button class="copilot-action-btn" data-query="Provide a triage analysis of active potholes">
+                <span class="btn-icon">📝</span>
+                <span>Text assistance</span>
+              </button>
+              <button class="copilot-action-btn" data-query="Auto generate municipal dispatch work order">
+                <span class="btn-icon">&lt;/&gt;</span>
+                <span>Automation</span>
+              </button>
+              <button class="copilot-action-btn" data-query="Schedule road inspection crew for NH-44">
+                <span class="btn-icon">📅</span>
+                <span>Scheduling</span>
+              </button>
+              <button class="copilot-action-btn" data-query="Explain deterministic priority scoring formula">
+                <span class="btn-icon">💬</span>
+                <span>Smart response</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Prompt Input -->
+          <div class="copilot-input-bar">
+            <input type="text" id="dashboardCopilotInput" placeholder="Ask something..." />
+            <button class="copilot-sparkle-btn" id="dashboardSparkleBtn" title="Send to RoadSense AI">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- =================================================================
+         TAB 2: DETECT DAMAGE (VISION STUDIO)
+         ================================================================= -->
+    <section id="tab-detect-damage" class="tab-content">
+      <div class="card-header-flex" style="margin-bottom: 24px;">
+        <div>
+          <h2 class="card-title" style="font-size: 1.6rem;">Pavement Distress Detection Studio</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">
+            Ultralytics YOLO inference accelerated via Apple Metal Performance Shaders (MPS)
+          </p>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <span class="prio-badge LOW" id="detectLatencyBadge">Latency: Ready</span>
+          <span class="prio-badge MODERATE" id="detectCountBadge">0 detected</span>
+          <span class="prio-badge HIGH" id="detectScoreBadge">Priority: Ready</span>
+        </div>
+      </div>
+
+      <div class="studio-grid">
+        <!-- Control Sidebar -->
+        <div class="glass-card">
+          <h3 style="font-size:1.1rem; color:#fff; margin-bottom:14px;">Input Evidence</h3>
+          
+          <div class="upload-dropzone" id="imageDropzone">
+            <span class="dropzone-icon">📷</span>
+            <div style="font-weight:600; color:#fff; margin-bottom:4px;">Drag & Drop Image Here</div>
+            <div style="font-size:0.75rem; color:var(--text-dim);">or click to browse JPG/PNG files</div>
+            <input type="file" id="imageFileInput" accept="image/jpeg,image/png" style="display:none;" />
+          </div>
+
+          <div style="margin-bottom:18px;">
+            <label style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px; display:block;">Or Pick Curated Demo Sample:</label>
+            <div class="demo-selector-list">
+              <button class="demo-chip-btn" data-demo="demo_pothole_critical.jpg">🕳️ Pothole (D40)</button>
+              <button class="demo-chip-btn" data-demo="demo_alligator_high.jpg">🐊 Alligator (D20)</button>
+              <button class="demo-chip-btn" data-demo="demo_transverse_moderate.jpg">➖ Transverse (D10)</button>
+              <button class="demo-chip-btn" data-demo="demo_longitudinal_low.jpg">📏 Longitudinal (D00)</button>
+            </div>
+          </div>
+
+          <div style="margin-bottom:16px;">
+            <label style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px; display:block;">Road Name / Location:</label>
+            <input type="text" id="detectRoadName" value="Expressway Corridor NH-44" style="width:100%; padding:10px 14px; background:#171925; border:1px solid var(--border-subtle); border-radius:10px; color:#fff; font-size:0.85rem;" />
+          </div>
+
+          <div style="margin-bottom:20px;">
+            <label style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px; display:block;">Road Classification:</label>
+            <select id="detectRoadClass" style="width:100%; padding:10px 14px; background:#171925; border:1px solid var(--border-subtle); border-radius:10px; color:#fff; font-size:0.85rem;">
+              <option value="PRIMARY_ARTERIAL">Primary Arterial (Highway)</option>
+              <option value="SECONDARY_COLLECTOR">Secondary Collector</option>
+              <option value="RESIDENTIAL_LOCAL">Residential / Local Road</option>
+            </select>
+          </div>
+
+          <button class="btn-primary-neon" id="runImageInferenceBtn">
+            ⚡ Run Apple MPS Inference
+          </button>
+
+          <div id="detectSuccessAlert" style="display:none; margin-top:14px; padding:10px; border-radius:8px; background:rgba(16,185,129,0.15); color:#34d399; font-size:0.8rem; border:1px solid rgba(16,185,129,0.3);">
+            ✓ Logged to SQLite Ledger
+          </div>
+        </div>
+
+        <!-- Visual Viewport & Coordinates Table -->
+        <div>
+          <div class="viewport-canvas-container">
+            <div id="viewportPlaceholder" style="text-align:center; color:var(--text-dim);">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+              <div>Upload or select an image to view interactive detection bounding boxes</div>
+            </div>
+            <img id="previewImg" style="display:none;" alt="Detection Preview" />
+          </div>
+
+          <div class="glass-card" style="margin-top:24px;">
+            <h3 class="card-title" style="margin-bottom:16px;">Detection Coordinates & Severity Table</h3>
+            <div class="bbox-table-wrapper">
+              <table class="styled-table">
+                <thead>
+                  <tr>
+                    <th>Class Code</th>
+                    <th>Defect Type</th>
+                    <th>Confidence</th>
+                    <th>Bounding Box [x1, y1, x2, y2]</th>
+                    <th>Severity Weight</th>
+                  </tr>
+                </thead>
+                <tbody id="detectionTableBody">
+                  <tr><td colspan="5" style="text-align:center; color:var(--text-dim); padding:24px;">No inference run yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         TAB 3: VIDEO INTELLIGENCE
+         ================================================================= -->
+    <section id="tab-video-intelligence" class="tab-content">
+      <div class="card-header-flex" style="margin-bottom: 24px;">
+        <div>
+          <h2 class="card-title" style="font-size: 1.6rem;">Dashcam Video Stream Intelligence</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">
+            Frame sampling (1-5 FPS) with temporal de-duplication to prevent incident work order inflation
+          </p>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <span class="prio-badge HIGH" id="videoDeduplicationRatio">94% Deduplicated</span>
+          <span class="prio-badge MODERATE" id="videoRawCount">54 raw detections</span>
+          <span class="prio-badge CRITICAL" id="videoIncidentsCount">3 unique defects</span>
+        </div>
+      </div>
+
+      <div class="video-intelligence-grid">
+        <!-- Main Player & Gallery -->
+        <div>
+          <div class="video-player-container">
+            <video id="dashcamVideoPlayer" controls poster="/demo-assets/demo_pothole_critical.jpg">
+              <source src="/demo-assets/dashcam_inspection_demo.mp4" type="video/mp4">
+            </video>
+          </div>
+
+          <!-- Progress Bar -->
+          <div id="videoProgressContainer" style="display:none; margin-top:16px; background:#1e293b; border-radius:9999px; height:8px; overflow:hidden;">
+            <div id="videoProgressBar" style="width:0%; height:100%; background:var(--accent-pink); transition:width 0.3s;"></div>
+          </div>
+
+          <!-- Deduplicated Keyframe Gallery -->
+          <div class="glass-card" style="margin-top:24px;">
+            <h3 class="card-title">Temporal De-duplicated Keyframe Instances (2.5s Cluster Window)</h3>
+            <div class="keyframes-gallery" id="videoKeyframesGallery">
+              <!-- Keyframes injected via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls Sidebar -->
+        <div class="glass-card">
+          <h3 style="font-size:1.15rem; color:#fff; margin-bottom:16px;">Stream Config</h3>
+
+          <div style="margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:8px;">
+              <label style="color:var(--text-muted);">Frame Sampling Rate:</label>
+              <span id="videoFpsBadge" style="font-weight:700; color:#fff;">2.0 FPS</span>
+            </div>
+            <input type="range" id="videoFpsSlider" min="1.0" max="5.0" step="0.5" value="2.0" style="width:100%;" />
+            <div style="font-size:0.72rem; color:var(--text-dim); margin-top:6px;">
+              Configurable 1 to 5 FPS prevents redundant compute on slow routes.
+            </div>
+          </div>
+
+          <div style="margin-bottom:24px;">
+            <button class="demo-chip-btn" id="loadDemoVideoBtn" style="width:100%; justify-content:center; padding:12px; margin-bottom:12px;">
+              📼 Load Calibrated Demo Dashcam Stream
+            </button>
+            <button class="btn-primary-neon" id="runVideoInspectionBtn">
+              ▶ Process Dashcam Stream
+            </button>
+          </div>
+
+          <div style="font-size:0.8rem; color:#cbd5e1; line-height:1.5; background:#171925; padding:14px; border-radius:10px; border:1px solid var(--border-subtle);">
+            <strong>De-duplication Logic:</strong> When a pothole appears across 15 consecutive frames in 2.5 seconds, RoadSense AI tracks the spatio-temporal centroid and logs exactly <em>one</em> municipal defect ticket with highest confidence evidence.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         TAB 4: GEOSPATIAL INCIDENT MAP
+         ================================================================= -->
+    <section id="tab-incident-map" class="tab-content">
+      <div class="card-header-flex" style="margin-bottom: 20px;">
+        <div>
+          <h2 class="card-title" style="font-size: 1.6rem;">Geospatial Incident Map</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">
+            Strict location provenance (EXIF_GPS, USER_ENTERED, EXPLICIT_SYNTHETIC_DEMO) with zero coordinate hallucination
+          </p>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="demo-chip-btn" onclick="initOrRefreshMap()">🔄 Refresh Map Data</button>
+          <a class="demo-chip-btn" href="/api/export/geojson" download="roadsense.geojson">🗺️ Export GeoJSON</a>
+        </div>
+      </div>
+
+      <div class="map-page-wrapper">
+        <div id="leafletMapContainer"></div>
+        <div class="map-sidebar-drawer" id="mapEvidenceDrawer">
+          <div style="text-align:center; color:var(--text-dim); padding-top:40px;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:10px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+            <div>Click any map beacon to inspect evidence, location provenance, and review status</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         TAB 5: PRIORITY CENTER
+         ================================================================= -->
+    <section id="tab-priority-center" class="tab-content">
+      <div class="card-header-flex" style="margin-bottom: 20px;">
+        <div>
+          <h2 class="card-title" style="font-size: 1.6rem;">Municipal Priority Triage & Dispatch Center</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">
+            Deterministic Priority Formula v1.0 combining damage severity, confidence, 25m repeat density, and road classification
+          </p>
+        </div>
+        <button class="btn-primary-neon" id="exportWorkOrdersBtn" style="width:auto;">
+          📥 Dispatch Work Orders (CSV)
+        </button>
+      </div>
+
+      <!-- Policy Sliders -->
+      <div class="policy-tuning-panel">
+        <div class="slider-group">
+          <div class="slider-label-row">
+            <span>Class Severity Weight (&alpha;):</span>
+            <span class="val" id="wSeverityVal">0.35</span>
+          </div>
+          <input type="range" id="wSeverity" min="0.10" max="0.60" step="0.05" value="0.35">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label-row">
+            <span>Detection Confidence (&beta;):</span>
+            <span class="val" id="wConfidenceVal">0.25</span>
+          </div>
+          <input type="range" id="wConfidence" min="0.10" max="0.50" step="0.05" value="0.25">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label-row">
+            <span>25m Spatial Density (&gamma;):</span>
+            <span class="val" id="wDensityVal">0.20</span>
+          </div>
+          <input type="range" id="wDensity" min="0.05" max="0.40" step="0.05" value="0.20">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label-row">
+            <span>Road Classification (&delta;):</span>
+            <span class="val" id="wRoadVal">0.20</span>
+          </div>
+          <input type="range" id="wRoad" min="0.05" max="0.40" step="0.05" value="0.20">
+        </div>
+      </div>
+
+      <!-- Triage Table -->
+      <div class="glass-card">
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>Incident UUID</th>
+              <th>Road Name</th>
+              <th>Classes</th>
+              <th>Confidence</th>
+              <th>Priority (Score / Level)</th>
+              <th>Review Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="priorityTableBody">
+            <tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-dim);">Loading priority triage ledger...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         TAB 6: MODEL LAB & BENCHMARK
+         ================================================================= -->
+    <section id="tab-model-lab" class="tab-content">
+      <div class="card-header-flex" style="margin-bottom: 24px;">
+        <div>
+          <h2 class="card-title" style="font-size: 1.6rem;">Model Benchmark & Transfer Degradation Studio</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">
+            Dual-domain evaluation: In-domain India held-out split vs Unseen-country zero-shot Czech Republic
+          </p>
+        </div>
+      </div>
+
+      <!-- 4 Stat Badges -->
+      <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; margin-bottom:24px;">
+        <div class="glass-card" style="padding:18px;">
+          <div style="font-size:0.75rem; color:var(--text-muted);">In-Domain India mAP@0.5</div>
+          <div style="font-size:1.8rem; font-weight:700; color:#fff; font-family:var(--font-heading);" id="indiaMapVal">0.584</div>
+        </div>
+        <div class="glass-card" style="padding:18px;">
+          <div style="font-size:0.75rem; color:var(--text-muted);">Zero-Shot Czech mAP@0.5</div>
+          <div style="font-size:1.8rem; font-weight:700; color:#38bdf8; font-family:var(--font-heading);" id="czechMapVal">0.438</div>
+        </div>
+        <div class="glass-card" style="padding:18px;">
+          <div style="font-size:0.75rem; color:var(--text-muted);">&Delta;mAP Domain Degradation</div>
+          <div style="font-size:1.8rem; font-weight:700; color:var(--accent-pink); font-family:var(--font-heading);" id="degradationVal">-25.0%</div>
+        </div>
+        <div class="glass-card" style="padding:18px;">
+          <div style="font-size:0.75rem; color:var(--text-muted);">Apple Silicon MPS Latency</div>
+          <div style="font-size:1.8rem; font-weight:700; color:#34d399; font-family:var(--font-heading);" id="mpsLatencyVal">10.9 ms</div>
+        </div>
+      </div>
+
+      <!-- Benchmark Plots -->
+      <div class="benchmarks-grid">
+        <div class="glass-card">
+          <h3 class="card-title" style="margin-bottom:14px;">Normalized Confusion Matrix</h3>
+          <img id="confusionMatrixImg" class="plot-img-card" src="/reports-img/confusion_matrix.png" alt="Confusion Matrix" />
+        </div>
+        <div class="glass-card">
+          <h3 class="card-title" style="margin-bottom:14px;">Precision-Recall (PR) Curve</h3>
+          <img id="prCurveImg" class="plot-img-card" src="/reports-img/pr_curve.png" alt="PR Curve" />
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         TAB 7: REPORTS & EXPORT
+         ================================================================= -->
+    <section id="tab-reports-history" class="tab-content">
+      <div class="card-header-flex" style="margin-bottom: 24px;">
+        <div>
+          <h2 class="card-title" style="font-size: 1.6rem;">Municipal Asset Ledger & History</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">
+            Full inspection history with RFC 7946 GeoJSON and CSV download capabilities
+          </p>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <a class="btn-primary-neon" href="/api/export/csv" download="roadsense.csv" style="width:auto; padding:10px 20px;">
+            📥 Download CSV
+          </a>
+          <a class="btn-primary-neon" href="/api/export/geojson" download="roadsense.geojson" style="width:auto; padding:10px 20px; background:linear-gradient(135deg, #2563eb, #1d4ed8);">
+            🗺️ Download GeoJSON
+          </a>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Incident UUID</th>
+              <th>Road Name</th>
+              <th>Classification</th>
+              <th>Classes</th>
+              <th>Priority</th>
+              <th>Provenance</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="reportsTableBody">
+            <tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-dim);">Loading asset records...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         TAB 8: METHODOLOGY & CITATIONS
+         ================================================================= -->
+    <section id="tab-methodology" class="tab-content">
+      <div class="card-header-flex" style="margin-bottom: 24px;">
+        <div>
+          <h2 class="card-title" style="font-size: 1.6rem;">Engineering Methodology & Ethics</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">
+            Scientific dataset attribution, taxonomy definitions, and safety notices
+          </p>
+        </div>
+      </div>
+
+      <div class="glass-card" style="margin-bottom:24px;">
+        <h3 class="card-title" style="margin-bottom:12px;">RDD2022 Academic Citation</h3>
+        <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.6; margin-bottom:14px;">
+          Arya, D., Maeda, H., Sekimoto, Y., Omata, H., Ghosh, S. K., Toshniwal, D., et al. (2022). <em>RDD2022 - The multi-national Road Damage Dataset released through CRDDC'2022</em>. figshare. Dataset. <a href="https://doi.org/10.6084/m9.figshare.21431547.v1" target="_blank" style="color:var(--accent-pink);">https://doi.org/10.6084/m9.figshare.21431547.v1</a>. Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
+        </p>
+        <div style="font-size:0.8rem; color:var(--text-muted);">
+          Audited 7,706 India and 2,829 Czech Republic Pascal-VOC XML annotations. Corrected typo <code>D0w0</code> &rarr; <code>D00</code> and remapped sub-classes (<code>D01</code> &rarr; <code>D00</code>, <code>D11</code> &rarr; <code>D10</code>). Non-damage markings (<code>D43</code>, <code>D44</code>, <code>D50</code>, <code>Repair</code>) filtered out.
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <h3 class="card-title" style="margin-bottom:12px;">Distress Classification Taxonomy</h3>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px;">
+          <div style="background:#171925; padding:14px; border-radius:10px; border:1px solid var(--border-subtle);">
+            <span class="prio-badge LOW">D00</span>
+            <div style="font-weight:600; color:#fff; margin-top:6px;">Longitudinal Crack</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Parallel to road traffic flow. Severity Weight: 0.40.</div>
+          </div>
+          <div style="background:#171925; padding:14px; border-radius:10px; border:1px solid var(--border-subtle);">
+            <span class="prio-badge MODERATE">D10</span>
+            <div style="font-weight:600; color:#fff; margin-top:6px;">Transverse Crack</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Perpendicular to traffic flow. Severity Weight: 0.60.</div>
+          </div>
+          <div style="background:#171925; padding:14px; border-radius:10px; border:1px solid var(--border-subtle);">
+            <span class="prio-badge HIGH">D20</span>
+            <div style="font-weight:600; color:#fff; margin-top:6px;">Alligator Crack</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Interconnected fatigue cracks. Severity Weight: 0.80.</div>
+          </div>
+          <div style="background:#171925; padding:14px; border-radius:10px; border:1px solid var(--border-subtle);">
+            <span class="prio-badge CRITICAL">D40</span>
+            <div style="font-weight:600; color:#fff; margin-top:6px;">Pothole</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Bowl-shaped surface depression. Severity Weight: 1.00.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Civil Safety Notice Footer -->
+    <footer class="safety-notice-footer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      <div>
+        <strong>CIVIL ENGINEERING ADVISORY:</strong> Model confidence is not physical distress severity. Priority scores are for inspection dispatch prioritization only. Human engineering verification is required before field crew remediation.
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- -----------------------------------------------------------------
+       AI Copilot Drawer / Modal
+       ----------------------------------------------------------------- -->
+  <div class="copilot-modal" id="copilotModal">
+    <div class="copilot-modal-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:1.2rem;">✨</span>
+        <strong style="color:#fff; font-size:0.95rem;">RoadSense Copilot</strong>
+      </div>
+      <button id="closeCopilotBtn" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;">✕</button>
+    </div>
+    <div class="copilot-chat-body" id="copilotChatBody">
+      <div class="chat-bubble assistant">
+        Hello Caroline! I can analyze the live SQLite database, query critical distress hotspots, or explain the deterministic priority formula. How can I help you?
+      </div>
+    </div>
+    <div style="padding:12px 16px; border-top:1px solid var(--border-subtle); display:flex; gap:8px;">
+      <input type="text" id="copilotInput" placeholder="Ask a question about road defects..." style="flex:1; background:#1e2335; border:1px solid var(--border-subtle); border-radius:9999px; padding:8px 14px; color:#fff; font-size:0.85rem; outline:none;" />
+      <button id="copilotSendBtn" class="copilot-sparkle-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Client Application Logic -->
+  <script src="/static/js/app.js"></script>
+
+</body>
+</html>

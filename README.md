@@ -21,7 +21,8 @@ Municipal road authorities spend millions annually on reactive road maintenance.
 3. **Deterministic Priority Ranking Engine v1.0:** Mathematical scoring formula ($S \in [0, 100]$) combining defect severity, detection confidence, 25-meter spatial repetition density, road classification, and human inspector modifiers.
 4. **Strict Location Provenance:** Enforcing zero coordinate fabrication (`EXIF_GPS`, `USER_ENTERED`, `EXPLICIT_SYNTHETIC_DEMO`, `UNKNOWN`).
 5. **Dual-Domain Benchmark:** Rigorous validation across in-domain held-out splits (India) and unseen-country domain shifts (Czech Republic).
-6. **Command-Center UI:** Modern Streamlit console with dark slate shell (`#0f172a`), crisp off-white analytical cards, and highway safety amber (`#f59e0b`) accents.
+6. **Next-Gen Obsidian Web Console (`http://localhost:8000`):** Ultra-premium executive dashboard inspired by the modern dark slate design system (`#0c0d14`), glowing hot pink (`#ff2a85`) and electric cobalt (`#3b82f6`) dual splines, pill status metrics, 3D tilted hazard cards, overlapping statistics bubbles, and interactive AI copilot.
+7. **Legacy Streamlit Console (`http://localhost:8501`):** Complete fallback multi-page analytics console for rapid data science iteration.
 
 ---
 
@@ -80,7 +81,15 @@ roadsense-ai/
 │   ├── OFFLINE_CHECKLIST.md    # 100% offline demonstration protocol
 │   ├── PITCH.md                # 3-Minute project pitch script
 │   └── VIVA_GUIDE.md           # Comprehensive viva examination preparation guide
-├── tests/                      # Automated Test Suite (26 pytest / AppTest tests)
+├── web/                        # Next-Gen Obsidian Web Console (FastAPI + HTML5/CSS/JS)
+│   ├── backend.py              # High-performance FastAPI REST API wrapping core services
+│   ├── run.py                  # Standalone Uvicorn runner daemon
+│   └── static/
+│       ├── index.html          # Resq.io dark obsidian single-page application shell
+│       ├── css/style.css       # Obsidian glassmorphic design system & glow animations
+│       └── js/app.js           # Reactive SPA controller, Leaflet dark map & AI copilot
+├── tests/                      # Automated Test Suite (33 pytest & AppTest tests)
+│   ├── test_web_api.py         # FastAPI endpoint tests (health, overview, triage, inference, exports)
 │   ├── test_all_pages.py       # Native Streamlit AppTest tests for all 7 console pages
 │   ├── test_app_foundation.py  # Shell initialization and theme tests
 │   ├── test_convert.py         # Format conversion and class remapping tests
@@ -130,25 +139,32 @@ database_status: READY
 writable_paths: {'data': True, 'evidence': True, 'models': True, 'reports': True}
 ```
 
-### Step 4.3: Launch the Road Intelligence Console
+### Step 4.3: Launch Options
+
+#### Option A: Next-Gen Obsidian Web Console (Recommended)
+```bash
+python web/run.py
+```
+Open your browser to `http://localhost:8000`. Experience the ultra-premium dark slate interface:
+- **Overview Dashboard:** Dynamic dual-spline incident frequency curves, 3D tilted hazard cards, statistics circular bubbles, and AI Copilot assistant.
+- **Detect Damage:** Interactive Vision Studio with drag-and-drop, real-time bounding box annotations, and normalized detection coordinates.
+- **Video Intelligence:** Continuous video stream processing, sampling rate scrubber (1–5 FPS), and temporal de-duplication.
+- **Incident Map:** Geospatial CartoDB Dark Matter map with interactive defect beacons and evidence drawer.
+- **Priority Center:** Deterministic triage queue (Priority Score v1.0 descending) with one-click verify/reject controls.
+- **Model Lab:** Hardware latency analysis on Apple MPS, in-domain vs. cross-domain benchmark matrices.
+- **Reports Ledger:** Searchable database inventory with instant CSV and RFC 7946 GeoJSON exports.
+
+#### Option B: Legacy Streamlit Analytics Shell
 ```bash
 streamlit run app/main.py
 ```
-Open your browser to `http://localhost:8501`. Navigate between pages using the sidebar:
-- `Overview Dashboard` — High-level network KPIs and system health diagnostics
-- `1_Detect_Damage` — Single/batch image analysis with bounding box coordinates
-- `2_Video_Intelligence` — Dashcam video stream analysis with temporal de-duplication
-- `3_Incident_Map` — Interactive Folium geospatial map with evidence drawer
-- `4_Priority_Center` — Deterministic triage queue and municipal work order export
-- `5_Model_Lab` — Hardware benchmarks, dual-domain metrics, and confusion matrix
-- `6_Reports_History` — Incident search, filter, CSV, and GeoJSON export
-- `7_About_Methodology` — Mathematical specifications, citations, and licenses
+Open your browser to `http://localhost:8501` for the multi-page Streamlit analytical console.
 
 ---
 
 ## 5. Running the Automated Test Suite
 
-RoadSense AI includes **26 automated tests** covering database CRUD, priority determinism, format conversion, hardware latency, dual-domain evaluation, and Streamlit `AppTest` page initialization:
+RoadSense AI includes **33 automated tests** covering database CRUD, priority determinism, format conversion, hardware latency, dual-domain evaluation, FastAPI REST endpoints, and Streamlit `AppTest` page initialization:
 
 ```bash
 pytest tests/ -v
