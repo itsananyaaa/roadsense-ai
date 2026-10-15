@@ -1,0 +1,63 @@
+# RoadSense AI - .gitignore
+# Strictly exclude data, weights, secrets, and caches
+
+# Model weights and checkpoints
+*.pt
+*.onnx
+*.engine
+*.tflite
+*.pb
+weights/
+runs/
+models/*.pt
+models/checkpoints/
+
+# Datasets and raw downloads
+data/
+datasets/
+RDD2022/
+*.zip
+*.tar.gz
+*.bin
+*.xml
+*.jpg
+*.jpeg
+*.png
+*.mp4
+*.avi
+*.mov
+/tmp/
+
+# Python & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+miniconda/
+
+# SQLite databases (local runtime state)
+*.db
+*.sqlite3
+instance/
+
+# IDE & OS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Streamlit runtime
+.streamlit/secrets.toml
+
+# Test & coverage caches
+.pytest_cache/
+.coverage
+htmlcov/
