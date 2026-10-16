@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 from typing import Dict, Any, List
 
+# pyrefly: ignore [missing-import]
 import cv2
 import numpy as np
 
