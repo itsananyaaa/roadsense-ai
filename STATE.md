@@ -1,8 +1,8 @@
 # RoadSense AI — System State
 
-**Last Updated:** 2026-10-16T14:15:00+04:00  
-**Current Phase:** Phase 10 (UI Refinements, Esri Dark Basemap, & Methodology Analytics Suite) COMPLETED  
-**Next Action:** Ready for live demo and user presentation.  
+**Last Updated:** 2026-10-16T18:15:00+04:00  
+**Current Phase:** Phase 11 (Fail-Closed Backend Authentication & Animated Character Crew Login) COMPLETED  
+**Next Action:** System ready for municipal deployment and live inspector evaluation.  
 **Open Blockers:** None.
 
 ---
@@ -62,5 +62,19 @@
     4. *Domain Shift & Sensitivity:* Cross-country zero-shot domain transfer metrics (58.4% Japan -> 42.1% Czech -> 12.6% India), 4 physical domain gap drivers, and deterministic priority formula sensitivity breakdown.
     5. *Econometric ROI & Pavement Lifecycle:* AASHTO Pavement Condition Index deterioration "cliff" curve SVG ($15/m² preservation vs $160/m² reconstruction), municipal cost multipliers (7.4x), and $3.4M/yr projected network savings.
   - [x] Verified in browser with full automated test suite (33/33 tests passing).
+- [x] **Phase 11: Fail-Closed Backend Authentication & Animated Character Crew Login** (Completed)
+  - [x] **Fail-Closed Backend Credentials:** Reads `ROADSENSE_ADMIN_USER` and `ROADSENSE_ADMIN_PASS` from environment (or root `.env` if present). Zero hardcoded credentials. Fails closed with a warning if variables are missing. Added `.env` to `.gitignore` and authored `.env.example`.
+  - [x] **Argon2id Startup Hashing & Constant-Time Verification:** Password hashed once at startup with `argon2-cffi` (`PasswordHasher(time_cost=2, memory_cost=65536, parallelism=2, hash_len=32, type=Type.ID)`). Constant-time verification using dummy hash execution on unknown usernames to protect against side-channel timing attacks. Passwords never logged.
+  - [x] **HMAC-SHA256 Ephemeral Session Security:** Secure `roadsense_session` cookie (`httpOnly=True`, `SameSite=Lax`, `Secure` when HTTPS) containing signed payload (`sub`, `iat`, `exp`, `nonce`) with 24h validity. Secret derived from `ROADSENSE_SESSION_SECRET` (ephemeral random 32-byte secret generated with warning if unset).
+  - [x] **Route Protection:** All 10 data endpoints (`/api/overview`, `/api/incidents`, `/api/incidents/{uuid}/review`, `/api/detect/image`, `/api/detect/video`, `/api/benchmark`, `/api/export/csv`, `/api/export/geojson`, `/api/demo/seed`, `/api/copilot`) protected with `require_authenticated_user` dependency. Public routes (`/`, `/api/health`, `/api/auth/login`, `/api/auth/me`, `/api/auth/logout`, and static assets) remain accessible without authentication.
+  - [x] **Per-IP Rate Limiting:** Sliding-window rate limiter (5 failed attempts per 60s per IP $\rightarrow$ HTTP 429). Reset on successful authentication. Distinct UI alert and character crew alarm state.
+  - [x] **Animated 4-Member Inline SVG Character Crew:**
+    1. *Tall Pylon (PYLON-01):* Expressive traffic cone that leans towards typing, blinks on idle, lowers eyelids/looks away during password entry ('shy' privacy mode), peeks when password is revealed, frowns on 401 error, and jumps with joy on 200 OK.
+    2. *Sensor Block (TELEMETRY-BOX):* Rugged box with dual camera lenses tracking input, antenna LED that pulses cyan/magenta/green/red depending on state, and belly LED bar.
+    3. *Dome Scanner (LiDAR-360):* Pedestal 360 LiDAR scanner with glass reflection arc, cyan scanner beam sweeping across the pavement, rotating away during password entry, and spinning rapidly during authentication.
+    4. *Pill Marker (STUD-REFLECT):* Low-profile cat's eye pavement reflector stud with cute cartoon eyes and bouncy charm.
+  - [x] **Responsive & Accessible Design:** Tested and verified across desktop (1440px), tablet (820px), and mobile (390px) viewports with zero horizontal overflow, touch-friendly tap targets, and `@media (prefers-reduced-motion: reduce)` support.
+  - [x] **Sign-Out Action:** Added `#headerLogoutBtn` to the dashboard header actions, cleanly clearing the server cookie and transitioning back to the login screen with zero page reload.
+  - [x] **Comprehensive Test Suite:** 41/41 pytest tests passing cleanly (`tests/test_auth.py`, `tests/test_web_api.py`, `tests/test_vertical_slice.py`, etc.). Full browser test suite verified with recordings and screenshots.
 
 

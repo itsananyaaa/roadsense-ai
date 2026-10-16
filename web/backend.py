@@ -5,27 +5,35 @@ video stream intelligence, geospatial incident querying, priority triage,
 and serving the next-generation Road Intelligence Console.
 """
 
+import base64
+from collections import defaultdict
 import csv
+import hashlib
+import hmac
 import io
 import json
 import os
+import secrets
 import shutil
 import sqlite3
 import sys
+import time
 import uuid
-import cv2
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+import argon2
+import cv2
 
 # Ensure project root is in sys.path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile, Query
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, Response, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -64,10 +72,157 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# -------------------------------------------------------------------------
+# Authentication, Argon2id Password Hashing, & Session Token Management
+# -------------------------------------------------------------------------
+SESSION_COOKIE_NAME = "roadsense_session"
+SESSION_DURATION_SECONDS = 86400  # 24 hours
+
+# Rate limiting: 5 failed attempts per minute per IP address
+FAILED_LOGIN_ATTEMPTS: Dict[str, List[float]] = defaultdict(list)
+RATE_LIMIT_WINDOW_SECONDS = 60.0
+RATE_LIMIT_MAX_ATTEMPTS = 5
+
+PASSWORD_HASHER = argon2.PasswordHasher()
+# Pre-computed dummy hash to prevent timing attacks on non-existent users
+DUMMY_HASH = PASSWORD_HASHER.hash("RoadSenseDummyConstantTimeSecret2026!")
+
+AUTH_ADMIN_USER: Optional[str] = None
+AUTH_ADMIN_PASS_HASH: Optional[str] = None
+SESSION_SECRET_BYTES: bytes = b""
+
+
+def init_auth_system():
+    """
+    Initializes credentials and session keys strictly from environment variables.
+    Fails closed if ROADSENSE_ADMIN_USER or ROADSENSE_ADMIN_PASS is missing.
+    """
+    global AUTH_ADMIN_USER, AUTH_ADMIN_PASS_HASH, SESSION_SECRET_BYTES
+
+    # Check for .env file in project root if variables are not in os.environ
+    env_file = PROJECT_ROOT / ".env"
+    if env_file.exists():
+        try:
+            with open(env_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        k, v = line.split("=", 1)
+                        k = k.strip()
+                        v = v.strip().strip("'\"")
+                        if k and k not in os.environ:
+                            os.environ[k] = v
+        except Exception as e:
+            logger.warning(f"Could not parse local .env file: {e}")
+
+    admin_user = os.environ.get("ROADSENSE_ADMIN_USER")
+    admin_pass = os.environ.get("ROADSENSE_ADMIN_PASS")
+    session_secret = os.environ.get("ROADSENSE_SESSION_SECRET")
+
+    if not session_secret:
+        session_secret = secrets.token_hex(32)
+        logger.warning(
+            "ROADSENSE_SESSION_SECRET not set in environment. "
+            "Generated an ephemeral 256-bit session secret. Active sessions will reset if server restarts. "
+            "Set ROADSENSE_SESSION_SECRET to persist sessions across restarts."
+        )
+    SESSION_SECRET_BYTES = session_secret.encode("utf-8")
+
+    if not admin_user or not admin_pass:
+        AUTH_ADMIN_USER = None
+        AUTH_ADMIN_PASS_HASH = None
+        logger.warning(
+            "\n" + "=" * 76 + "\n"
+            " SECURITY WARNING: ROADSENSE_ADMIN_USER or ROADSENSE_ADMIN_PASS IS NOT SET!\n"
+            " Authentication is FAILING CLOSED: All login attempts will be rejected (401).\n"
+            " To configure municipal administrator credentials, run:\n"
+            "   export ROADSENSE_ADMIN_USER='admin'\n"
+            "   export ROADSENSE_ADMIN_PASS='YourSecurePasswordHere'\n"
+            " Or create a .env file based on .env.example.\n"
+            + "=" * 76 + "\n"
+        )
+    else:
+        AUTH_ADMIN_USER = admin_user.strip()
+        AUTH_ADMIN_PASS_HASH = PASSWORD_HASHER.hash(admin_pass)
+        logger.info(f"RoadSense authentication configured for user '{AUTH_ADMIN_USER}' using Argon2id.")
+
+
+# Run auth initialization on module load
+init_auth_system()
+
+
+def create_session_token(username: str) -> str:
+    """Generate a tamper-evident, HMAC-SHA256 signed session token."""
+    now = int(time.time())
+    payload = {
+        "sub": username,
+        "iat": now,
+        "exp": now + SESSION_DURATION_SECONDS,
+        "nonce": secrets.token_hex(8),
+    }
+    payload_json = json.dumps(payload, separators=(",", ":"))
+    payload_b64 = base64.urlsafe_b64encode(payload_json.encode("utf-8")).decode("utf-8").rstrip("=")
+    signature = hmac.new(
+        SESSION_SECRET_BYTES,
+        payload_b64.encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+    return f"{payload_b64}.{signature}"
+
+
+def verify_session_token(token: Optional[str]) -> Optional[str]:
+    """Verify cryptographic signature and expiration of a session token."""
+    if not token or "." not in token:
+        return None
+    try:
+        payload_b64, signature = token.split(".", 1)
+        expected_sig = hmac.new(
+            SESSION_SECRET_BYTES,
+            payload_b64.encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+        if not hmac.compare_digest(signature, expected_sig):
+            return None
+        padding = "=" * ((4 - len(payload_b64) % 4) % 4)
+        raw_json = base64.urlsafe_b64decode(payload_b64 + padding).decode("utf-8")
+        data = json.loads(raw_json)
+        if time.time() > data.get("exp", 0):
+            return None
+        return data.get("sub")
+    except Exception:
+        return None
+
+
+def require_authenticated_user(request: Request) -> str:
+    """FastAPI route dependency enforcing valid authentication."""
+    token = request.cookies.get(SESSION_COOKIE_NAME)
+    username = verify_session_token(token)
+    if not username:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    return username
+
+
+def check_rate_limit(client_ip: str) -> bool:
+    """Enforce maximum 5 failed attempts per minute per IP address."""
+    now = time.time()
+    attempts = [t for t in FAILED_LOGIN_ATTEMPTS[client_ip] if now - t < RATE_LIMIT_WINDOW_SECONDS]
+    FAILED_LOGIN_ATTEMPTS[client_ip] = attempts
+    return len(attempts) < RATE_LIMIT_MAX_ATTEMPTS
+
+
+def record_failed_attempt(client_ip: str):
+    FAILED_LOGIN_ATTEMPTS[client_ip].append(time.time())
+
+
+def clear_failed_attempts(client_ip: str):
+    FAILED_LOGIN_ATTEMPTS.pop(client_ip, None)
+
+
 # Ensure database and required directories exist on startup
 @app.on_event("startup")
 def startup_event():
     init_db()
+    init_auth_system()
     for directory in [config.DATA_DIR, config.EVIDENCE_DIR, config.MODELS_DIR, config.REPORTS_DIR]:
         directory.mkdir(parents=True, exist_ok=True)
     # If database is empty, seed demo incidents
@@ -96,20 +251,104 @@ def get_root():
 
 
 # -------------------------------------------------------------------------
+# API Endpoints: Authentication
+# -------------------------------------------------------------------------
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+@app.post("/api/auth/login")
+def api_auth_login(request: Request, body: LoginRequest):
+    """
+    Authenticate municipal inspector against Argon2id hash.
+    Enforces fail-closed behavior, constant-time checks, and per-IP rate limiting.
+    """
+    client_ip = request.client.host if request.client else "127.0.0.1"
+
+    if not check_rate_limit(client_ip):
+        raise HTTPException(
+            status_code=429,
+            detail="Too many failed login attempts. Please wait 60 seconds before trying again."
+        )
+
+    # Fail closed if credentials are not configured in environment
+    if not AUTH_ADMIN_USER or not AUTH_ADMIN_PASS_HASH:
+        record_failed_attempt(client_ip)
+        logger.warning(f"Login attempt rejected from {client_ip}: ROADSENSE_ADMIN_USER or PASS not configured in environment (failing closed).")
+        raise HTTPException(status_code=401, detail="Incorrect username or password")
+
+    is_user_valid = hmac.compare_digest(body.username.strip(), AUTH_ADMIN_USER)
+    is_pass_valid = False
+
+    if is_user_valid:
+        try:
+            is_pass_valid = PASSWORD_HASHER.verify(AUTH_ADMIN_PASS_HASH, body.password)
+        except Exception:
+            is_pass_valid = False
+    else:
+        try:
+            PASSWORD_HASHER.verify(DUMMY_HASH, body.password)
+        except Exception:
+            pass
+
+    if not (is_user_valid and is_pass_valid):
+        record_failed_attempt(client_ip)
+        raise HTTPException(status_code=401, detail="Incorrect username or password")
+
+    # Clear rate limiter on success
+    clear_failed_attempts(client_ip)
+    token = create_session_token(AUTH_ADMIN_USER)
+    is_https = request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https"
+
+    response = JSONResponse(content={"authenticated": True, "username": AUTH_ADMIN_USER})
+    response.set_cookie(
+        key=SESSION_COOKIE_NAME,
+        value=token,
+        httponly=True,
+        samesite="lax",
+        secure=is_https,
+        max_age=SESSION_DURATION_SECONDS,
+        path="/",
+    )
+    logger.info(f"User '{AUTH_ADMIN_USER}' authenticated successfully from {client_ip}.")
+    return response
+
+
+@app.get("/api/auth/me")
+def api_auth_me(request: Request):
+    """Check current authentication session."""
+    token = request.cookies.get(SESSION_COOKIE_NAME)
+    username = verify_session_token(token)
+    if not username:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return {"authenticated": True, "username": username}
+
+
+@app.post("/api/auth/logout")
+def api_auth_logout():
+    """Clear municipal inspector authentication session cookie."""
+    response = JSONResponse(content={"authenticated": False, "message": "Logged out successfully"})
+    response.delete_cookie(key=SESSION_COOKIE_NAME, path="/")
+    return response
+
+
+# -------------------------------------------------------------------------
 # API Endpoints: Health & Overview Dashboard
 # -------------------------------------------------------------------------
 @app.get("/api/health")
 def api_health():
-    """Retrieve system diagnostics, hardware acceleration, and model pedigree."""
+    """Retrieve system diagnostics, hardware acceleration, and model pedigree (Public)."""
     report = run_health_check()
     return report.to_dict()
 
 
 @app.get("/api/overview")
-def api_overview():
+def api_overview(user: str = Depends(require_authenticated_user)):
     """
     Retrieve aggregated data for the Executive Dashboard matching the reference design:
     KPI cards, progress bars, frequency trendline, high-risk vulnerability, active incidents, and class stats.
+    Protected route: requires valid session.
     """
     stats = get_summary_statistics()
     all_incidents = get_all_incidents()
@@ -229,8 +468,9 @@ def api_get_incidents(
     priority: Optional[str] = None,
     review_status: Optional[str] = None,
     search: Optional[str] = None,
+    user: str = Depends(require_authenticated_user),
 ):
-    """Retrieve filtered incidents from SQLite database."""
+    """Retrieve filtered incidents from SQLite database (Protected)."""
     incidents = get_all_incidents()
     filtered = incidents
 
@@ -266,8 +506,12 @@ class ReviewUpdate(BaseModel):
 
 
 @app.patch("/api/incidents/{incident_uuid}/review")
-def api_update_review(incident_uuid: str, update: ReviewUpdate):
-    """Update inspector review status (VERIFIED, REJECTED, PENDING)."""
+def api_update_review(
+    incident_uuid: str,
+    update: ReviewUpdate,
+    user: str = Depends(require_authenticated_user),
+):
+    """Update inspector review status (VERIFIED, REJECTED, PENDING) (Protected)."""
     if update.review_status not in config.REVIEW_STATUSES:
         raise HTTPException(status_code=400, detail=f"Invalid review status: {update.review_status}")
 
@@ -292,6 +536,7 @@ async def api_detect_image(
     latitude: Optional[float] = Form(12.9716),
     longitude: Optional[float] = Form(77.5946),
     save_to_db: Optional[bool] = Form(True),
+    user: str = Depends(require_authenticated_user),
 ):
     """
     Run real YOLO inference on Apple Silicon MPS hardware on an uploaded or demo image.
@@ -431,6 +676,7 @@ async def api_detect_video(
     road_name: Optional[str] = Form("Highway NH-44 Inspection Route"),
     road_classification: Optional[str] = Form("PRIMARY_ARTERIAL"),
     save_incidents: Optional[bool] = Form(True),
+    user: str = Depends(require_authenticated_user),
 ):
     """
     Process video stream at configurable FPS (1-5), execute real-time YOLO inference,
@@ -525,7 +771,7 @@ async def api_detect_video(
 # API Endpoints: Model Lab & Benchmark Studio
 # -------------------------------------------------------------------------
 @app.get("/api/benchmark")
-def api_benchmark():
+def api_benchmark(user: str = Depends(require_authenticated_user)):
     """Retrieve physical evaluation and benchmark artifacts from reports directory."""
     eval_benchmark_path = config.REPORTS_DIR / "eval_benchmark.json"
     eval_india_path = config.REPORTS_DIR / "eval_india.json"
@@ -558,7 +804,7 @@ def api_benchmark():
 # API Endpoints: Data Export (CSV & RFC 7946 GeoJSON)
 # -------------------------------------------------------------------------
 @app.get("/api/export/csv")
-def api_export_csv():
+def api_export_csv(user: str = Depends(require_authenticated_user)):
     """Stream complete municipal incident inventory as CSV."""
     incidents = get_all_incidents()
     output = io.StringIO()
@@ -606,7 +852,7 @@ def api_export_csv():
 
 
 @app.get("/api/export/geojson")
-def api_export_geojson():
+def api_export_geojson(user: str = Depends(require_authenticated_user)):
     """Stream verified geospatial defects as RFC 7946 GeoJSON FeatureCollection."""
     incidents = get_all_incidents()
     features = []
@@ -648,7 +894,7 @@ def api_export_geojson():
 # API Endpoints: Database Management & Seed
 # -------------------------------------------------------------------------
 @app.post("/api/demo/seed")
-def api_seed_demo():
+def api_seed_demo(user: str = Depends(require_authenticated_user)):
     """Seed curated demo dataset into SQLite database."""
     init_db()
     count = seed_demo_database()
@@ -663,7 +909,7 @@ class CopilotQuery(BaseModel):
 
 
 @app.post("/api/copilot")
-def api_copilot(payload: CopilotQuery):
+def api_copilot(payload: CopilotQuery, user: str = Depends(require_authenticated_user)):
     """
     Intelligent Road Inspector Copilot answering natural language queries
     by querying the live SQLite database and returning instant actionable analysis.

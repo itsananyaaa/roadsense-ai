@@ -11,15 +11,24 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 import pytest
+import os
 from fastapi.testclient import TestClient
 
-from web.backend import app
+os.environ["ROADSENSE_ADMIN_USER"] = "testadmin"
+os.environ["ROADSENSE_ADMIN_PASS"] = "TestPassword2026!"
+os.environ["ROADSENSE_SESSION_SECRET"] = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+
+from web.backend import app, create_session_token, init_auth_system
+init_auth_system()
 
 
 @pytest.fixture
 def client():
-    """Create test client for RoadSense web API."""
-    return TestClient(app)
+    """Create authenticated test client for RoadSense web API."""
+    c = TestClient(app)
+    token = create_session_token("testadmin")
+    c.cookies.set("roadsense_session", token)
+    return c
 
 
 def test_api_health(client):

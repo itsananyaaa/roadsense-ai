@@ -25,9 +25,66 @@ const state = {
 };
 
 // -------------------------------------------------------------------------
-// Initialization on DOM Load
+// Authentication State & Session Gate
 // -------------------------------------------------------------------------
+let dashboardInitialized = false;
+
 document.addEventListener('DOMContentLoaded', () => {
+  initAuthAndApp();
+});
+
+async function initAuthAndApp() {
+  setupLoginExperience();
+  setupHeaderLogout();
+  await checkAuthSession();
+}
+
+/**
+ * Checks existing session via GET /api/auth/me
+ */
+async function checkAuthSession() {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/me`, {
+      method: 'GET',
+      credentials: 'same-origin',
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      revealDashboard(data.username);
+    } else {
+      showLoginScreen();
+    }
+  } catch (err) {
+    console.warn('Session check network failure, falling back to login screen:', err);
+    showLoginScreen();
+  }
+}
+
+function revealDashboard(username) {
+  document.body.classList.remove('auth-required');
+  document.body.classList.add('authenticated');
+  
+  const headerUser = document.getElementById('headerUserName');
+  if (headerUser && username) {
+    headerUser.textContent = username;
+  }
+  
+  initDashboard();
+}
+
+function showLoginScreen() {
+  document.body.classList.add('auth-required');
+  document.body.classList.remove('authenticated');
+  const loginScreen = document.getElementById('loginScreen');
+  if (loginScreen) {
+    loginScreen.classList.remove('fade-out');
+  }
+}
+
+function initDashboard() {
+  if (dashboardInitialized) return;
+  dashboardInitialized = true;
   setupNavigationTabs();
   setupDemoSeedButton();
   setupCopilot();
@@ -36,7 +93,332 @@ document.addEventListener('DOMContentLoaded', () => {
   setupVideoIntelligenceStudio();
   setupPriorityCenter();
   loadReportsInventory();
-});
+}
+
+// -------------------------------------------------------------------------
+// Animated Inline SVG Character Crew & Form Controller
+// -------------------------------------------------------------------------
+function setupLoginExperience() {
+  const loginForm = document.getElementById('loginForm');
+  const loginCard = document.getElementById('loginCard');
+  const usernameInput = document.getElementById('loginUsername');
+  const passwordInput = document.getElementById('loginPassword');
+  const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+  const loginAlert = document.getElementById('loginAlert');
+  const loginAlertText = document.getElementById('loginAlertText');
+  const loginAlertIcon = document.getElementById('loginAlertIcon');
+  const submitBtn = document.getElementById('loginSubmitBtn');
+  const btnSpinner = document.getElementById('loginBtnSpinner');
+  const btnText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
+  const btnArrow = submitBtn ? submitBtn.querySelector('.btn-arrow-icon') : null;
+  const crewStage = document.getElementById('crewStage');
+
+  const pylonMouth = document.getElementById('pylonMouth');
+  const pylonLids = [document.getElementById('pylonLidLeft'), document.getElementById('pylonLidRight')].filter(Boolean);
+
+  if (!loginForm || !crewStage) return;
+
+  // Helper: set crew gaze coordinate variables on crewStage
+  function setCrewGaze(x, y) {
+    crewStage.style.setProperty('--gaze-x', `${x}px`);
+    crewStage.style.setProperty('--gaze-y', `${y}px`);
+  }
+
+  // Helper: set high-level crew mood/emotional state
+  function setCrewState(stateName) {
+    const states = ['state-shy', 'state-peeking', 'state-submitting', 'state-error', 'state-rate-limited', 'state-success'];
+    states.forEach(s => crewStage.classList.remove(s));
+    
+    if (stateName) {
+      crewStage.classList.add(`state-${stateName}`);
+    }
+
+    // Morph pylon mouth expression
+    if (pylonMouth) {
+      if (stateName === 'error') {
+        pylonMouth.setAttribute('d', 'M 223 234 Q 230 226 237 234'); // frown
+      } else if (stateName === 'rate-limited') {
+        pylonMouth.setAttribute('d', 'M 226 230 A 4 4 0 1 0 234 230 A 4 4 0 1 0 226 230'); // round surprised "O"
+      } else if (stateName === 'success') {
+        pylonMouth.setAttribute('d', 'M 221 224 Q 230 236 239 224'); // broad beam smile
+      } else if (stateName === 'shy') {
+        pylonMouth.setAttribute('d', 'M 225 228 L 235 228'); // modest straight line
+      } else {
+        pylonMouth.setAttribute('d', 'M 223 227 Q 230 234 237 227'); // pleasant warm curve
+      }
+    }
+  }
+
+  // Periodic subtle idle blink for Pylon eyes
+  let blinkTimer = setInterval(() => {
+    if (crewStage.classList.contains('state-shy')) return;
+    pylonLids.forEach(lid => {
+      lid.style.transform = 'scaleY(1)';
+      lid.style.opacity = '1';
+    });
+    setTimeout(() => {
+      pylonLids.forEach(lid => {
+        lid.style.transform = 'scaleY(0)';
+        lid.style.opacity = '0';
+      });
+    }, 120);
+  }, 4200);
+
+  // --- Username Field Focus & Typing Reactivity ---
+  if (usernameInput) {
+    usernameInput.addEventListener('focus', () => {
+      if (!crewStage.classList.contains('state-submitting')) {
+        setCrewState(null);
+        const len = usernameInput.value.length;
+        const gazeX = Math.min(2.5 + len * 0.22, 6.5);
+        setCrewGaze(gazeX, 0);
+      }
+    });
+
+    usernameInput.addEventListener('input', () => {
+      if (crewStage.classList.contains('state-error')) {
+        setCrewState(null);
+        hideAlert();
+      }
+      const len = usernameInput.value.length;
+      // Clamped horizontal pupil tracking mapped to typing depth
+      const gazeX = Math.min(2.5 + len * 0.22, 7.5);
+      const gazeY = (len % 2 === 0) ? 0.4 : -0.2;
+      setCrewGaze(gazeX, gazeY);
+    });
+
+    usernameInput.addEventListener('blur', (e) => {
+      // If moving focus to password, let password focus handler take over
+      setTimeout(() => {
+        if (document.activeElement !== passwordInput && !crewStage.classList.contains('state-submitting') && !crewStage.classList.contains('state-error')) {
+          setCrewGaze(0, 0);
+        }
+      }, 50);
+    });
+  }
+
+  // --- Password Field Focus & Polite Privacy Reactivity ---
+  if (passwordInput) {
+    passwordInput.addEventListener('focus', () => {
+      if (crewStage.classList.contains('state-submitting')) return;
+      if (passwordInput.type === 'password') {
+        // Polite privacy mode: crew looks away respectfully
+        setCrewState('shy');
+      } else {
+        // Password is visible: crew peeks curiously
+        setCrewState('peeking');
+      }
+    });
+
+    passwordInput.addEventListener('input', () => {
+      if (crewStage.classList.contains('state-error')) {
+        setCrewState(null);
+        hideAlert();
+      }
+      if (passwordInput.type === 'text') {
+        setCrewState('peeking');
+      } else {
+        setCrewState('shy');
+      }
+    });
+
+    passwordInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (document.activeElement !== togglePasswordBtn && !crewStage.classList.contains('state-submitting') && !crewStage.classList.contains('state-error') && !crewStage.classList.contains('state-rate-limited')) {
+          setCrewState(null);
+          setCrewGaze(0, 0);
+        }
+      }, 60);
+    });
+  }
+
+  // --- Show/Hide Password Eye Toggle ---
+  if (togglePasswordBtn && passwordInput) {
+    togglePasswordBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+
+      const eyeOpen = togglePasswordBtn.querySelector('.eye-open-icon');
+      const eyeClosed = togglePasswordBtn.querySelector('.eye-closed-icon');
+
+      if (isPassword) {
+        // Now showing password text
+        if (eyeOpen) eyeOpen.style.display = 'none';
+        if (eyeClosed) eyeClosed.style.display = 'block';
+        togglePasswordBtn.setAttribute('aria-label', 'Hide password');
+        setCrewState('peeking');
+      } else {
+        // Password masked again
+        if (eyeOpen) eyeOpen.style.display = 'block';
+        if (eyeClosed) eyeClosed.style.display = 'none';
+        togglePasswordBtn.setAttribute('aria-label', 'Show password');
+        if (document.activeElement === passwordInput) {
+          setCrewState('shy');
+        } else {
+          setCrewState(null);
+          setCrewGaze(0, 0);
+        }
+      }
+      passwordInput.focus();
+    });
+  }
+
+  // --- Form Submission Handler ---
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const username = (usernameInput ? usernameInput.value : '').trim();
+    const password = (passwordInput ? passwordInput.value : '');
+
+    if (!username || !password) {
+      showAlert('Please enter both inspector username and passcode.', 'warning');
+      wobbleCard();
+      setCrewState('error');
+      return;
+    }
+
+    hideAlert();
+    setCrewState('submitting');
+    setLoadingState(true);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (res.status === 200) {
+        const data = await res.json();
+        setCrewState('success');
+        
+        if (btnText) btnText.textContent = '✓ Access Granted';
+        if (submitBtn) {
+          submitBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+          submitBtn.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        }
+
+        // Celebrate briefly then smoothly reveal authenticated console
+        setTimeout(() => {
+          const loginScreen = document.getElementById('loginScreen');
+          if (loginScreen) {
+            loginScreen.classList.add('fade-out');
+          }
+          setTimeout(() => {
+            revealDashboard(data.username || username);
+            setLoadingState(false);
+          }, 360);
+        }, 550);
+
+      } else if (res.status === 401) {
+        const errData = await res.json().catch(() => ({}));
+        const msg = errData.detail || 'Incorrect username or password.';
+        setCrewState('error');
+        showAlert(msg, 'error');
+        wobbleCard();
+        setLoadingState(false);
+        if (passwordInput) {
+          passwordInput.select();
+        }
+      } else if (res.status === 429) {
+        const errData = await res.json().catch(() => ({}));
+        const msg = errData.detail || 'Too many failed attempts. Please wait 60 seconds.';
+        setCrewState('rate-limited');
+        showAlert(msg, 'warning');
+        wobbleCard();
+        setLoadingState(false);
+      } else {
+        setCrewState('error');
+        showAlert('Unable to connect to authentication backend. Please try again.', 'error');
+        wobbleCard();
+        setLoadingState(false);
+      }
+    } catch (err) {
+      console.error('Login network error:', err);
+      setCrewState('error');
+      showAlert('Network error: Unable to reach RoadSense API server.', 'error');
+      wobbleCard();
+      setLoadingState(false);
+    }
+  });
+
+  // UI state helper functions
+  function setLoadingState(loading) {
+    if (submitBtn) submitBtn.disabled = loading;
+    if (usernameInput) usernameInput.disabled = loading;
+    if (passwordInput) passwordInput.disabled = loading;
+    if (btnSpinner) btnSpinner.style.display = loading ? 'inline-block' : 'none';
+    if (btnArrow) btnArrow.style.display = loading ? 'none' : 'inline-block';
+    if (btnText && loading) btnText.textContent = 'Verifying Credentials...';
+    if (btnText && !loading && !crewStage.classList.contains('state-success')) {
+      btnText.textContent = 'Authenticate & Launch Console';
+      if (submitBtn) {
+        submitBtn.style.background = '';
+        submitBtn.style.borderColor = '';
+      }
+    }
+  }
+
+  function showAlert(message, type = 'error') {
+    if (!loginAlert || !loginAlertText) return;
+    loginAlert.style.display = 'flex';
+    loginAlert.className = `login-alert alert-${type}`;
+    loginAlertText.textContent = message;
+    if (loginAlertIcon) {
+      loginAlertIcon.textContent = type === 'warning' ? '⏳' : '⚠️';
+    }
+  }
+
+  function hideAlert() {
+    if (loginAlert) loginAlert.style.display = 'none';
+  }
+
+  function wobbleCard() {
+    if (!loginCard) return;
+    loginCard.classList.remove('card-wobble');
+    // Force reflow
+    void loginCard.offsetWidth;
+    loginCard.classList.add('card-wobble');
+    setTimeout(() => {
+      loginCard.classList.remove('card-wobble');
+    }, 500);
+  }
+}
+
+// -------------------------------------------------------------------------
+// Top Header Sign Out Action
+// -------------------------------------------------------------------------
+function setupHeaderLogout() {
+  const logoutBtn = document.getElementById('headerLogoutBtn');
+  if (!logoutBtn) return;
+
+  logoutBtn.addEventListener('click', async () => {
+    logoutBtn.disabled = true;
+    try {
+      await fetch(`${API_BASE}/api/auth/logout`, {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+    } catch (err) {
+      console.warn('Logout network notice:', err);
+    } finally {
+      logoutBtn.disabled = false;
+      const passwordInput = document.getElementById('loginPassword');
+      if (passwordInput) passwordInput.value = '';
+      showLoginScreen();
+      const crewStage = document.getElementById('crewStage');
+      if (crewStage) {
+        crewStage.className = 'crew-stage';
+        crewStage.style.setProperty('--gaze-x', '0px');
+        crewStage.style.setProperty('--gaze-y', '0px');
+      }
+    }
+  });
+}
 
 // -------------------------------------------------------------------------
 // Navigation & Tab Switching

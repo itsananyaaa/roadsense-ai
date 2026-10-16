@@ -63,3 +63,8 @@ instance/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Environment and Secrets
+.env
+.env.*
+!.env.example

@@ -430,3 +430,31 @@ Executed against the raw Pascal-VOC XML annotations streamed via HTTP Range requ
 - **Automated Test Suite Status:**
   - `pytest tests/ -v`: 33/33 passed in 4.65s.
 
+---
+
+## 13. Phase 11 Fail-Closed Authentication & Character Crew Verification
+- **Date & Time:** 2026-10-16T18:15:00+04:00
+- **Implementation Scope:**
+  - `web/backend.py`: Fail-closed credentials via `ROADSENSE_ADMIN_USER` & `ROADSENSE_ADMIN_PASS`, Argon2id password hashing (`PasswordHasher`), constant-time password verification with dummy hash timing attack protection, HMAC-SHA256 session tokens with `roadsense_session` httpOnly SameSite=Lax cookie, per-IP rate limiting (5 attempts/min $\rightarrow$ 429), and `require_authenticated_user` dependency protecting all 10 data endpoints while keeping health and static assets public.
+  - `web/static/index.html`: Responsive asymmetric split view with brand stage, 4-member inline SVG Character Crew (Dome LiDAR, Tall Pylon, Sensor Box, Pill Marker Stud), glassmorphism card, and header sign-out action.
+  - `web/static/css/style.css`: Design-system aligned obsidian/neon styling, CSS variable gaze tracking hooks, blinking and idle bobbing keyframes, reactive mood classes, and `@media (prefers-reduced-motion: reduce)`.
+  - `web/static/js/app.js`: Session gating via `GET /api/auth/me`, real-time pupil tracking mapped to typing length, polite privacy mode on password focus, peeking mode on password reveal, 401 error feedback, 429 rate limit alarm, celebratory success animation, and header logout handler.
+  - Security artifacts: Added `.env` to `.gitignore` and authored `.env.example` with placeholder credentials.
+- **Automated Test Results:**
+  - Added `tests/test_auth.py` and updated `tests/test_web_api.py`.
+  - Command: `/opt/miniconda3/envs/ml/bin/pytest tests/ -v`
+  - Output: `41 passed, 3 warnings in 4.78s` (100% pass rate).
+- **Live Browser Visual Verification:**
+  - Initial unauthenticated view: `login_initial_view_1792152837344.png`
+  - Form validation on empty submit: `login_empty_validation_1792153237850.png`
+  - Password polite privacy mode: `login_password_shy_mode_1792153461263.png`
+  - Show password eye toggle & peeking reaction: `login_password_revealed_peek_1792153973989.png`
+  - 401 error state: `login_error_401_1792154627695.png`
+  - Authenticated console reveal: `dashboard_authenticated_view_1792157796789.png`
+  - Post-logout view: `login_post_logout_view_1792158647228.png`
+  - Tablet responsive view (820px): `login_tablet_responsive_1792158666030.png`
+  - Mobile responsive view (390px): `login_mobile_responsive_1792158713749.png`
+  - Refined mobile view: `login_mobile_refined_1792159813097.png`
+  - Video recording: `login_success_and_responsive_1792157600261.webp`
+
+
