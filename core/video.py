@@ -24,6 +24,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+# pyrefly: ignore [missing-import]
 import cv2
 import numpy as np
 
@@ -271,17 +272,40 @@ class VideoProcessor:
         )
 
 
+def transcode_to_h264(input_path: Path, output_path: Path) -> bool:
+    """
+    Transcode video to browser-playable H.264 (avc1) MP4 with yuv420p pixel format
+    and faststart moov atom header placement using imageio-ffmpeg.
+    """
+    try:
+        import subprocess
+        import imageio_ffmpeg
+        ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+        cmd = [
+            ffmpeg_exe, "-y", "-i", str(input_path),
+            "-c:v", "libx264", "-pix_fmt", "yuv420p",
+            "-preset", "fast", "-movflags", "+faststart",
+            str(output_path),
+        ]
+        subprocess.run(cmd, capture_output=True, text=True, check=True)
+        return True
+    except Exception as e:
+        logger.warning(f"FFmpeg H.264 transcode failed: {e}")
+        return False
+
+
 def generate_demo_dashcam_video(output_path: Path, duration_sec: int = 5, fps: int = 15) -> Path:
     """
     Generates a realistic animated dashcam demonstration MP4 video for offline expo testing.
-    Simulates forward vehicle motion over pavement with calibrated synthetic potholes and cracks appearing in view.
+    Produces a browser-playable H.264 (avc1) MP4 with yuv420p and faststart.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     w, h = 640, 480
     total_frames = duration_sec * fps
 
+    raw_temp_path = output_path.parent / f"_raw_temp_{output_path.name}"
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    out = cv2.VideoWriter(str(output_path), fourcc, fps, (w, h))
+    out = cv2.VideoWriter(str(raw_temp_path), fourcc, fps, (w, h))
 
     for frame_idx in range(total_frames):
         t = frame_idx / fps
@@ -326,5 +350,22 @@ def generate_demo_dashcam_video(output_path: Path, duration_sec: int = 5, fps: i
         out.write(frame)
 
     out.release()
-    logger.info(f"Generated demo dashcam video: {output_path} ({total_frames} frames, {duration_sec}s)")
+
+    # Transcode raw OpenCV output to browser-compliant H.264
+    success = transcode_to_h264(raw_temp_path, output_path)
+    if success:
+        # Also preserve original mp4v master
+        master_copy = output_path.parent / f"{output_path.stem}_orig_mp4v.mp4"
+        if not master_copy.exists():
+            import shutil
+            shutil.copy2(str(raw_temp_path), str(master_copy))
+        if raw_temp_path.exists():
+            raw_temp_path.unlink()
+        logger.info(f"Generated browser-playable H.264 demo dashcam video: {output_path} ({total_frames} frames, {duration_sec}s)")
+    else:
+        # Fallback to raw output if ffmpeg is unavailable
+        if raw_temp_path.exists():
+            raw_temp_path.rename(output_path)
+        logger.warning(f"Generated un-transcoded demo video at {output_path}")
+
     return output_path
