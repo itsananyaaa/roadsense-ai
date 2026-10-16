@@ -72,6 +72,10 @@ function switchTab(tabId) {
     }
   });
 
+  if (tabId === 'incident-map' && state.map) {
+    setTimeout(() => state.map.invalidateSize(), 150);
+  }
+
   // Trigger tab-specific initialization
   if (tabId === 'overview') {
     loadOverviewDashboard();
@@ -85,6 +89,26 @@ function switchTab(tabId) {
     loadReportsInventory();
   }
 }
+
+function switchMethodSubtab(subtabId) {
+  document.querySelectorAll('.method-subnav-btn').forEach(btn => {
+    const attr = btn.getAttribute('onclick');
+    if (attr && attr.includes(subtabId)) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  document.querySelectorAll('.method-subtab-pane').forEach(pane => {
+    if (pane.id === `subtab-${subtabId}`) {
+      pane.classList.add('active');
+    } else {
+      pane.classList.remove('active');
+    }
+  });
+}
+window.switchMethodSubtab = switchMethodSubtab;
 
 // -------------------------------------------------------------------------
 // 1. Overview Dashboard (Matching the Resq.io Reference Mockup)
@@ -496,11 +520,35 @@ async function initOrRefreshMap() {
     const mapEl = document.getElementById('leafletMapContainer');
     if (!mapEl) return;
 
-    state.map = L.map('leafletMapContainer').setView([12.9716, 77.5946], 12);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-      maxZoom: 19,
+    state.map = L.map('leafletMapContainer', {
+      preferCanvas: true,
+      zoomControl: true
+    }).setView([12.9716, 77.5946], 12);
+
+    // 1. Esri World Dark Gray Base (Clean, high-performance, 100% free, no API key required)
+    const esriDark = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+      maxZoom: 16,
     }).addTo(state.map);
+
+    // 2. Reference label overlay for road names and municipal boundaries
+    const esriRef = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+      attribution: '',
+      maxZoom: 16,
+    }).addTo(state.map);
+
+    // 3. OpenStreetMap standard layer (alternative option)
+    const osmStandard = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    });
+
+    // Layer switcher
+    const baseLayers = {
+      "Obsidian Dark Canvas": L.layerGroup([esriDark, esriRef]),
+      "OpenStreetMap Standard": osmStandard
+    };
+    L.control.layers(baseLayers, null, { position: 'topright' }).addTo(state.map);
   }
 
   // Load incidents from DB and place markers

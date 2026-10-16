@@ -401,3 +401,32 @@ Executed against the raw Pascal-VOC XML annotations streamed via HTTP Range requ
 - **Browser Visual Verification:**
   - Verified with headless browser recording: `roadsense_dashboard_1792092277400.png`.
   - All SVG spline curves, gradient area fills, dashed gridlines, floating tooltip pin ("7 September / 318 Incidents"), live SQLite active incident rows with inspector avatars, and responsive viewports rendered with zero console errors.
+
+---
+
+## 12. Phase 10 UI Polish, Esri Dark Basemap, & Methodology Analytics Suite Verification
+- **Date & Time:** 2026-10-16T14:15:00+04:00
+- **User Defect Fixes & Verification:**
+  1. **Issue 1 (Statistics Card Overlap):**
+     - Adjusted `.dashboard-grid-row.bottom-row` column sizing in `web/static/css/style.css` to `1.1fr 285px 330px`.
+     - Positioned `.bubble-main` (64% Investigating, 130px hot pink `#ff2a85`), `.bubble-secondary` (26% Triage, 108px electric blue `#3b82f6` with 26px padding-left), and `.bubble-hatched` (40% Fixing, 96px diagonal stripes with 22px padding-left and text-shadow).
+     - Verified: All 3 circles and text are legible, separated, and unobstructed (`statistics_card_view_1792143989082.png`).
+  2. **Issue 2 (Header Badge):**
+     - Removed `<div class="brand-badge">PRO v2.0</div>` from `web/static/index.html`.
+     - Verified: Clean brand header `RoadSense .ai` with no extraneous badges (`overview_header_stats_1792143971520.png`).
+  3. **Issue 3 (Geospatial Map Tile Key Requirement):**
+     - Replaced watermarked CartoDB tiles with keyless, high-reliability Esri World Dark Gray Canvas:
+       `https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}` + `.../World_Dark_Gray_Reference/...` reference road label overlay.
+     - Added OpenStreetMap fallback layer with Leaflet layer switcher.
+     - Verified: Map loads dark basemap without any "API KEY REQUIRED" watermark, rendering glowing neon incident beacons (`geospatial_incident_map_1792144043787.png`).
+  4. **Issue 4 (Methodology & Data Analytics Suite):**
+     - Expanded `#tab-methodology` into an interactive 5-subtab suite:
+       - Subtab 1 (Dataset & Taxonomy): RDD2022 academic citation, 10,535 audited annotations (7,706 India / 2,829 Czech), XML typo fixes, CC BY 4.0 license, and 4 distress classes (`D00`, `D10`, `D20`, `D40`).
+       - Subtab 2 (ML & Data Pipeline Flowchart): 6-stage architecture flowchart from Ingestion & EXIF through YOLO26n on Apple MPS, Temporal De-duplication, Haversine Spatial Clustering, Priority v1.0, to Municipal GIS dispatch.
+       - Subtab 3 (Distribution Analytics): 4-class frequency distribution with progress bars (Potholes 38.6%, Alligator 24.3%), 4x4 co-occurrence correlation matrix heatmap (68.4% D20/D40 fatigue collapse), and 64-bit perceptual dHash anti-leakage vs random split benchmark fallacy.
+       - Subtab 4 (Domain Shift & Sensitivity): Cross-country zero-shot domain transfer metrics (58.4% Japan -> 42.1% Czech -> 12.6% India), 4 physical domain gap drivers (unpaved shoulders, monsoon ponding, aggregate bleaching, dashcam optics), and priority formula sensitivity breakdown.
+       - Subtab 5 (Econometric ROI & Pavement Lifecycle): AASHTO Pavement Condition Index deterioration "cliff" curve SVG ($15/m² preservation vs $160/m² reconstruction), municipal cost multipliers (7.4x), and $3.4M/yr projected network savings.
+     - Verified: Browser rendering of all 5 subtabs captured cleanly with interactive tab switching (`methodology_subnav_1792144233214.png`, `methodology_ml_pipeline_1792144386373.png`, `methodology_distribution_analytics_1792144587711.png`, `methodology_domain_shift_1792144824537.png`, `methodology_econometric_roi_1792145068023.png`).
+- **Automated Test Suite Status:**
+  - `pytest tests/ -v`: 33/33 passed in 4.65s.
+

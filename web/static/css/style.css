@@ -460,7 +460,7 @@ body {
 }
 
 .dashboard-grid-row.bottom-row {
-  grid-template-columns: 1.1fr 240px 320px;
+  grid-template-columns: 1.1fr 285px 330px;
 }
 
 /* Card Shell */
@@ -874,22 +874,23 @@ body {
 }
 
 .bubble-circle:hover {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 .bubble-main {
-  width: 140px;
-  height: 140px;
+  width: 130px;
+  height: 130px;
   background: var(--accent-pink);
-  left: 10px;
-  top: 30px;
+  left: 6px;
+  top: 42px;
   z-index: 3;
-  box-shadow: 0 0 24px rgba(255, 42, 133, 0.45);
+  box-shadow: 0 0 28px rgba(255, 42, 133, 0.5);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
 }
 
 .bubble-main .bubble-pct {
   font-family: var(--font-heading);
-  font-size: 2.2rem;
+  font-size: 2.1rem;
   font-weight: 700;
   color: #fff;
   line-height: 1;
@@ -897,59 +898,73 @@ body {
 
 .bubble-main .bubble-lbl {
   font-size: 0.72rem;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.9);
   font-weight: 500;
+  margin-top: 3px;
 }
 
 .bubble-secondary {
-  width: 105px;
-  height: 105px;
-  background: #2563eb;
-  right: 15px;
+  width: 108px;
+  height: 108px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  right: 10px;
   bottom: 10px;
   z-index: 2;
-  box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 0 24px rgba(37, 99, 235, 0.45);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  padding-left: 26px;
+  text-align: center;
 }
 
 .bubble-secondary .bubble-pct {
   font-family: var(--font-heading);
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: #fff;
   line-height: 1;
 }
 
 .bubble-secondary .bubble-lbl {
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.85);
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.9);
+  font-weight: 500;
+  margin-top: 2px;
 }
 
 .bubble-hatched {
-  width: 90px;
-  height: 90px;
+  width: 96px;
+  height: 96px;
   background: repeating-linear-gradient(
     45deg,
-    #334155,
-    #334155 4px,
-    #1e293b 4px,
-    #1e293b 8px
+    rgba(148, 163, 184, 0.28),
+    rgba(148, 163, 184, 0.28) 4px,
+    rgba(30, 41, 59, 0.95) 4px,
+    rgba(30, 41, 59, 0.95) 8px
   );
-  border: 1px solid rgba(255,255,255,0.1);
-  right: 25px;
-  top: 15px;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(255, 255, 255, 0.08);
+  right: 12px;
+  top: 10px;
   z-index: 1;
+  padding-left: 22px;
+  padding-bottom: 8px;
+  text-align: center;
 }
 
 .bubble-hatched .bubble-pct {
   font-family: var(--font-heading);
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 700;
-  color: #e2e8f0;
+  color: #f8fafc;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
 }
 
 .bubble-hatched .bubble-lbl {
-  font-size: 0.65rem;
-  color: #94a3b8;
+  font-size: 0.7rem;
+  color: #cbd5e1;
+  font-weight: 500;
+  margin-top: 2px;
 }
 
 /* AI Copilot Card */
@@ -1257,6 +1272,59 @@ body {
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
   z-index: 10;
+  background: #10121d;
+}
+
+/* Leaflet Dark Theme Controls & Layers */
+.leaflet-container {
+  background: #10121d !important;
+  font-family: var(--font-body) !important;
+}
+
+.leaflet-bar a {
+  background: #171926 !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.leaflet-bar a:hover {
+  background: #2563eb !important;
+  color: #fff !important;
+}
+
+.leaflet-control-layers {
+  background: rgba(16, 18, 29, 0.92) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 10px !important;
+  padding: 8px 12px !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+.leaflet-control-layers-toggle {
+  background-color: #171926 !important;
+  border-radius: 8px !important;
+}
+
+.leaflet-control-layers label {
+  color: #e2e8f0 !important;
+  font-size: 0.8rem !important;
+  margin-bottom: 4px !important;
+  cursor: pointer !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(15, 23, 42, 0.8) !important;
+  color: #64748b !important;
+  font-size: 0.68rem !important;
+  backdrop-filter: blur(8px) !important;
+  border-radius: 6px 0 0 0 !important;
+}
+
+.leaflet-control-attribution a {
+  color: #94a3b8 !important;
 }
 
 .map-sidebar-drawer {
@@ -1430,6 +1498,233 @@ input[type=range] {
   color: #fff;
   align-self: flex-end;
   border-bottom-right-radius: 4px;
+}
+
+/* -------------------------------------------------------------------------
+   Tab 8: Engineering Methodology & Data Analytics Suite
+   ------------------------------------------------------------------------- */
+.methodology-subnav {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  background: #141624;
+  padding: 6px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  overflow-x: auto;
+}
+
+.method-subnav-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.method-subnav-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.method-subnav-btn.active {
+  background: linear-gradient(135deg, rgba(255, 42, 133, 0.2), rgba(37, 99, 235, 0.2));
+  color: #fff;
+  font-weight: 600;
+  border: 1px solid rgba(255, 42, 133, 0.35);
+  box-shadow: 0 0 14px rgba(255, 42, 133, 0.2);
+}
+
+.method-subtab-pane {
+  display: none;
+  animation: fadeIn 0.25s ease;
+}
+
+.method-subtab-pane.active {
+  display: block;
+}
+
+/* Analytics Metric Callout Cards */
+.analytics-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.analytics-metric-card {
+  background: #171926;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.analytics-metric-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-pink), #3b82f6);
+}
+
+.analytics-metric-val {
+  font-family: var(--font-heading);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.1;
+  margin-top: 6px;
+}
+
+.analytics-metric-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.analytics-metric-sub {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Architecture Flowchart / Mind Map */
+.pipeline-flowchart-card {
+  background: #10121d;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.pipeline-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  position: relative;
+}
+
+.flow-step-box {
+  background: #171926;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  position: relative;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.flow-step-box:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 42, 133, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.flow-step-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.flow-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-pink), #2563eb);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(255, 42, 133, 0.4);
+}
+
+.flow-step-title {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.92rem;
+}
+
+.flow-step-body {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.flow-step-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-top: 10px;
+  background: rgba(37, 99, 235, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+/* Data Analytics Heatmap & Co-occurrence */
+.cooccurrence-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  font-size: 0.82rem;
+}
+
+.cooccurrence-table th, .cooccurrence-table td {
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: center;
+}
+
+.cooccurrence-table th {
+  background: #171926;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.cooccurrence-table td.matrix-header {
+  background: #171926;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-align: left;
+}
+
+.matrix-cell-high {
+  background: rgba(255, 42, 133, 0.28);
+  color: #ff7ebb;
+  font-weight: 700;
+}
+
+.matrix-cell-mid {
+  background: rgba(37, 99, 235, 0.22);
+  color: #93c5fd;
+  font-weight: 600;
+}
+
+.matrix-cell-low {
+  background: rgba(255, 255, 255, 0.03);
+  color: #64748b;
 }
 
 /* Civil Safety Notice Footer */
