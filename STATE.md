@@ -1,9 +1,10 @@
 # RoadSense AI — System State
 
-**Last Updated:** 2026-10-16T18:15:00+04:00  
-**Current Phase:** Phase 11 (Fail-Closed Backend Authentication & Animated Character Crew Login) COMPLETED  
-**Next Action:** System ready for municipal deployment and live inspector evaluation.  
+**Last Updated:** 2026-10-16T22:00:00+04:00  
+**Current Phase:** Phase 12 (Targeted Defect Rectification & Enterprise Refinements A–G) COMPLETED  
+**Next Action:** System verified and ready for live municipal road safety demonstration.  
 **Open Blockers:** None.
+**Test Suite Status:** 59 of 59 Automated Tests Passing (100% Pass Rate in 7.68s)
 
 ---
 
@@ -76,5 +77,15 @@
   - [x] **Responsive & Accessible Design:** Tested and verified across desktop (1440px), tablet (820px), and mobile (390px) viewports with zero horizontal overflow, touch-friendly tap targets, and `@media (prefers-reduced-motion: reduce)` support.
   - [x] **Sign-Out Action:** Added `#headerLogoutBtn` to the dashboard header actions, cleanly clearing the server cookie and transitioning back to the login screen with zero page reload.
   - [x] **Comprehensive Test Suite:** 41/41 pytest tests passing cleanly (`tests/test_auth.py`, `tests/test_web_api.py`, `tests/test_vertical_slice.py`, etc.). Full browser test suite verified with recordings and screenshots.
+- [x] **Phase 12: Targeted Defect Rectification & Enterprise Refinements (Issues A–G)** (Completed)
+  - [x] **Issue A (Work Order Export):** Primary button is now "Dispatch Work Orders (PDF)" generating genuine landscape A4 PDF via `core/reports_pdf.py` (`roadsense_work_orders_YYYYMMDD_HHMMSS.pdf`) with repeated headers, summary KPIs, synthetic demo indicators, class actions, and formula v1.0 notice. CSV retained as secondary "Export data (CSV)".
+  - [x] **Issue B (Incident Frequency Chart):** Connected to real SQLite data through `/api/analytics/frequency` (1w, 30d, 12m) with continuous zero-filling, anchored to today. Interactive Catmull-Rom spline curves with pointermove nearest-point tracking, dual circle markers, dynamic tooltip pin, and active range toggles.
+  - [x] **Issue C (Dashcam Video Intelligence):** Transcoded demo footage to browser-playable H.264 (`avc1`, `yuv420p`, `+faststart`) via bundled FFmpeg. Implemented `/api/video/stream` with full HTTP 206 Partial Content (Range: bytes=start-end) seeking and HEAD support. Added frontend loading, buffering, and error states. Verified ML pipeline processes the same footage.
+  - [x] **Issue D (Incident Map Export):** Added primary "Export Incident Report (PDF)" generating landscape A4 PDF. Retained secondary "Export GeoJSON (GIS) (data)" with verified RFC 7946 coordinates `[longitude, latitude]`.
+  - [x] **Issue E (Standardized Downloads):** Built unified enterprise PDF engine in `core/reports_pdf.py` using bundled Unicode TrueType fonts (`DejaVuSans.ttf`, `DejaVuSans-Bold.ttf`) and two-pass `NumberedCanvas` ("Page X of Y"). Standardized across web console and Streamlit pages (`3_Incident_Map.py`, `4_Priority_Center.py`, `6_Reports_History.py`).
+  - [x] **Issue F (ML Pipeline Audit):** YOLO model cached in memory; Apple MPS acceleration verified; class index mapping strictly verified (`D00, D10, D20, D40`); mobile EXIF orientation auto-rotation applied; undamaged route segments (0.0 score) confirmed as intended road network survey logging; Priority Formula v1.0 and band boundaries verified via independent mathematical calculation in regression tests.
+  - [x] **Issue G (Character Motion Spec):** Refactored login crew to four flat geometric shapes (pylon, sensor, scanner, marker) driven by a single unified `requestAnimationFrame` lerping loop across all 9 motion states with zero layout shifts. Respects `prefers-reduced-motion`.
+  - [x] **Automated Test Suite Expansion:** 59 of 59 automated tests passing cleanly in 7.68s.
+
 
 

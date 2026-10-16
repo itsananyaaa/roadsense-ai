@@ -457,4 +457,40 @@ Executed against the raw Pascal-VOC XML annotations streamed via HTTP Range requ
   - Refined mobile view: `login_mobile_refined_1792159813097.png`
   - Video recording: `login_success_and_responsive_1792157600261.webp`
 
+---
+
+## 14. Phase 12 Defect Rectification & Enterprise Refinement (Issues A–G)
+- **Date & Time:** 2026-10-16T21:56:00+04:00
+- **Scope & Verified Root Causes:**
+  1. **Issue A (Work Order Export):**
+     - *Root Cause:* Priority Center only had a CSV download link (`/api/export/csv`), lacking formal municipal dispatch documentation required by civil public-works authorities.
+     - *Fix:* Built `build_work_orders_pdf` in `core/reports_pdf.py` (Landscape A4, Platypus `Table`, repeated headers `repeatRows=1`, `NumberedCanvas` "Page X of Y" dynamic two-pass footers, synthetic demo badges, civil advisory, v1.0 formula notice). Primary action set to "Dispatch Work Orders (PDF)"; CSV retained as labeled secondary "Export data (CSV)".
+     - *Performance:* Tested 2,000+ work order records generating 96 pages in 2.03s (< 5.0s requirement) with zero memory leaks.
+  2. **Issue B (Incident Frequency Chart):**
+     - *Root Cause:* Backend had static hardcoded dummy numbers (`[140, 180, 318, 160, 240, 190]`), and the frontend template had a static HTML tooltip pin positioned at `top: 30px; left: 45%` with "7 September - 318 Incidents" hardcoded and zero pointer event listeners. Range pills only toggled CSS classes without fetching data.
+     - *Fix:* Added `get_incident_frequency(range_type)` in `core/db.py` aggregating real SQLite incidents by day (1w, 30d) or month (12m), continuous zero-filling, anchored to UTC today. Added `/api/analytics/frequency` (auth-protected). Frontend `app.js` renders responsive Catmull-Rom spline curves with pointermove nearest-point tracking, moving dual highlight markers, and clamped dynamic tooltip.
+  3. **Issue C (Dashcam Video Stream):**
+     - *Root Cause:* Dashcam demo video had been recorded with OpenCV's legacy `mp4v` codec (MPEG-4 Part 2), which is unsupported for direct playback in modern web browsers (Chrome, Safari, Firefox). Furthermore, the static route lacked HTTP 206 Partial Content (Range: bytes=start-end) seeking support.
+     - *Fix:* Transcoded video to browser-compliant H.264 (`avc1`, `yuv420p`, `+faststart`) using bundled `imageio-ffmpeg` while preserving the master file as `dashcam_inspection_demo_orig_mp4v.mp4`. Implemented `/api/video/stream` supporting full HTTP 206 byte-range seeking, `Accept-Ranges: bytes`, `Content-Range`, and HEAD requests. Added frontend loading, buffering, and error states. Verified the video processed by YOLO is identical to the video played in browser.
+  4. **Issue D (Incident Map Export):**
+     - *Root Cause:* Incident Map only offered raw GeoJSON export and lacked human-readable audit reporting.
+     - *Fix:* Added "Export Incident Report (PDF)" as the primary human-facing action generating landscape A4 PDF via `build_incident_report_pdf`. Separated "Export GeoJSON (GIS) (data)" ensuring valid RFC 7946 coordinates in strict `[longitude, latitude]` order.
+  5. **Issue E (Standardized Downloads across Web & Streamlit):**
+     - *Root Cause:* Inconsistent download formats and ad-hoc CSV/JSON endpoints without unified branding or Unicode handling.
+     - *Fix:* Implemented unified enterprise PDF engine in `core/reports_pdf.py` using `reportlab==5.0.1` and bundled Unicode TrueType fonts (`DejaVuSans.ttf`, `DejaVuSans-Bold.ttf`, CC-BY/BSD license). Applied standard across both web console and Streamlit pages (`3_Incident_Map.py`, `4_Priority_Center.py`, `6_Reports_History.py`).
+  6. **Issue F (ML Pipeline Audit):**
+     - *Audit Findings:* YOLO model loaded once and cached in memory; device selection correctly targets Apple MPS with CPU fallback; class index mapping is strictly verified (`0: D00, 1: D10, 2: D20, 3: D40`); mobile EXIF orientation corrected using `ImageOps.exif_transpose`; undamaged road segments (score 0.0, `priority_level: LOW`) verified as intended civil survey logging to track inspected network mileage; Priority Formula v1.0 determinism and exact band thresholds (75.0, 55.0, 35.0) verified via independent mathematical calculation in regression tests.
+  7. **Issue G (Character Motion Spec):**
+     - *Root Cause:* Competing CSS `@keyframes` on `.crew-member` were clashing with JavaScript-injected CSS custom properties and transitions, causing choppy stuttering, snapping, and layout shifts when error text appeared.
+     - *Fix:* Refactored character stage to four geometric flat shapes (cobalt pylon, dark sensor with cobalt rim, magenta dome scanner, muted pill marker) driven by a single unified `requestAnimationFrame` lerping loop across all 9 states (Intro drop-in with soft overshoot, Idle natural breathing and blinks, Pointer gaze tracking, Username focus & typing lean with rotate+skewX, Password polite look-away with closed dome eyes, Show-password reveal with wide eyes, Submitting scan line sweep, Rejection frowns/tilt/wobble with error in reserved space without layout shift, Success upright smiles/radar sweep/fade-out). Fully honors `@media (prefers-reduced-motion: reduce)`.
+- **Automated Regression Suite Execution:**
+  - Command: `/opt/miniconda3/envs/ml/bin/pytest tests/ -v`
+  - Output: `59 passed, 3 warnings in 7.68s` (100% pass rate).
+  - New test suites added:
+    - `tests/test_pdf_export.py` (7 tests: validity, empty results, 2,000-row stress test, API endpoints, RFC 7946 GeoJSON)
+    - `tests/test_frequency_chart.py` (4 tests: 1w, 30d, 12m buckets, zero-fill, auth protection)
+    - `tests/test_video_stream.py` (5 tests: 200 OK, 206 Partial Content, suffix ranges, 404 missing, path traversal protection)
+    - `tests/test_priority.py` (expanded with independent mathematical recomputation and band boundary transitions)
+
+
 

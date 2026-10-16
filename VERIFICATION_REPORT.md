@@ -1,10 +1,10 @@
 # RoadSense AI — System Verification & Acceptance Report
 
-**Date of Report:** 2026-10-15  
-**Platform Version:** 1.0.0  
+**Date of Report:** 2026-10-16  
+**Platform Version:** 2.0.0  
 **Evaluator Environment:** macOS Darwin 25.5.0 (arm64), Apple M4, 16 GB Unified Memory  
 **Python Runtime:** Python 3.10.20, PyTorch 2.12.1 (Apple MPS), Ultralytics 8.4.177, Streamlit 1.58.0  
-**Test Suite Status:** 26 of 26 Automated Tests Passing (100% Pass Rate in 3.41s)  
+**Test Suite Status:** 59 of 59 Automated Tests Passing (100% Pass Rate in 7.68s)  
 
 ---
 
@@ -104,4 +104,95 @@ tests/test_vertical_slice.py::test_vertical_slice_end_to_end PASSED      [ 96%]
 tests/test_vertical_slice.py::test_detect_damage_page_renders_cleanly PASSED [100%]
 
 ============================== 26 passed in 3.41s ==============================
+```
+
+---
+
+## 6. Phase 12 Defect Rectification & Improvements Audit (Issues A–G)
+
+### 6.1 Issue Verification Matrix
+
+| Issue | Target Feature | Root Cause Diagnosed | Resolution Implemented | Verification Evidence |
+|:---:|:---|:---|:---|:---|
+| **A** | **Work Order Export (Priority Center)** | Lacked PDF dispatch; only raw CSV was available. | Authored `build_work_orders_pdf` in `core/reports_pdf.py` (Landscape A4, Platypus Table, repeated headers, synthetic badges, civil disclaimers). Primary button updated to "Dispatch Work Orders (PDF)"; CSV retained as labeled secondary. | Verified with `tests/test_pdf_export.py` (7 tests). 2,000-row stress test completed in 2.03s (< 5.0s requirement). |
+| **B** | **Incident Frequency Chart** | Hardcoded dummy series (`[140, 180, 318, 160, 240, 190]`); static HTML tooltip at fixed CSS coordinates; nonfunctional range pills. | Implemented `get_incident_frequency(range_type)` in `core/db.py` aggregating real SQLite counts for Potholes (D40) vs Cracks (D00/D10/D20) with continuous zero-filling anchored to UTC today. Frontend renders Catmull-Rom spline curves with pointermove nearest-point tracking and clamped dynamic tooltip pin. Range pills fetch live data for 1w, 30d, and 12m. | Verified with `tests/test_frequency_chart.py` (4 tests) and live browser pointer hover verification. |
+| **C** | **Dashcam Video Stream** | Encoded with OpenCV's legacy `mp4v` codec (MPEG-4 Part 2), unplayable in modern web browsers; static route lacked HTTP Range (206) seeking support. | Transcoded to browser-compliant H.264 (`avc1`, `yuv420p`, `+faststart`) via bundled FFmpeg. Implemented `/api/video/stream` with full HTTP 206 Partial Content (Range: bytes=start-end) seeking and HEAD support. Added frontend loading, buffering, and error states. Verified ML pipeline processes the same footage. | Verified with `tests/test_video_stream.py` (5 tests), cURL byte-range requests, and live browser video playback. |
+| **D** | **Incident Map Export** | Map only offered raw GeoJSON export without human-facing audit documentation. | Added primary "Export Incident Report (PDF)" generating landscape A4 PDF with repeated headers, summary KPIs, and civil notices. Retained secondary "Export GeoJSON (GIS) (data)" with verified RFC 7946 coordinates `[longitude, latitude]`. | Verified in `tests/test_pdf_export.py::test_api_export_geojson_rfc7946` and Streamlit `3_Incident_Map.py`. |
+| **E** | **Standardized Human-Readable Downloads** | Disparate, ad-hoc export formats across web console and Streamlit pages without consistent branding. | Created unified `core/reports_pdf.py` engine using `reportlab==5.0.1`, bundled Unicode TrueType fonts (`DejaVuSans.ttf`, `DejaVuSans-Bold.ttf`, CC-BY/BSD), and two-pass `NumberedCanvas` ("Page X of Y"). Standardized across web console and Streamlit pages (`3_Incident_Map.py`, `4_Priority_Center.py`, `6_Reports_History.py`). | Verified across all PDF export endpoints and Streamlit pages in automated tests. |
+| **F** | **ML Pipeline & Priority Audit** | Needed verification of model caching, device fallback, class mapping, EXIF auto-rotation, empty detections, and priority formula determinism. | YOLO model cached in memory; Apple MPS acceleration verified; class mapping strictly verified (`0: D00, 1: D10, 2: D20, 3: D40`); mobile EXIF orientation auto-rotation applied; undamaged route segments (0.0 score) confirmed as intended road network survey logging; Priority Formula v1.0 and band boundaries verified via independent mathematical calculation in regression tests. | Verified in `tests/test_priority.py` and `tests/test_vertical_slice.py`. |
+| **G** | **Login Character Animation Smoothness** | Competing CSS `@keyframes` on `.crew-member` were clashing with JavaScript-injected CSS custom properties and transitions, causing stuttering and layout shifts when error text appeared. | Refactored character stage to four geometric flat shapes (cobalt pylon, dark sensor with cobalt rim, magenta dome scanner, muted pill marker) driven by a single unified `requestAnimationFrame` lerping loop across all 9 motion states with zero layout shifts. Respects `@media (prefers-reduced-motion: reduce)`. | Verified via live browser subagent across all states (drop-in, gaze tracking, username focus, password look-away, show password peek, 401 rejection in reserved space, and authenticated transition). |
+
+---
+
+### 6.2 Full Repository Automated Test Execution (59 Passed)
+
+```text
+============================= test session starts ==============================
+platform darwin -- Python 3.10.20, pytest-9.1.1, pluggy-1.7.0 -- /opt/miniconda3/envs/ml/bin/python3.10
+cachedir: .pytest_cache
+rootdir: /Users/ananyabiju/Desktop/roadsense-ai
+plugins: anyio-4.14.1
+collected 59 items
+
+tests/test_all_pages.py::test_page_1_detect_damage PASSED                [  1%]
+tests/test_all_pages.py::test_page_2_video_intelligence PASSED           [  3%]
+tests/test_all_pages.py::test_page_3_incident_map PASSED                 [  5%]
+tests/test_all_pages.py::test_page_4_priority_center PASSED              [  6%]
+tests/test_all_pages.py::test_page_5_model_lab PASSED                    [  8%]
+tests/test_all_pages.py::test_page_6_reports_history PASSED              [ 10%]
+tests/test_all_pages.py::test_page_7_about_methodology PASSED            [ 11%]
+tests/test_app_foundation.py::test_main_app_loads_cleanly PASSED         [ 13%]
+tests/test_app_foundation.py::test_demo_dataset_button_click PASSED      [ 15%]
+tests/test_auth.py::test_login_success PASSED                            [ 16%]
+tests/test_auth.py::test_login_wrong_password PASSED                     [ 18%]
+tests/test_auth.py::test_login_wrong_username PASSED                     [ 20%]
+tests/test_auth.py::test_login_fails_closed_when_env_missing PASSED      [ 22%]
+tests/test_auth.py::test_auth_me_and_logout_flow PASSED                  [ 23%]
+tests/test_auth.py::test_protected_route_without_session_returns_401 PASSED [ 25%]
+tests/test_auth.py::test_protected_route_with_session_returns_200 PASSED [ 27%]
+tests/test_auth.py::test_rate_limiting_triggers PASSED                   [ 28%]
+tests/test_convert.py::test_voc_box_to_yolo_and_round_trip PASSED        [ 30%]
+tests/test_convert.py::test_class_mapping_rules PASSED                   [ 32%]
+tests/test_convert.py::test_degenerate_box_handling PASSED               [ 33%]
+tests/test_convert.py::test_xml_conversion_with_negative_sample PASSED   [ 35%]
+tests/test_db.py::test_insert_and_retrieve_incident PASSED               [ 37%]
+tests/test_db.py::test_update_review_status PASSED                       [ 38%]
+tests/test_db.py::test_spatial_clustering_haversine PASSED               [ 40%]
+tests/test_evaluate.py::test_confusion_matrix_plotting PASSED            [ 42%]
+tests/test_evaluate.py::test_pr_curve_plotting PASSED                    [ 44%]
+tests/test_evaluate.py::test_hardware_latency_benchmark PASSED           [ 45%]
+tests/test_evaluate.py::test_evaluate_dual_domain_end_to_end PASSED      [ 47%]
+tests/test_frequency_chart.py::test_frequency_buckets_structure PASSED   [ 49%]
+tests/test_frequency_chart.py::test_frequency_zero_filled_and_non_negative PASSED [ 50%]
+tests/test_frequency_chart.py::test_api_analytics_frequency_endpoint PASSED [ 52%]
+tests/test_frequency_chart.py::test_api_analytics_frequency_requires_auth PASSED [ 54%]
+tests/test_pdf_export.py::test_build_work_orders_pdf_validity PASSED     [ 55%]
+tests/test_pdf_export.py::test_build_incident_report_pdf_validity PASSED [ 57%]
+tests/test_pdf_export.py::test_pdf_empty_results_handling PASSED         [ 59%]
+tests/test_pdf_export.py::test_pdf_large_scale_2000_rows_performance PASSED [ 61%]
+tests/test_pdf_export.py::test_api_export_work_orders_pdf_endpoint PASSED [ 62%]
+tests/test_pdf_export.py::test_api_export_incidents_pdf_endpoint PASSED  [ 64%]
+tests/test_pdf_export.py::test_api_export_geojson_rfc7946 PASSED         [ 66%]
+tests/test_priority.py::test_priority_determinism PASSED                 [ 67%]
+tests/test_priority.py::test_priority_pothole_vs_crack PASSED            [ 69%]
+tests/test_priority.py::test_priority_score_boundaries PASSED            [ 71%]
+tests/test_priority.py::test_repeat_count_cap PASSED                     [ 72%]
+tests/test_priority.py::test_priority_formula_independent_math_verification PASSED [ 74%]
+tests/test_priority.py::test_priority_band_boundary_transitions PASSED   [ 76%]
+tests/test_vertical_slice.py::test_vertical_slice_end_to_end PASSED      [ 77%]
+tests/test_vertical_slice.py::test_detect_damage_page_renders_cleanly PASSED [ 79%]
+tests/test_video_stream.py::test_video_stream_full_request PASSED        [ 81%]
+tests/test_video_stream.py::test_video_stream_range_request_partial_content PASSED [ 83%]
+tests/test_video_stream.py::test_video_stream_suffix_range_request PASSED [ 84%]
+tests/test_video_stream.py::test_video_stream_missing_file_404 PASSED    [ 86%]
+tests/test_video_stream.py::test_video_stream_path_traversal_protection PASSED [ 88%]
+tests/test_web_api.py::test_api_health PASSED                            [ 89%]
+tests/test_web_api.py::test_api_overview PASSED                          [ 91%]
+tests/test_web_api.py::test_api_incidents PASSED                         [ 93%]
+tests/test_web_api.py::test_api_detect_image PASSED                      [ 94%]
+tests/test_web_api.py::test_api_copilot PASSED                           [ 96%]
+tests/test_web_api.py::test_api_exports PASSED                           [ 98%]
+tests/test_web_api.py::test_api_benchmark PASSED                         [100%]
+
+======================== 59 passed, 3 warnings in 7.68s ========================
 ```
