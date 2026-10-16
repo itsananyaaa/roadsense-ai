@@ -1,0 +1,10 @@
+{
+  "venvPath": "/opt/miniconda3/envs",
+  "venv": "ml",
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "ml/colab_train.ipynb"
+  ],
+  "reportMissingImports": false
+}

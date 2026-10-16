@@ -10,8 +10,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+# pyrefly: ignore [missing-import]
 import cv2
 import numpy as np
+# pyrefly: ignore [missing-import]
 import torch
 from PIL import Image, ImageOps
 
@@ -126,6 +128,7 @@ class DamageDetector:
                 return
 
             try:
+                # pyrefly: ignore [missing-import]
                 from ultralytics import YOLO
                 logger.info(f"Loading YOLO model from {self.checkpoint_path} on {self.device}...")
                 self._model = YOLO(self.checkpoint_path)

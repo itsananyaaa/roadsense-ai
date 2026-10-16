@@ -291,6 +291,7 @@ def transcode_to_h264(input_path: Path, output_path: Path) -> bool:
     """
     try:
         import subprocess
+        # pyrefly: ignore [missing-import]
         import imageio_ffmpeg
         ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
         cmd = [
