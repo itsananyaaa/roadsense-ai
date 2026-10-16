@@ -4,6 +4,7 @@ Wraps Ultralytics YOLO inference with input validation, Apple MPS acceleration,
 custom bounding-box annotation styling, and transparent checkpoint status tracking.
 """
 
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -11,13 +12,17 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import cv2
 import numpy as np
-from PIL import Image
+import torch
+from PIL import Image, ImageOps
 
 from core import config
 from core.health import check_checkpoint_status
 from core.logger import get_logger
 
 logger = get_logger("roadsense.inference")
+
+# Enforce explicit image decompression bomb limit (100 million pixels)
+Image.MAX_IMAGE_PIXELS = 100_000_000
 
 
 class ModelWeightsNotFoundError(FileNotFoundError):
@@ -37,7 +42,7 @@ class Detection:
     class_code: str
     class_name: str
     confidence: float
-    bbox: List[int]  # [x1, y1, x2, y2] integer pixels
+    bbox: List[int]  # [x1, y1, x2, y2] integer pixels strictly clipped to image dimensions
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -76,10 +81,12 @@ class DetectionResult:
 class DamageDetector:
     """
     Road damage detector instance managing model lifecycle and predictions.
+    Thread-safe under concurrent FastAPI requests via threading.RLock.
     """
     _instance: Optional["DamageDetector"] = None
     _loaded_model_path: Optional[str] = None
     _model = None
+    _lock = threading.RLock()
 
     def __init__(self, checkpoint_path: Optional[Union[str, Path]] = None, device: Optional[str] = None):
         self.device = device or config.DEFAULT_DEVICE
@@ -89,11 +96,12 @@ class DamageDetector:
     @classmethod
     def get_instance(cls, checkpoint_path: Optional[Union[str, Path]] = None, device: Optional[str] = None) -> "DamageDetector":
         """Singleton accessor to prevent reloading weights into memory per interaction."""
-        resolved_path, _ = cls._resolve_checkpoint_static(checkpoint_path)
-        if cls._instance is None or cls._loaded_model_path != resolved_path:
-            cls._instance = cls(checkpoint_path=resolved_path, device=device)
-            cls._loaded_model_path = resolved_path
-        return cls._instance
+        with cls._lock:
+            resolved_path, _ = cls._resolve_checkpoint_static(checkpoint_path)
+            if cls._instance is None or cls._loaded_model_path != resolved_path:
+                cls._instance = cls(checkpoint_path=resolved_path, device=device)
+                cls._loaded_model_path = resolved_path
+            return cls._instance
 
     @staticmethod
     def _resolve_checkpoint_static(checkpoint_path: Optional[Union[str, Path]] = None) -> Tuple[str, str]:
@@ -111,20 +119,21 @@ class DamageDetector:
 
     def load_model(self) -> None:
         """Load YOLO model into memory on configured acceleration device."""
-        if self.checkpoint_status == "MISSING" or self.checkpoint_path == "None":
-            logger.warning("No checkpoint available to load.")
-            self._model = None
-            return
+        with self._lock:
+            if self.checkpoint_status == "MISSING" or self.checkpoint_path == "None":
+                logger.warning("No checkpoint available to load.")
+                self._model = None
+                return
 
-        try:
-            from ultralytics import YOLO
-            logger.info(f"Loading YOLO model from {self.checkpoint_path} on {self.device}...")
-            self._model = YOLO(self.checkpoint_path)
-            logger.info(f"YOLO model loaded. Pedigree: {self.checkpoint_status}")
-        except Exception as e:
-            logger.error(f"Failed to load YOLO model: {e}")
-            self._model = None
-            raise ModelWeightsNotFoundError(f"Failed to load weights from {self.checkpoint_path}: {e}")
+            try:
+                from ultralytics import YOLO
+                logger.info(f"Loading YOLO model from {self.checkpoint_path} on {self.device}...")
+                self._model = YOLO(self.checkpoint_path)
+                logger.info(f"YOLO model loaded. Pedigree: {self.checkpoint_status}")
+            except Exception as e:
+                logger.error(f"Failed to load YOLO model: {e}")
+                self._model = None
+                raise ModelWeightsNotFoundError(f"Failed to load weights from {self.checkpoint_path}: {e}")
 
     def predict(
         self,
@@ -133,81 +142,110 @@ class DamageDetector:
         iou_threshold: float = config.DEFAULT_IOU_THRESHOLD,
     ) -> DetectionResult:
         """
-        Execute road damage detection on provided image input.
+        Execute road damage detection on provided image input with thread serialization
+        and safe device fallback.
         """
-        # Validate and prepare image as BGR numpy array
-        img_bgr = self._validate_image_input(image_input)
+        with self._lock:
+            # Validate and prepare image as BGR numpy array
+            img_bgr = self._validate_image_input(image_input)
+            orig_h, orig_w = img_bgr.shape[:2]
 
-        if self._model is None:
-            # Check if weights can be discovered
-            self.checkpoint_path, self.checkpoint_status = self._resolve_checkpoint()
-            if self.checkpoint_status == "MISSING":
-                raise ModelWeightsNotFoundError(
-                    "No model checkpoint found. Please download best.pt into models/ or use Guided Demo Mode."
-                )
-            self.load_model()
+            if self._model is None:
+                # Check if weights can be discovered
+                self.checkpoint_path, self.checkpoint_status = self._resolve_checkpoint()
+                if self.checkpoint_status == "MISSING":
+                    raise ModelWeightsNotFoundError(
+                        "No model checkpoint found. Please download best.pt into models/ or use Guided Demo Mode."
+                    )
+                self.load_model()
 
-        # Run inference and measure latency
-        t0 = time.perf_counter()
-        results = self._model.predict(
-            source=img_bgr,
-            conf=conf_threshold,
-            iou=iou_threshold,
-            device=self.device,
-            imgsz=config.DEFAULT_IMG_SIZE,
-            verbose=False,
-        )
-        t1 = time.perf_counter()
-        latency_ms = (t1 - t0) * 1000.0
+            # Run inference under torch.inference_mode with device fallback
+            with torch.inference_mode():
+                t0 = time.perf_counter()
+                try:
+                    results = self._model.predict(
+                        source=img_bgr,
+                        conf=conf_threshold,
+                        iou=iou_threshold,
+                        device=self.device,
+                        imgsz=config.DEFAULT_IMG_SIZE,
+                        verbose=False,
+                    )
+                except Exception as dev_err:
+                    if self.device != "cpu":
+                        logger.warning(f"Inference on device '{self.device}' failed ({dev_err}); falling back to CPU.")
+                        results = self._model.predict(
+                            source=img_bgr,
+                            conf=conf_threshold,
+                            iou=iou_threshold,
+                            device="cpu",
+                            imgsz=config.DEFAULT_IMG_SIZE,
+                            verbose=False,
+                        )
+                    else:
+                        raise dev_err
 
-        detections: List[Detection] = []
-        annotated_bgr = img_bgr.copy()
+                # Synchronize device if needed to measure accurate latency
+                if self.device == "mps" and hasattr(torch.mps, "synchronize"):
+                    torch.mps.synchronize()
+                t1 = time.perf_counter()
+                latency_ms = (t1 - t0) * 1000.0
 
-        if results and len(results) > 0:
-            boxes = results[0].boxes
-            for i in range(len(boxes)):
-                xyxy = boxes.xyxy[i].cpu().numpy().astype(int).tolist()
-                conf = float(boxes.conf[i].cpu().numpy())
-                cls_id = int(boxes.cls[i].cpu().numpy())
+            detections: List[Detection] = []
+            annotated_bgr = img_bgr.copy()
 
-                # Resolve class code and display name
-                if self.checkpoint_status in ["EVALUATED_TRAINED", "SMOKE_CHECKPOINT"]:
-                    cls_code = config.CLASS_NAMES.get(cls_id, f"CLASS_{cls_id}")
-                else:
-                    # In pretrained baseline (COCO), report raw COCO class name
-                    coco_names = getattr(self._model, "names", {})
-                    cls_code = coco_names.get(cls_id, f"COCO_{cls_id}")
+            if results and len(results) > 0:
+                boxes = results[0].boxes
+                for i in range(len(boxes)):
+                    raw_xyxy = boxes.xyxy[i].cpu().numpy().tolist()
+                    conf = float(boxes.conf[i].cpu().numpy())
+                    cls_id = int(boxes.cls[i].cpu().numpy())
 
-                cls_human = config.CLASS_HUMAN_NAMES.get(cls_code, cls_code)
+                    # Strict boundary clipping to image dimensions
+                    x1 = max(0, min(orig_w, int(round(raw_xyxy[0]))))
+                    y1 = max(0, min(orig_h, int(round(raw_xyxy[1]))))
+                    x2 = max(0, min(orig_w, int(round(raw_xyxy[2]))))
+                    y2 = max(0, min(orig_h, int(round(raw_xyxy[3]))))
+                    xyxy = [x1, y1, x2, y2]
 
-                det = Detection(
-                    class_id=cls_id,
-                    class_code=cls_code,
-                    class_name=cls_human,
-                    confidence=conf,
-                    bbox=xyxy,
-                )
-                detections.append(det)
+                    # Resolve class code and display name
+                    if self.checkpoint_status in ["EVALUATED_TRAINED", "SMOKE_CHECKPOINT"]:
+                        cls_code = config.CLASS_NAMES.get(cls_id, f"CLASS_{cls_id}")
+                    else:
+                        # In pretrained baseline (COCO), report raw COCO class name
+                        coco_names = getattr(self._model, "names", {})
+                        cls_code = coco_names.get(cls_id, f"COCO_{cls_id}")
 
-                # Draw bounding box and label
-                self._draw_detection_box(annotated_bgr, det)
+                    cls_human = config.CLASS_HUMAN_NAMES.get(cls_code, cls_code)
 
-        # Aggregate summary
-        detected_classes = sorted(list({d.class_code for d in detections}))
-        max_conf = max([d.confidence for d in detections], default=0.0)
+                    det = Detection(
+                        class_id=cls_id,
+                        class_code=cls_code,
+                        class_name=cls_human,
+                        confidence=conf,
+                        bbox=xyxy,
+                    )
+                    detections.append(det)
 
-        ckpt_id = Path(self.checkpoint_path).name if self.checkpoint_path != "None" else "None"
+                    # Draw bounding box and label
+                    self._draw_detection_box(annotated_bgr, det)
 
-        return DetectionResult(
-            annotated_image_bgr=annotated_bgr,
-            detections=detections,
-            detected_classes=detected_classes,
-            detection_count=len(detections),
-            max_confidence=max_conf,
-            inference_latency_ms=latency_ms,
-            checkpoint_id=ckpt_id,
-            checkpoint_status=self.checkpoint_status,
-        )
+            # Aggregate summary
+            detected_classes = sorted(list({d.class_code for d in detections}))
+            max_conf = max([d.confidence for d in detections], default=0.0)
+
+            ckpt_id = Path(self.checkpoint_path).name if self.checkpoint_path != "None" else "None"
+
+            return DetectionResult(
+                annotated_image_bgr=annotated_bgr,
+                detections=detections,
+                detected_classes=detected_classes,
+                detection_count=len(detections),
+                max_confidence=max_conf,
+                inference_latency_ms=latency_ms,
+                checkpoint_id=ckpt_id,
+                checkpoint_status=self.checkpoint_status,
+            )
 
     def _draw_detection_box(self, img_bgr: np.ndarray, det: Detection) -> None:
         """Render high-contrast, professional bounding box on image."""
@@ -241,22 +279,28 @@ class DamageDetector:
 
     def _validate_image_input(self, image_input: Union[str, Path, np.ndarray, Image.Image]) -> np.ndarray:
         """Validate format, dimensions, readability, and return BGR numpy array with EXIF orientation corrected."""
-        from PIL import ImageOps
-
         if isinstance(image_input, (str, Path)):
             p = Path(image_input)
             if not p.exists():
                 raise InvalidImageInputError(f"Image file does not exist: {p}")
+            if p.stat().st_size == 0:
+                raise InvalidImageInputError(f"Image file is empty (0 bytes): {p}")
             if p.stat().st_size > config.MAX_IMAGE_SIZE_BYTES:
                 raise InvalidImageInputError(
                     f"File size ({p.stat().st_size / 1e6:.1f} MB) exceeds maximum allowed limit ({config.MAX_IMAGE_SIZE_BYTES / 1e6:.0f} MB)."
                 )
             try:
                 with Image.open(p) as pil_img:
+                    if pil_img.size[0] * pil_img.size[1] > Image.MAX_IMAGE_PIXELS:
+                        raise InvalidImageInputError(f"Image dimensions ({pil_img.size[0]}x{pil_img.size[1]}) exceed safety limits.")
                     pil_img = ImageOps.exif_transpose(pil_img)
                     if pil_img.mode != "RGB":
                         pil_img = pil_img.convert("RGB")
                     return cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
+            except Image.DecompressionBombError as dbe:
+                raise InvalidImageInputError(f"Image exceeds decompression-bomb limit: {dbe}")
+            except InvalidImageInputError:
+                raise
             except Exception:
                 img = cv2.imread(str(p))
                 if img is None:
@@ -264,6 +308,8 @@ class DamageDetector:
                 return img
 
         if isinstance(image_input, Image.Image):
+            if image_input.size[0] * image_input.size[1] > Image.MAX_IMAGE_PIXELS:
+                raise InvalidImageInputError(f"Image dimensions ({image_input.size[0]}x{image_input.size[1]}) exceed safety limits.")
             pil_img = ImageOps.exif_transpose(image_input)
             if pil_img.mode != "RGB":
                 pil_img = pil_img.convert("RGB")
@@ -279,3 +325,4 @@ class DamageDetector:
             raise InvalidImageInputError(f"Invalid numpy array image shape: {image_input.shape}")
 
         raise InvalidImageInputError(f"Unsupported image input type: {type(image_input)}")
+

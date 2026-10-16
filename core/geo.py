@@ -67,7 +67,11 @@ def extract_exif_gps(image_path: str) -> Tuple[Optional[float], Optional[float],
             if lon_ref.upper() != "E":
                 lon = -lon
 
-            # Boundary checks
+            # Boundary checks: reject out of range and reject (0.0, 0.0) Null Island
+            if abs(lat) < 1e-5 and abs(lon) < 1e-5:
+                logger.info(f"Rejected invalid Null Island (0, 0) GPS from {image_path}")
+                return None, None, "UNKNOWN"
+
             if -90.0 <= lat <= 90.0 and -180.0 <= lon <= 180.0:
                 logger.info(f"Extracted valid EXIF GPS: ({lat:.6f}, {lon:.6f}) from {image_path}")
                 return round(lat, 6), round(lon, 6), "EXIF_GPS"
@@ -84,8 +88,14 @@ def _convert_to_degrees(dms_tuple) -> float:
         try:
             return float(x)
         except Exception:
-            return float(x[0]) / float(x[1])
+            try:
+                denom = float(x[1])
+                return float(x[0]) / denom if denom != 0 else 0.0
+            except Exception:
+                return 0.0
 
+    if not dms_tuple or len(dms_tuple) < 3:
+        raise ValueError(f"Invalid DMS tuple: {dms_tuple}")
     deg = _val(dms_tuple[0])
     minute = _val(dms_tuple[1])
     sec = _val(dms_tuple[2])
@@ -100,3 +110,19 @@ def format_coordinates(lat: Optional[float], lon: Optional[float], provenance: s
     lon_dir = "E" if lon >= 0 else "W"
     prov_badge = f"[{provenance.replace('_', ' ')}]"
     return f"{abs(lat):.5f}° {lat_dir}, {abs(lon):.5f}° {lon_dir} {prov_badge}"
+
+
+def is_valid_coordinates(lat: Optional[float], lon: Optional[float]) -> bool:
+    """Validate latitude and longitude ranges and reject (0.0, 0.0) Null Island."""
+    if lat is None or lon is None:
+        return False
+    try:
+        f_lat = float(lat)
+        f_lon = float(lon)
+    except (ValueError, TypeError):
+        return False
+    if abs(f_lat) < 1e-5 and abs(f_lon) < 1e-5:
+        return False
+    return -90.0 <= f_lat <= 90.0 and -180.0 <= f_lon <= 180.0
+
+

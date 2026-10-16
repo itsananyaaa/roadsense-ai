@@ -20,10 +20,12 @@ logger = get_logger("roadsense.db")
 
 
 def get_connection(db_path: Optional[Path] = None) -> sqlite3.Connection:
-    """Create a thread-safe connection to the SQLite database."""
+    """Create a thread-safe connection to the SQLite database with WAL mode and busy timeout."""
     target_path = db_path or config.DB_PATH
     target_path.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(target_path))
+    conn = sqlite3.connect(str(target_path), timeout=30.0)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout=5000")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -283,9 +285,23 @@ def count_nearby_incidents(
 ) -> int:
     """
     Count verified repeat incidents within a geographic radius using Haversine formula.
+    Uses indexed bounding-box spatial pre-filter for sub-millisecond query time at scale.
     """
-    query = "SELECT incident_uuid, latitude, longitude FROM incidents WHERE latitude IS NOT NULL AND longitude IS NOT NULL"
-    params: List[Any] = []
+    if lat is None or lon is None or math.isnan(lat) or math.isnan(lon):
+        return 0
+
+    # Rough bounding box pre-filter: 1 deg lat is ~111,000 meters.
+    # Buffer: radius_meters converted to degrees with 1.5x safety margin
+    lat_delta = max(0.001, (radius_meters / 111000.0) * 1.5)
+    cos_lat = max(0.1, math.cos(math.radians(lat)))
+    lon_delta = max(0.001, (radius_meters / (111000.0 * cos_lat)) * 1.5)
+
+    query = """
+    SELECT incident_uuid, latitude, longitude FROM incidents 
+    WHERE latitude BETWEEN ? AND ? 
+      AND longitude BETWEEN ? AND ?
+    """
+    params: List[Any] = [lat - lat_delta, lat + lat_delta, lon - lon_delta, lon + lon_delta]
     if exclude_uuid:
         query += " AND incident_uuid != ?"
         params.append(exclude_uuid)
@@ -296,7 +312,8 @@ def count_nearby_incidents(
         for row in cursor.fetchall():
             r_lat = row["latitude"]
             r_lon = row["longitude"]
-            # Haversine distance
+            if r_lat is None or r_lon is None or math.isnan(r_lat) or math.isnan(r_lon):
+                continue
             dist = haversine_distance_meters(lat, lon, r_lat, r_lon)
             if dist <= radius_meters:
                 nearby_count += 1
@@ -305,6 +322,8 @@ def count_nearby_incidents(
 
 def haversine_distance_meters(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Calculate the great-circle distance between two GPS points in meters."""
+    if lat1 == lat2 and lon1 == lon2:
+        return 0.0
     R = 6371000.0  # Earth radius in meters
     phi1 = math.radians(lat1)
     phi2 = math.radians(lat2)
@@ -312,7 +331,8 @@ def haversine_distance_meters(lat1: float, lon1: float, lat2: float, lon2: float
     delta_lambda = math.radians(lon2 - lon1)
 
     a = math.sin(delta_phi / 2.0) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2.0) ** 2
-    c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
+    a = min(1.0, max(0.0, a))
+    c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(max(0.0, 1.0 - a)))
     return R * c
 
 
@@ -358,15 +378,21 @@ def get_incident_count(db_path: Optional[Path] = None) -> int:
 
 
 def clear_all_incidents(confirm: bool = False, db_path: Optional[Path] = None) -> bool:
-    """Safely reset incidents table when explicitly confirmed."""
+    """Safely reset incidents table when explicitly confirmed inside an isolated transaction."""
     if not confirm:
         logger.warning("Attempted to clear incidents without confirmation.")
         return False
     with get_connection(db_path) as conn:
-        conn.execute("DELETE FROM incidents")
-        conn.commit()
-    logger.info("Cleared all records from incidents table.")
-    return True
+        try:
+            conn.execute("BEGIN IMMEDIATE")
+            conn.execute("DELETE FROM incidents")
+            conn.commit()
+            logger.info("Cleared all records from incidents table.")
+            return True
+        except Exception as e:
+            conn.rollback()
+            logger.error(f"Failed to clear incidents table: {e}")
+            raise
 
 
 def get_incident_frequency(
