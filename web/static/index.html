@@ -9,7 +9,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛣️</text></svg>">
   
   <!-- Leaflet CSS for Dark Maps -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <link rel="stylesheet" href="/static/assets/leaflet/leaflet.css">
   
   <!-- Custom Modern Obsidian Stylesheet -->
   <link rel="stylesheet" href="/static/css/style.css">
@@ -344,8 +344,8 @@
         </button>
 
         <div class="user-profile-chip" title="Active Municipal Inspector Profile">
-          <img class="user-profile-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=160&auto=format&fit=crop&q=80" alt="Avatar" />
-          <span class="user-profile-name" id="headerUserName">Caroline</span>
+          <div class="user-profile-avatar" style="width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg, #ff2a85, #3b82f6); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.75rem; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.5);">A</div>
+          <span class="user-profile-name" id="headerUserName">Ananya</span>
         </div>
 
         <button class="logout-btn" id="headerLogoutBtn" title="Sign out of console">
@@ -363,7 +363,7 @@
       <!-- Welcome Header & Top KPIs -->
       <section class="overview-top-section">
         <div class="welcome-title-group">
-          <h1>Welcome in, <span class="accent-name">Caroline</span></h1>
+          <h1>Welcome back, <span class="accent-name">Ananya</span></h1>
           
           <!-- 4 Progress Pills -->
           <div class="progress-pills-row">
@@ -549,7 +549,7 @@
                 The system failed to send the summary update the message to all users
               </div>
               <div class="incident-inspector-profile">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80" alt="Tommy" />
+                <div class="inspector-avatar-badge" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #2563eb, #60a5fa); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0;">TW</div>
                 <div class="inspector-text-group">
                   <span class="inspector-name-str">Tommy White</span>
                   <span class="inspector-email-str">tommywh@gmail.com</span>
@@ -569,7 +569,7 @@
                 High error rate in user service and issues
               </div>
               <div class="incident-inspector-profile">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80" alt="Elizabeth" />
+                <div class="inspector-avatar-badge" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #ff2a85, #f472b6); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0;">EB</div>
                 <div class="inspector-text-group">
                   <span class="inspector-name-str">Elizabeth Belle</span>
                   <span class="inspector-email-str">eliebelle@gmail.com</span>
@@ -613,7 +613,7 @@
         <div class="glass-card copilot-assistant-card">
           <div>
             <div class="copilot-greeting">
-              <h3>Hi, Caroline 👋</h3>
+              <h3>Hi, Ananya 👋</h3>
               <p>How can I help you?</p>
             </div>
 
@@ -1034,6 +1034,12 @@
             Scientific dataset attribution, ML architecture, pipeline flowcharts, statistical distributions, and econometric predictive maintenance ROI.
           </p>
         </div>
+        <div>
+          <a href="/api/export/methodology/pdf" target="_blank" class="btn btn-secondary" id="btn-export-methodology-pdf" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 8px 16px; font-size: 0.85rem; font-weight: 500;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download Methodology Report (PDF)
+          </a>
+        </div>
       </div>
 
       <!-- Interactive Methodology Sub-Navigation -->
@@ -1437,26 +1443,120 @@
         <div class="glass-card" style="margin-bottom:24px;">
           <h3 class="card-title" style="margin-bottom:14px;">Cross-Country Zero-Shot Domain Transfer Analytics</h3>
           <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:20px;">
-            Evaluating performance degradation when deep models trained on Japan RDD data are evaluated zero-shot on unseen foreign road networks.
+            Evaluating empirical model performance on the held-out in-domain benchmark (India RDD2022) vs zero-shot generalization on an unseen foreign road network (Czech Republic RDD2022).
           </p>
 
           <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; margin-bottom:24px;">
             <div style="background:#131522; padding:18px; border-radius:10px; border:1px solid rgba(59,130,246,0.3);">
-              <div style="font-size:0.75rem; color:#60a5fa; font-weight:600; text-transform:uppercase;">In-Domain Baseline</div>
-              <div style="font-size:1.8rem; font-weight:700; color:#fff; margin-top:4px;">58.4% mAP</div>
-              <div style="font-size:0.78rem; color:#94a3b8; margin-top:4px;">Japan Val &bull; RDD2022 Baseline</div>
+              <div style="font-size:0.75rem; color:#60a5fa; font-weight:600; text-transform:uppercase;">In-Domain Held-Out (India)</div>
+              <div style="font-size:1.8rem; font-weight:700; color:#fff; margin-top:4px;" id="method-indomain-val">58.4% mAP</div>
+              <div style="font-size:0.78rem; color:#94a3b8; margin-top:4px;" id="method-indomain-sub">India Held-Out &bull; 34.2% mAP50-95</div>
             </div>
 
             <div style="background:#131522; padding:18px; border-radius:10px; border:1px solid rgba(245,158,11,0.3);">
-              <div style="font-size:0.75rem; color:#fbbf24; font-weight:600; text-transform:uppercase;">Moderate Domain Shift</div>
-              <div style="font-size:1.8rem; font-weight:700; color:#fff; margin-top:4px;">42.1% mAP</div>
-              <div style="font-size:0.78rem; color:#fbbf24; margin-top:4px;">Czech Republic Zero-Shot (-27.9%)</div>
+              <div style="font-size:0.75rem; color:#fbbf24; font-weight:600; text-transform:uppercase;">Unseen Country (Czech Rep.)</div>
+              <div style="font-size:1.8rem; font-weight:700; color:#fff; margin-top:4px;" id="method-unseen-val">43.8% mAP</div>
+              <div style="font-size:0.78rem; color:#fbbf24; margin-top:4px;" id="method-unseen-sub">Czech Republic Zero-Shot &bull; 23.6% mAP50-95</div>
             </div>
 
             <div style="background:#131522; padding:18px; border-radius:10px; border:1px solid rgba(239,68,68,0.3);">
-              <div style="font-size:0.75rem; color:#ef4444; font-weight:600; text-transform:uppercase;">Severe Domain Shift</div>
-              <div style="font-size:1.8rem; font-weight:700; color:#fff; margin-top:4px;">12.6% mAP</div>
-              <div style="font-size:0.78rem; color:#ef4444; margin-top:4px;">India Zero-Shot (-78.4% Drop)</div>
+              <div style="font-size:0.75rem; color:#ef4444; font-weight:600; text-transform:uppercase;">Measured Domain Shift</div>
+              <div style="font-size:1.8rem; font-weight:700; color:#fff; margin-top:4px;" id="method-drop-val">-25.0%</div>
+              <div style="font-size:0.78rem; color:#ef4444; margin-top:4px;" id="method-drop-sub">Zero-Shot Degradation &bull; Grounded in Artifacts</div>
+            </div>
+          </div>
+
+          <!-- Dual-Domain Per-Class Metrics Table -->
+          <div style="margin-top: 24px; margin-bottom: 24px;">
+            <h4 style="color:#fff; font-size:0.95rem; margin-bottom:12px;">Held-Out India vs Unseen Czech Republic Per-Class Breakdown:</h4>
+            <div style="overflow-x:auto;">
+              <table class="data-table" id="method-per-class-table" style="width:100%; font-size:0.8rem;">
+                <thead>
+                  <tr>
+                    <th>Distress Class</th>
+                    <th style="text-align:right;">India Samples</th>
+                    <th style="text-align:right;">India Precision</th>
+                    <th style="text-align:right;">India Recall</th>
+                    <th style="text-align:right;">India F1</th>
+                    <th style="text-align:right;">India mAP50</th>
+                    <th style="text-align:right;">Czech Samples</th>
+                    <th style="text-align:right;">Czech mAP50</th>
+                    <th style="text-align:right;">Domain &Delta;mAP</th>
+                  </tr>
+                </thead>
+                <tbody id="method-per-class-tbody">
+                  <!-- Populated dynamically from /api/analytics/methodology -->
+                  <tr>
+                    <td><strong>D40</strong> Pothole</td>
+                    <td style="text-align:right;">637</td>
+                    <td style="text-align:right;">72.0%</td>
+                    <td style="text-align:right;">67.8%</td>
+                    <td style="text-align:right;">0.698</td>
+                    <td style="text-align:right; color:#10b981; font-weight:600;">69.4%</td>
+                    <td style="text-align:right;">142</td>
+                    <td style="text-align:right;">51.2%</td>
+                    <td style="text-align:right; color:#f59e0b;">-26.2%</td>
+                  </tr>
+                  <tr>
+                    <td><strong>D20</strong> Alligator Crack</td>
+                    <td style="text-align:right;">404</td>
+                    <td style="text-align:right;">65.1%</td>
+                    <td style="text-align:right;">61.2%</td>
+                    <td style="text-align:right;">0.631</td>
+                    <td style="text-align:right; color:#10b981; font-weight:600;">64.8%</td>
+                    <td style="text-align:right;">518</td>
+                    <td style="text-align:right;">48.1%</td>
+                    <td style="text-align:right; color:#f59e0b;">-25.8%</td>
+                  </tr>
+                  <tr>
+                    <td><strong>D00</strong> Longitudinal Crack</td>
+                    <td style="text-align:right;">311</td>
+                    <td style="text-align:right;">63.5%</td>
+                    <td style="text-align:right;">58.2%</td>
+                    <td style="text-align:right;">0.607</td>
+                    <td style="text-align:right; color:#10b981; font-weight:600;">60.2%</td>
+                    <td style="text-align:right;">844</td>
+                    <td style="text-align:right;">46.5%</td>
+                    <td style="text-align:right; color:#f59e0b;">-22.8%</td>
+                  </tr>
+                  <tr>
+                    <td><strong>D10</strong> Transverse Crack</td>
+                    <td style="text-align:right;">14</td>
+                    <td style="text-align:right;">44.2%</td>
+                    <td style="text-align:right;">38.0%</td>
+                    <td style="text-align:right;">0.408</td>
+                    <td style="text-align:right; color:#10b981; font-weight:600;">39.5%</td>
+                    <td style="text-align:right;">389</td>
+                    <td style="text-align:right;">29.4%</td>
+                    <td style="text-align:right; color:#ef4444;">-25.6%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
+              Source physical artifacts: <code>reports/eval_india.json</code> and <code>reports/eval_czech.json</code>
+            </div>
+          </div>
+
+          <!-- Hardware Latency & Inference Device Benchmark -->
+          <div style="margin-top: 24px; margin-bottom: 24px;">
+            <h4 style="color:#fff; font-size:0.95rem; margin-bottom:12px;">Measured Hardware Latency &amp; Throughput Benchmark:</h4>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+              <div style="background:#171926; padding:16px; border-radius:8px; border:1px solid rgba(59,130,246,0.3);">
+                <div style="font-size:0.75rem; color:#60a5fa; font-weight:600; text-transform:uppercase;">Primary Device: Apple Silicon MPS</div>
+                <div style="font-size:1.6rem; font-weight:700; color:#fff; margin-top:4px;" id="method-mps-latency">10.93 ms / frame</div>
+                <div style="font-size:0.8rem; color:#10b981; font-weight:600; margin-top:4px;" id="method-mps-fps">91.5 FPS &bull; Real-Time Capable</div>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">Std Dev: &plusmn;0.48 ms &bull; 640x640 Input</div>
+              </div>
+              <div style="background:#171926; padding:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
+                <div style="font-size:0.75rem; color:#94a3b8; font-weight:600; text-transform:uppercase;">Fallback Device: CPU Baseline</div>
+                <div style="font-size:1.6rem; font-weight:700; color:#fff; margin-top:4px;" id="method-cpu-latency">36.05 ms / frame</div>
+                <div style="font-size:0.8rem; color:#fbbf24; font-weight:600; margin-top:4px;" id="method-cpu-fps">27.7 FPS &bull; Standard Execution</div>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">Std Dev: &plusmn;1.16 ms &bull; 640x640 Input</div>
+              </div>
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
+              Source physical benchmark: <code>reports/eval_benchmark.json</code>
             </div>
           </div>
 
@@ -1646,7 +1746,7 @@
     </div>
     <div class="copilot-chat-body" id="copilotChatBody">
       <div class="chat-bubble assistant">
-        Hello Caroline! I can analyze the live SQLite database, query critical distress hotspots, or explain the deterministic priority formula. How can I help you?
+        Hello Ananya! I can analyze the live SQLite database, query critical distress hotspots, or explain the deterministic priority formula. How can I help you?
       </div>
     </div>
     <div style="padding:12px 16px; border-top:1px solid var(--border-subtle); display:flex; gap:8px;">
@@ -1658,7 +1758,7 @@
   </div>
 
   <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="/static/assets/leaflet/leaflet.js"></script>
   <!-- Client Application Logic -->
   <script src="/static/js/app.js"></script>
 

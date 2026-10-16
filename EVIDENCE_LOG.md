@@ -491,6 +491,39 @@ Executed against the raw Pascal-VOC XML annotations streamed via HTTP Range requ
     - `tests/test_frequency_chart.py` (4 tests: 1w, 30d, 12m buckets, zero-fill, auth protection)
     - `tests/test_video_stream.py` (5 tests: 200 OK, 206 Partial Content, suffix ranges, 404 missing, path traversal protection)
     - `tests/test_priority.py` (expanded with independent mathematical recomputation and band boundary transitions)
+---
 
-
+## 15. Phase 13 Comprehensive Codebase & ML Pipeline Audit Hardening (Priorities 1–4)
+- **Date & Time:** 2026-10-16T23:50:00+04:00
+- **Scope & Verified Hardening Changes:**
+  1. **Priority 1 (ML Pipeline Hardening):**
+     - Thread-safe inference on singleton YOLO instance using `threading.RLock()` guarding model loading and `predict()`, preventing MPS memory corruption under concurrent FastAPI requests.
+     - `torch.inference_mode()` applied to suppress gradient overhead.
+     - Graceful MPS-to-CPU fallback handling memory allocation exceptions without crashing the process.
+     - Image decoding hardened: `Image.MAX_IMAGE_PIXELS = 100_000_000` decompression-bomb limits, zero-byte file checks, corrupt byte handling, and coordinate clipping to image bounds `[0, 0, w, h]`.
+     - Video processor hardened: `try ... finally: cap.release()` guarantees, file size checks against `MAX_VIDEO_SIZE_BYTES = 150MB`, safe non-integer FPS calculations, and corrected kwarg passing to `calculate_priority`.
+     - Geospatial validation: Added `is_valid_coordinates()`, enforced Null Island `(0, 0)` rejection, and strictly assigned `UNKNOWN` provenance with `None, None` coordinates when EXIF is absent.
+     - SQLite hardening: Configured Write-Ahead Logging (`PRAGMA journal_mode=WAL`), `PRAGMA busy_timeout=5000`, and spatial bounding-box prefilter in SQL (`abs(latitude - ?) <= 0.0003`) prior to Haversine calculation for sub-millisecond execution.
+  2. **Priority 2 (Download & Export Integrity):**
+     - Authored `build_methodology_report_pdf()` in `core/reports_pdf.py` generating a multi-page landscape A4 PDF report with physical artifact metrics, hardware benchmarks, formula v1.0 spec, and operational triage distribution.
+     - CSV exports encoded with UTF-8 BOM (`utf-8-sig`) for Excel, with cells sanitized against spreadsheet formula injection by prepending `'` to text starting with `=`, `+`, `-`, `@`.
+     - GeoJSON exports conform to RFC 7946, outputting valid Point features with `[longitude, latitude]` order by default, and supporting `include_unlocated=true` serializing with `"geometry": null` per Section 3.2.
+     - All 5 export endpoints programmatically verified using `pypdf` and `csv.reader` (`/api/export/csv`, `/api/export/work-orders/pdf`, `/api/export/incidents/pdf`, `/api/export/methodology/pdf`, `/api/export/geojson`).
+  3. **Priority 3 (Methodology Structured Analytics):**
+     - Added `@app.get("/api/analytics/methodology")` returning JSON payload from physical disk artifacts (`reports/eval_india.json`, `reports/eval_czech.json`, `reports/eval_benchmark.json`), active model status, and live SQLite database operational stats.
+     - Updated `web/static/index.html` and `web/static/js/app.js`: Removed fake placeholder strings ("Japan Val", "-78.4% drop"), wired dual-domain benchmark matrix (India Held-Out 58.4% mAP vs Czech Zero-Shot 43.8% mAP, -25.0% shift), per-class comparison table, and hardware benchmark cards. Added "Download Methodology Report (PDF)" button in header.
+     - Updated Streamlit `app/pages/7_About_Methodology.py` with dual-domain comparison tables, hardware latency cards, and PDF download button.
+  4. **Priority 4 (Static Analysis, 100% Offline Compliance & Clean-Up):**
+     - Converted blocking CPU/inference endpoints (`api_detect_image`, `api_detect_video`, PDF generators) to synchronous `def` functions running on FastAPI worker threadpools.
+     - 100% offline compliance achieved: Downloaded and bundled Leaflet CSS (14 KB) and JS (144 KB) in `web/static/assets/leaflet/`, removed remote Google Fonts `@import` from `style.css` in favor of native system font stacks, and replaced remote Unsplash images with local CSS avatar badges.
+     - Comprehensive stress and negative matrix test suite created (`tests/test_stress_matrix.py`) verifying 16 scenarios: valid image, no-damage image, zero-byte image, corrupt image, non-image renamed .jpg, oversized image, EXIF rotation, valid video, zero-byte video, corrupt video, unsupported video codec, demo reset idempotence, unknown location & Null Island, 20 parallel inference requests, rapid frequency range switching, and offline compliance.
+     - User customization: Updated dashboard greeting to "Welcome back, Ananya" across top bar and assistant greetings.
+- **Automated Regression Suite Execution (82 Tests Passed):**
+  - Command: `/opt/miniconda3/envs/ml/bin/pytest tests/ -v`
+  - Output: `82 passed, 3 warnings in 11.01s` (100% pass rate).
+  - New test suites added:
+    - `tests/test_audit_hardening.py` (7 tests: methodology analytics, methodology PDF export, CSV UTF-8 BOM & formula sanitization, GeoJSON RFC 7946 unlocated null geometry, concurrent DamageDetector thread-safety, authentic GPS resolution, cross-view consistency)
+    - `tests/test_stress_matrix.py` (16 tests: valid image, no-damage image, zero-byte file, corrupt image, non-image renamed .jpg, oversized image, EXIF rotation, valid video, zero-byte video, corrupt video, unsupported video format, demo reset idempotence, unknown location / Null Island, 20 parallel requests, rapid frequency switching, offline compliance)
+- **Final Epistemic Verdict:**
+  - *No known unresolved defects found by the checks listed.*
 

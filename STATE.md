@@ -1,10 +1,10 @@
 # RoadSense AI — System State
 
-**Last Updated:** 2026-10-16T22:00:00+04:00  
-**Current Phase:** Phase 12 (Targeted Defect Rectification & Enterprise Refinements A–G) COMPLETED  
-**Next Action:** System verified and ready for live municipal road safety demonstration.  
-**Open Blockers:** None.
-**Test Suite Status:** 59 of 59 Automated Tests Passing (100% Pass Rate in 7.68s)
+**Last Updated:** 2026-10-16T23:50:00+04:00  
+**Current Phase:** Phase 13 (Complete Codebase & ML Pipeline Audit, Hardening & Verification) COMPLETED  
+**Next Action:** System audited, hardened, and verified with zero known defects across all test checks.  
+**Open Blockers:** None.  
+**Test Suite Status:** 82 of 82 Automated Tests Passing (100% Pass Rate in 11.01s)
 
 ---
 
@@ -86,6 +86,10 @@
   - [x] **Issue F (ML Pipeline Audit):** YOLO model cached in memory; Apple MPS acceleration verified; class index mapping strictly verified (`D00, D10, D20, D40`); mobile EXIF orientation auto-rotation applied; undamaged route segments (0.0 score) confirmed as intended road network survey logging; Priority Formula v1.0 and band boundaries verified via independent mathematical calculation in regression tests.
   - [x] **Issue G (Character Motion Spec):** Refactored login crew to four flat geometric shapes (pylon, sensor, scanner, marker) driven by a single unified `requestAnimationFrame` lerping loop across all 9 motion states with zero layout shifts. Respects `prefers-reduced-motion`.
   - [x] **Automated Test Suite Expansion:** 59 of 59 automated tests passing cleanly in 7.68s.
-
-
+- [x] **Phase 13: Complete Codebase & ML Pipeline Audit, Hardening & Verification (Priorities 1–4)** (Completed)
+  - [x] **Priority 1 (ML Pipeline Integrity):** Single YOLO singleton instance with re-entrant lock (`threading.RLock()`) preventing MPS context races under concurrent requests; `torch.inference_mode()`; graceful MPS-to-CPU fallback on memory allocation failure; `Image.MAX_IMAGE_PIXELS = 100_000_000` decompression bomb limits; zero-byte image checks; `try ... finally: cap.release()` video capture guarantees; authentic GPS extraction with Null Island `(0, 0)` rejection; Priority Formula v1.0 determinism and boundary verification.
+  - [x] **Priority 2 (Download & Export Integrity):** Shared PDF engine expanded with `build_methodology_report_pdf()` (landscape A4, bundled TrueType fonts, NumberedCanvas); CSV exports sanitized against formula injection (`'` prefix on `=,+,-,@`) and encoded with UTF-8 BOM (`utf-8-sig`); GeoJSON RFC 7946 compliance with `include_unlocated: bool = False` filter; all 5 export endpoints verified.
+  - [x] **Priority 3 (Methodology Structured Analytics):** Added `@app.get("/api/analytics/methodology")` reading physical artifacts (`eval_india.json`, `eval_czech.json`, `eval_benchmark.json`); dynamic dual-domain comparison charts; MPS vs CPU latency benchmarks; live SQLite operational statistics; and dedicated PDF download button.
+  - [x] **Priority 4 (Static Analysis, Offline Compliance & Clean-Up):** Converted blocking CPU/inference endpoints to synchronous `def` running on FastAPI threadpools; eliminated external runtime CDN dependencies (bundled Leaflet CSS/JS locally in `web/static/assets/leaflet/`, removed remote font `@import`, replaced remote images with CSS avatar badges); comprehensive stress/negative matrix (16/16 scenarios passing); full test suite expanded to 82/82 passing tests.
+  - [x] **User Customization:** Dashboard greeting updated to "Welcome back, Ananya" across top bar and assistant greetings.
 

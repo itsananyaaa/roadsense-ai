@@ -88,15 +88,21 @@ roadsense-ai/
 │       ├── index.html          # Resq.io dark obsidian single-page application shell
 │       ├── css/style.css       # Obsidian glassmorphic design system & glow animations
 │       └── js/app.js           # Reactive SPA controller, Leaflet dark map & AI copilot
-├── tests/                      # Automated Test Suite (33 pytest & AppTest tests)
-│   ├── test_web_api.py         # FastAPI endpoint tests (health, overview, triage, inference, exports)
+├── tests/                      # Automated Test Suite (82 pytest & AppTest tests)
 │   ├── test_all_pages.py       # Native Streamlit AppTest tests for all 7 console pages
 │   ├── test_app_foundation.py  # Shell initialization and theme tests
+│   ├── test_audit_hardening.py # Audit hardening tests (methodology analytics, PDF/CSV/GeoJSON integrity)
+│   ├── test_auth.py            # Argon2id authentication and session rate limiting tests
 │   ├── test_convert.py         # Format conversion and class remapping tests
-│   ├── test_db.py              # SQLite CRUD and spatial distance tests
+│   ├── test_db.py              # SQLite CRUD, spatial clustering, and frequency aggregation
 │   ├── test_evaluate.py        # Evaluator and plot generation tests
-│   ├── test_priority.py        # Deterministic formula boundary and limit tests
-│   └── test_vertical_slice.py  # End-to-end image-to-database integration test
+│   ├── test_frequency_chart.py # Incident frequency chart structure and live data tests
+│   ├── test_pdf_export.py      # Landscape A4 PDF export tests and 2000-row stress test
+│   ├── test_priority.py        # Deterministic formula v1.0 boundary and limit tests
+│   ├── test_stress_matrix.py   # Comprehensive stress and negative matrix tests
+│   ├── test_vertical_slice.py  # End-to-end image-to-database integration test
+│   ├── test_video_stream.py    # HTTP 206 byte-range seeking and H.264 video streaming
+│   └── test_web_api.py         # FastAPI endpoint tests (health, overview, triage, inference, exports)
 ├── requirements.txt            # Python dependencies
 ├── MANUAL_STEPS.md             # Guide for Colab GPU training & checkpoint copying
 ├── PLAN.md                     # Engineering blueprint & milestone tracker
@@ -164,14 +170,14 @@ Open your browser to `http://localhost:8501` for the multi-page Streamlit analyt
 
 ## 5. Running the Automated Test Suite
 
-RoadSense AI includes **33 automated tests** covering database CRUD, priority determinism, format conversion, hardware latency, dual-domain evaluation, FastAPI REST endpoints, and Streamlit `AppTest` page initialization:
+RoadSense AI includes **82 automated tests** covering database CRUD, priority determinism, format conversion, hardware latency, dual-domain evaluation, FastAPI REST endpoints, Argon2id auth, landscape A4 PDF reports, CSV formula injection defense, stress/negative matrices, and Streamlit `AppTest` page initialization:
 
 ```bash
 pytest tests/ -v
 ```
-*Expected Output:*
+*Verified Output:*
 ```text
-============================== 26 passed in 3.41s ==============================
+======================= 82 passed, 3 warnings in 11.01s ========================
 ```
 
 ---
