@@ -18,11 +18,14 @@ if str(PROJECT_ROOT) not in sys.path:
 import pandas as pd
 import streamlit as st
 
+from datetime import datetime
+
 from app import theme
 from core import config
 from core.db import get_all_incidents
 from core.demo import seed_demo_incidents_if_empty
 from core.logger import get_logger
+from core.reports_pdf import build_incident_report_pdf
 
 logger = get_logger("roadsense.ui.reports")
 
@@ -125,32 +128,52 @@ st.dataframe(
 
 st.markdown("---")
 
-# 3. Export Formats (CSV & GeoJSON)
+# 3. Export Formats (PDF Formal Report, CSV & GeoJSON Data)
 st.subheader("📦 Data Export Center")
-st.caption("Export full survey records for municipal GIS, maintenance databases, or audit reporting.")
+st.caption("Human-readable municipal audit reports (PDF) and machine-readable GIS datasets (CSV, GeoJSON).")
 
-exp_col1, exp_col2 = st.columns(2)
+exp_col1, exp_col2, exp_col3 = st.columns(3)
+
+now_str = datetime.now().strftime("%Y%m%d_%H%M%S")
 
 with exp_col1:
-    theme.render_card_start(title="Export as CSV (Tabular Spreadsheet)")
-    st.markdown("Full incident inventory with coordinates, provenance tags, bounding boxes, and priority formula version.")
+    theme.render_card_start(title="Export Audit Report (PDF)")
+    st.markdown("Formal landscape A4 engineering report with summary KPIs, repeated headers, and civil safety notices.")
 
-    csv_buffer = io.StringIO()
-    df_table.to_csv(csv_buffer, index=False)
-    csv_bytes = csv_buffer.getvalue().encode("utf-8")
+    pdf_bytes = build_incident_report_pdf(
+        incidents,
+        filter_desc=f"Full Network Ledger ({len(incidents)} total defects)"
+    )
 
     st.download_button(
-        label=f"📥 Download Full Incident CSV ({len(df_table)} records)",
-        data=csv_bytes,
-        file_name=f"RoadSense_Inventory_{int(time.time())}.csv",
-        mime="text/csv",
+        label=f"📄 Download Formal Audit PDF ({len(incidents)} items)",
+        data=pdf_bytes,
+        file_name=f"roadsense_incident_report_{now_str}.pdf",
+        mime="application/pdf",
         type="primary",
         use_container_width=True
     )
     theme.render_card_end()
 
 with exp_col2:
-    theme.render_card_start(title="Export as GeoJSON (GIS Mapping)")
+    theme.render_card_start(title="Export Ledger (CSV) (data)")
+    st.markdown("Full incident inventory with coordinates, provenance tags, bounding boxes, and formula scores.")
+
+    csv_buffer = io.StringIO()
+    df_table.to_csv(csv_buffer, index=False)
+    csv_bytes = csv_buffer.getvalue().encode("utf-8")
+
+    st.download_button(
+        label=f"📊 Download Incident CSV ({len(df_table)} records)",
+        data=csv_bytes,
+        file_name=f"roadsense_inventory_{now_str}.csv",
+        mime="text/csv",
+        use_container_width=True
+    )
+    theme.render_card_end()
+
+with exp_col3:
+    theme.render_card_start(title="Export GeoJSON (GIS) (data)")
     st.markdown("RFC 7946 compliant GeoJSON FeatureCollection with Point geometry for ArcGIS, QGIS, or Mapbox.")
 
     geojson_features = []
@@ -197,11 +220,10 @@ with exp_col2:
     geojson_str = json.dumps(geojson_doc, indent=2).encode("utf-8")
 
     st.download_button(
-        label=f"🗺️ Download GeoJSON FeatureCollection ({len(geojson_features)} mapped points)",
+        label=f"🗺️ Download GeoJSON ({len(geojson_features)} points)",
         data=geojson_str,
-        file_name=f"RoadSense_Spatial_{int(time.time())}.geojson",
+        file_name=f"roadsense_spatial_{now_str}.geojson",
         mime="application/geo+json",
-        type="secondary",
         use_container_width=True
     )
     theme.render_card_end()

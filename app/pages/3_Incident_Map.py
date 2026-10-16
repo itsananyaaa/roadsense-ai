@@ -4,7 +4,9 @@ Interactive Folium geospatial map with priority markers, evidence drawer,
 strict location provenance enforcement, and graceful offline fallback.
 """
 
+import json
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
@@ -25,6 +27,7 @@ from core.db import get_all_incidents, update_review_status, get_incident_by_uui
 from core.demo import seed_demo_incidents_if_empty
 from core.geo import LocationProvenance
 from core.logger import get_logger
+from core.reports_pdf import build_incident_report_pdf
 
 logger = get_logger("roadsense.ui.map")
 
@@ -303,3 +306,71 @@ with col_drawer:
         theme.render_card_end()
     else:
         st.info("Select an incident to view its photo evidence and engineering review options.")
+
+# -----------------------------------------------------------------------------
+# Geospatial Intelligence & Incident Export (PDF & RFC 7946 GeoJSON)
+# -----------------------------------------------------------------------------
+st.markdown("---")
+st.subheader("📥 Geospatial Intelligence & Incident Export")
+st.caption("Export the currently filtered geospatial incidents as an authoritative PDF report or RFC 7946 GeoJSON FeatureCollection.")
+
+export_records = [inc["_raw"] for inc in filtered_incidents]
+filter_summary = {
+    "Damage_Category": class_filter,
+    "Priority_Tier": priority_filter,
+    "Review_Status": status_filter,
+}
+pdf_bytes = build_incident_report_pdf(export_records, filter_summary=filter_summary)
+
+features = []
+for inc in filtered_incidents:
+    raw = inc["_raw"]
+    features.append({
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [float(inc["longitude"]), float(inc["latitude"])],
+        },
+        "properties": {
+            "incident_uuid": raw.get("incident_uuid", ""),
+            "timestamp": raw.get("timestamp", ""),
+            "road_name": raw.get("road_name", "Corridor Unspecified"),
+            "road_classification": raw.get("road_classification", "UNKNOWN"),
+            "detected_classes": raw.get("detected_classes", []),
+            "priority_score": float(raw.get("priority_score", 0.0)),
+            "priority_level": raw.get("priority_level", "LOW"),
+            "location_provenance": raw.get("location_provenance", "UNKNOWN"),
+            "review_status": raw.get("review_status", "PENDING"),
+        },
+    })
+
+geojson_doc = {
+    "type": "FeatureCollection",
+    "generator": "RoadSense AI v2.0",
+    "features": features,
+}
+geojson_str = json.dumps(geojson_doc, indent=2)
+
+ts_file = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+exp_col1, exp_col2 = st.columns(2)
+with exp_col1:
+    st.download_button(
+        label="📄 Export Incident Report (PDF)",
+        data=pdf_bytes,
+        file_name=f"roadsense_incident_report_{ts_file}.pdf",
+        mime="application/pdf",
+        type="primary",
+        use_container_width=True,
+        help="Download an official landscape A4 PDF audit ledger of mapped pavement incidents.",
+    )
+
+with exp_col2:
+    st.download_button(
+        label="🌐 Export GeoJSON (GIS) (data)",
+        data=geojson_str,
+        file_name=f"roadsense_defects_{ts_file}.geojson",
+        mime="application/geo+json",
+        use_container_width=True,
+        help="Download raw RFC 7946 GeoJSON FeatureCollection for QGIS, ArcGIS, or municipal GIS layers.",
+    )
+
