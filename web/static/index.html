@@ -16,6 +16,14 @@
 </head>
 <body class="auth-required">
 
+  <!-- INTRO LOADER OVERLAY (Spec: short full-screen loading moment, RoadSense obsidian background with two small dots pulsing) -->
+  <div id="loginIntroLoader" class="login-intro-loader" aria-hidden="true">
+    <div class="intro-pulsing-dots">
+      <span class="dot dot-1"></span>
+      <span class="dot dot-2"></span>
+    </div>
+  </div>
+
   <!-- =================================================================
        AUTHENTICATION SCREEN: Asymmetric Split View & Character Crew
        ================================================================= -->
@@ -111,130 +119,71 @@
               <line x1="10" y1="324" x2="530" y2="324" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
             </g>
 
-            <!-- 1. DOME SCANNER (360 LiDAR Dome on Pedestal) -->
-            <g id="crewDome" class="crew-member member-dome">
-              <!-- Pedestal base -->
-              <path d="M 62 328 L 76 272 L 124 272 L 138 328 Z" fill="url(#metalGrad)" stroke="#334155" stroke-width="1.5"/>
-              <ellipse cx="100" cy="328" rx="38" ry="8" fill="#0c0e17" stroke="#2563eb" stroke-width="1.2" />
-              <!-- Trim ring -->
-              <ellipse cx="100" cy="272" rx="24" ry="6" fill="#1e2333" stroke="#06b6d4" stroke-width="1.8" />
-              <!-- Glass Dome -->
-              <path d="M 76 272 A 24 26 0 0 1 124 272 Z" fill="rgba(6, 182, 212, 0.12)" stroke="rgba(6, 182, 212, 0.45)" stroke-width="1.8" />
-              <!-- Dome Specular Curve -->
-              <path d="M 83 260 A 18 18 0 0 1 100 248" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.6"/>
-              <!-- LiDAR Scanner Emitter & Rotating Eye -->
-              <g id="crewDomeEye" class="dome-eye-group">
-                <circle id="domePupil" cx="100" cy="258" r="7" fill="#06b6d4" filter="url(#glowCyan)"/>
-                <circle cx="100" cy="258" r="2.8" fill="#ffffff" />
-                <polygon id="domeBeam" class="dome-scanner-beam" points="100,258 175,242 175,274" fill="url(#beamGrad)" />
+            <!-- =============================================================
+                 CHARACTER CREW: 4 Flat Geometric Shapes (Character Motion Spec)
+                 - Tall rectangle ("pylon", cobalt #2563eb)
+                 - Mid-height dark rectangle ("sensor", dark #161926, cobalt rim #3b82f6)
+                 - Low half-dome ("scanner", magenta #ff2a85)
+                 - Small pill ("marker", muted white/gray #e2e8f0)
+                 ============================================================= -->
+
+            <!-- 1. TALL RECTANGLE: PYLON (Cobalt) -->
+            <g id="crewPylon" class="crew-shape shape-pylon" style="transform-origin: 165px 324px; transform-box: fill-box;">
+              <rect x="135" y="144" width="60" height="180" rx="8" fill="#2563eb" />
+              <g id="pylonFace" class="crew-face" style="opacity: 0; transition: opacity 0.3s ease;">
+                <circle id="pylonEyeLeft" cx="155" cy="188" r="4.5" fill="#0c0d14"/>
+                <circle id="pylonEyeRight" cx="175" cy="188" r="4.5" fill="#0c0d14"/>
+                <path id="pylonLidLeft" d="M 150 188 Q 155 188 160 188" stroke="#2563eb" stroke-width="0" fill="#2563eb"/>
+                <path id="pylonLidRight" d="M 170 188 Q 175 188 180 188" stroke="#2563eb" stroke-width="0" fill="#2563eb"/>
+                <path id="pylonMouth" d="M 158 208 Q 165 212 172 208" stroke="#0c0d14" stroke-width="2.2" stroke-linecap="round" fill="none"/>
               </g>
-              <text x="100" y="342" fill="#64748b" font-size="9" font-family="var(--font-sans)" font-weight="600" text-anchor="middle" letter-spacing="1">LiDAR-360</text>
             </g>
 
-            <!-- 2. TALL PYLON (Lead Road Cone with Expressive Face) -->
-            <g id="crewPylon" class="crew-member member-pylon">
-              <!-- Rubber Base Plate -->
-              <polygon points="175,328 285,328 274,316 186,316" fill="#1a1e2b" stroke="#334155" stroke-width="1.5"/>
-              <!-- Cone Body -->
-              <polygon points="216,118 244,118 270,316 190,316" fill="url(#pylonOrangeGrad)" />
-              <!-- Top Specular Highlight -->
-              <line x1="223" y1="125" x2="204" y2="305" stroke="#ffffff" stroke-width="2.5" opacity="0.25" stroke-linecap="round" />
-              <!-- White Reflective Stripes -->
-              <polygon points="208,172 252,172 258,216 202,216" fill="#f8fafc" opacity="0.96"/>
-              <polygon points="197,250 263,250 268,284 192,284" fill="#f8fafc" opacity="0.96"/>
-
-              <!-- Face On Reflective Stripe 1 -->
-              <!-- Left Eye -->
-              <ellipse cx="218" cy="194" rx="11" ry="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
-              <g id="pylonPupilLeft" class="character-pupil pylon-pupil">
-                <circle cx="218" cy="194" r="5.2" fill="#0c0d14"/>
-                <circle cx="216" cy="192" r="1.8" fill="#ffffff"/>
+            <!-- 2. MID-HEIGHT DARK RECTANGLE: SENSOR (Dark with Cobalt Rim) -->
+            <g id="crewSensor" class="crew-shape shape-sensor" style="transform-origin: 235px 324px; transform-box: fill-box;">
+              <rect x="195" y="184" width="80" height="140" rx="10" fill="#161926" stroke="#3b82f6" stroke-width="2" />
+              <g id="sensorFace" class="crew-face" style="opacity: 0; transition: opacity 0.3s ease;">
+                <!-- White eye with black pupil -->
+                <circle cx="221" cy="226" r="9" fill="#ffffff"/>
+                <circle id="sensorPupilLeft" cx="221" cy="226" r="4.5" fill="#0c0d14"/>
+                <circle cx="249" cy="226" r="9" fill="#ffffff"/>
+                <circle id="sensorPupilRight" cx="249" cy="226" r="4.5" fill="#0c0d14"/>
+                <path id="sensorLidLeft" d="M 212 226 Q 221 226 230 226" stroke="#161926" stroke-width="0" fill="#161926"/>
+                <path id="sensorLidRight" d="M 240 226 Q 249 226 258 226" stroke="#161926" stroke-width="0" fill="#161926"/>
+                <path id="sensorMouth" d="M 229 252 L 241 252" stroke="#64748b" stroke-width="2" stroke-linecap="round"/>
               </g>
-              <!-- Left Eyelid for Blinking / Squinting -->
-              <path id="pylonLidLeft" class="character-eyelid" d="M 207 194 Q 218 194 229 194" stroke="#ff7a3d" stroke-width="0" fill="#f95721" />
-
-              <!-- Right Eye -->
-              <ellipse cx="242" cy="194" rx="11" ry="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
-              <g id="pylonPupilRight" class="character-pupil pylon-pupil">
-                <circle cx="242" cy="194" r="5.2" fill="#0c0d14"/>
-                <circle cx="240" cy="192" r="1.8" fill="#ffffff"/>
-              </g>
-              <!-- Right Eyelid -->
-              <path id="pylonLidRight" class="character-eyelid" d="M 231 194 Q 242 194 253 194" stroke="#ff7a3d" stroke-width="0" fill="#f95721" />
-
-              <!-- Blush Cheeks -->
-              <circle cx="206" cy="206" r="4.2" fill="#ff2a85" opacity="0.4"/>
-              <circle cx="254" cy="206" r="4.2" fill="#ff2a85" opacity="0.4"/>
-
-              <!-- Expressive Mouth -->
-              <path id="pylonMouth" d="M 223 227 Q 230 234 237 227" stroke="#23150d" stroke-width="2.6" stroke-linecap="round" fill="none"/>
-              <text x="230" y="342" fill="#64748b" font-size="9" font-family="var(--font-sans)" font-weight="600" text-anchor="middle" letter-spacing="1">PYLON-01</text>
             </g>
 
-            <!-- 3. SENSOR BLOCK (Rugged Municipal Telemetry Box) -->
-            <g id="crewSensor" class="crew-member member-sensor">
-              <!-- Legs Bracket -->
-              <line x1="330" y1="304" x2="316" y2="328" stroke="#475569" stroke-width="3" stroke-linecap="round"/>
-              <line x1="380" y1="304" x2="394" y2="328" stroke="#475569" stroke-width="3" stroke-linecap="round"/>
-              <line x1="355" y1="304" x2="355" y2="328" stroke="#334155" stroke-width="4"/>
-              <!-- Antenna & Glowing Tip -->
-              <line x1="326" y1="205" x2="314" y2="162" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/>
-              <circle id="sensorAntennaLed" cx="313" cy="160" r="4.5" fill="#06b6d4" filter="url(#glowCyan)"/>
-              <!-- Main Rugged Body -->
-              <rect x="315" y="204" width="80" height="102" rx="14" fill="url(#sensorBodyGrad)" stroke="#3b82f6" stroke-width="2" />
-              <!-- Screen Bezel -->
-              <rect x="323" y="212" width="64" height="54" rx="9" fill="#090d16" stroke="#1e293b" stroke-width="1.5" />
-
-              <!-- Left Optical Lens Eye -->
-              <circle cx="342" cy="239" r="13" fill="#161e31" stroke="#06b6d4" stroke-width="2"/>
-              <g id="sensorPupilLeft" class="character-pupil sensor-pupil">
-                <circle cx="342" cy="239" r="6.5" fill="#06b6d4"/>
-                <circle cx="342" cy="239" r="3.2" fill="#061220"/>
-                <circle cx="340" cy="237" r="1.5" fill="#ffffff"/>
+            <!-- 3. LOW HALF-DOME: SCANNER (Magenta) -->
+            <g id="crewScanner" class="crew-shape shape-scanner" style="transform-origin: 315px 324px; transform-box: fill-box;">
+              <path d="M 265 324 A 50 50 0 0 1 365 324 Z" fill="#ff2a85" />
+              <g id="scannerFace" class="crew-face" style="opacity: 0; transition: opacity 0.3s ease;">
+                <circle id="scannerEyeLeft" cx="304" cy="295" r="4" fill="#0c0d14"/>
+                <circle id="scannerEyeRight" cx="326" cy="295" r="4" fill="#0c0d14"/>
+                <path id="scannerLidLeft" d="M 300 295 Q 304 295 308 295" stroke="#ff2a85" stroke-width="0" fill="#ff2a85"/>
+                <path id="scannerLidRight" d="M 322 295 Q 326 295 330 295" stroke="#ff2a85" stroke-width="0" fill="#ff2a85"/>
+                <path id="scannerMouth" d="M 309 308 Q 315 313 321 308" stroke="#0c0d14" stroke-width="2" stroke-linecap="round" fill="none"/>
               </g>
-
-              <!-- Right Optical Lens Eye -->
-              <circle cx="368" cy="239" r="13" fill="#161e31" stroke="#06b6d4" stroke-width="2"/>
-              <g id="sensorPupilRight" class="character-pupil sensor-pupil">
-                <circle cx="368" cy="239" r="6.5" fill="#06b6d4"/>
-                <circle cx="368" cy="239" r="3.2" fill="#061220"/>
-                <circle cx="366" cy="237" r="1.5" fill="#ffffff"/>
-              </g>
-
-              <!-- Speaker Grille / Mouth -->
-              <path id="sensorMouth" d="M 347 274 L 363 274" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/>
-
-              <!-- Status LED Bar (Emerald, Amber, Pink) -->
-              <g id="sensorLedBar">
-                <circle id="sensorLed1" cx="338" cy="288" r="3" fill="#10b981"/>
-                <circle id="sensorLed2" cx="355" cy="288" r="3" fill="#f59e0b"/>
-                <circle id="sensorLed3" cx="372" cy="288" r="3" fill="#ff2a85"/>
-              </g>
-              <text x="355" y="342" fill="#64748b" font-size="9" font-family="var(--font-sans)" font-weight="600" text-anchor="middle" letter-spacing="1">TELEMETRY-BOX</text>
             </g>
 
-            <!-- 4. PILL MARKER (Curb Reflector Cat's Eye Stud) -->
-            <g id="crewPill" class="crew-member member-pill">
-              <!-- Stud Body -->
-              <path d="M 432 328 L 446 288 L 486 288 L 500 328 Z" fill="url(#pillAmberGrad)" stroke="#d97706" stroke-width="1.8"/>
-              <!-- Prismatic Top Facet -->
-              <polygon points="446,288 486,288 478,298 454,298" fill="#fef08a" opacity="0.85"/>
-              <!-- Left Eye -->
-              <ellipse cx="457" cy="311" rx="6" ry="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
-              <g id="pillPupilLeft" class="character-pupil pill-pupil">
-                <circle cx="457" cy="311" r="3.2" fill="#1e293b"/>
-                <circle cx="456" cy="309" r="1" fill="#ffffff"/>
+            <!-- 4. SMALL PILL: MARKER (Muted White/Gray) -->
+            <g id="crewMarker" class="crew-shape shape-marker" style="transform-origin: 395px 324px; transform-box: fill-box;">
+              <rect x="370" y="234" width="50" height="90" rx="25" fill="#e2e8f0" />
+              <g id="markerFace" class="crew-face" style="opacity: 0; transition: opacity 0.3s ease;">
+                <!-- White eye with black pupil -->
+                <circle cx="386" cy="264" r="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/>
+                <circle id="markerPupilLeft" cx="386" cy="264" r="3" fill="#0c0d14"/>
+                <circle cx="404" cy="264" r="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/>
+                <circle id="markerPupilRight" cx="404" cy="264" r="3" fill="#0c0d14"/>
+                <path id="markerLidLeft" d="M 380 264 Q 386 264 392 264" stroke="#e2e8f0" stroke-width="0" fill="#e2e8f0"/>
+                <path id="markerLidRight" d="M 398 264 Q 404 264 410 264" stroke="#e2e8f0" stroke-width="0" fill="#e2e8f0"/>
+                <path id="markerMouth" d="M 391 282 Q 395 285 399 282" stroke="#475569" stroke-width="1.8" stroke-linecap="round" fill="none"/>
               </g>
-              <!-- Right Eye -->
-              <ellipse cx="475" cy="311" rx="6" ry="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
-              <g id="pillPupilRight" class="character-pupil pill-pupil">
-                <circle cx="475" cy="311" r="3.2" fill="#1e293b"/>
-                <circle cx="474" cy="309" r="1" fill="#ffffff"/>
-              </g>
-              <!-- Cute Smile -->
-              <path id="pillMouth" d="M 462 322 Q 466 325 470 322" stroke="#78350f" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-              <text x="466" y="342" fill="#64748b" font-size="9" font-family="var(--font-sans)" font-weight="600" text-anchor="middle" letter-spacing="1">STUD-REFLECT</text>
             </g>
+
+            <!-- Subtle Submitting Scan Line & Success Radar Elements -->
+            <line id="crewScanLine" x1="120" y1="324" x2="440" y2="324" stroke="#ff2a85" stroke-width="2.5" filter="url(#glowPink)" style="opacity: 0; pointer-events: none;" />
+            <rect id="crewRadarSweep" x="120" y="140" width="320" height="190" fill="url(#radarSweepGrad)" style="opacity: 0; pointer-events: none;" />
           </svg>
         </div>
 
@@ -291,10 +240,12 @@
               </div>
             </div>
 
-            <!-- Dynamic Alert Box -->
-            <div id="loginAlert" class="login-alert" role="alert" aria-live="polite" style="display: none;">
-              <span class="alert-icon" id="loginAlertIcon">⚠️</span>
-              <span class="alert-text" id="loginAlertText"></span>
+            <!-- Dynamic Alert Box in Reserved Space (no layout shift) -->
+            <div class="login-alert-container">
+              <div id="loginAlert" class="login-alert" role="alert" aria-live="polite" style="opacity: 0; pointer-events: none; transform: translateY(-4px);">
+                <span class="alert-icon" id="loginAlertIcon">⚠️</span>
+                <span class="alert-text" id="loginAlertText"></span>
+              </div>
             </div>
 
             <!-- Submit Button -->
@@ -507,19 +458,38 @@
         <!-- 2. Incident Frequency Card (Dual Glowing Spline Lines) -->
         <div class="glass-card">
           <div class="card-header-flex">
-            <h2 class="card-title">Incident frequency</h2>
-            <div class="filter-pills-bar">
-              <button class="filter-pill-btn">12 months</button>
-              <button class="filter-pill-btn active">30 days</button>
-              <button class="filter-pill-btn">1 week</button>
+            <div>
+              <h2 class="card-title">Incident frequency</h2>
+              <div class="chart-legend-flex" style="display:flex; gap:14px; align-items:center; font-size:0.75rem; color:#94a3b8; margin-top:4px;">
+                <span style="display:inline-flex; align-items:center; gap:6px;">
+                  <span style="width:9px; height:9px; border-radius:50%; background:#ff2a85; box-shadow:0 0 6px #ff2a85; display:inline-block;"></span>
+                  <span>Potholes (D40)</span>
+                </span>
+                <span style="display:inline-flex; align-items:center; gap:6px;">
+                  <span style="width:9px; height:9px; border-radius:50%; background:#3b82f6; box-shadow:0 0 6px #3b82f6; display:inline-block;"></span>
+                  <span>Cracks (D00, D10, D20)</span>
+                </span>
+              </div>
+            </div>
+            <div class="filter-pills-bar" id="freqRangePills">
+              <button class="filter-pill-btn" data-range="12m">12 months</button>
+              <button class="filter-pill-btn active" data-range="30d">30 days</button>
+              <button class="filter-pill-btn" data-range="1w">1 week</button>
             </div>
           </div>
 
-          <div class="spline-chart-container">
-            <svg id="incidentFrequencySvg" class="chart-svg" viewBox="0 0 640 220"></svg>
-            <div class="chart-tooltip-pin">
-              <strong>7 September</strong>
-              <span>318 Incidents</span>
+          <div class="spline-chart-container" id="splineChartContainer" style="position:relative; width:100%; min-height:220px;">
+            <svg id="incidentFrequencySvg" class="chart-svg" viewBox="0 0 640 220" preserveAspectRatio="none" style="width:100%; height:220px; display:block;"></svg>
+            <div id="chartTooltipPin" class="chart-tooltip-pin" style="display:none;">
+              <strong id="tooltipDate">—</strong>
+              <div class="tooltip-row">
+                <span style="color:#94a3b8;">Potholes (D40):</span>
+                <span id="tooltipPotholes" class="pink-val">0</span>
+              </div>
+              <div class="tooltip-row">
+                <span style="color:#94a3b8;">Cracks:</span>
+                <span id="tooltipCracks" class="blue-val">0</span>
+              </div>
             </div>
           </div>
         </div>
@@ -799,10 +769,13 @@
         <!-- Main Player & Gallery -->
         <div>
           <div class="video-player-container">
-            <video id="dashcamVideoPlayer" controls poster="/demo-assets/demo_pothole_critical.jpg">
+            <video id="dashcamVideoPlayer" controls playsinline preload="metadata" poster="/demo-assets/demo_pothole_critical.jpg" style="width:100%; border-radius:12px; background:#000;">
+              <source src="/api/video/stream?file=dashcam_inspection_demo.mp4" type="video/mp4">
               <source src="/demo-assets/dashcam_inspection_demo.mp4" type="video/mp4">
+              Your browser does not support the video tag.
             </video>
           </div>
+          <div id="videoPlayerStatus" class="video-status-msg" style="display:none;"></div>
 
           <!-- Progress Bar -->
           <div id="videoProgressContainer" style="display:none; margin-top:16px; background:#1e293b; border-radius:9999px; height:8px; overflow:hidden;">
@@ -860,9 +833,14 @@
             Strict location provenance (EXIF_GPS, USER_ENTERED, EXPLICIT_SYNTHETIC_DEMO) with zero coordinate hallucination
           </p>
         </div>
-        <div style="display:flex; gap:10px;">
-          <button class="demo-chip-btn" onclick="initOrRefreshMap()">🔄 Refresh Map Data</button>
-          <a class="demo-chip-btn" href="/api/export/geojson" download="roadsense.geojson">🗺️ Export GeoJSON</a>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button class="demo-chip-btn" onclick="initOrRefreshMap()">🔄 Refresh</button>
+          <a class="btn-primary-neon" id="exportIncidentMapPdfBtn" href="/api/export/incidents/pdf" download style="width:auto; padding:9px 18px; font-size:0.85rem;">
+            📄 Export Incident Report (PDF)
+          </a>
+          <a class="demo-chip-btn" id="exportIncidentMapGeoJsonBtn" href="/api/export/geojson" download="roadsense_defects.geojson" style="padding:9px 14px; font-size:0.85rem;">
+            🗺️ Export GeoJSON (GIS) (data)
+          </a>
         </div>
       </div>
 
@@ -888,9 +866,14 @@
             Deterministic Priority Formula v1.0 combining damage severity, confidence, 25m repeat density, and road classification
           </p>
         </div>
-        <button class="btn-primary-neon" id="exportWorkOrdersBtn" style="width:auto;">
-          📥 Dispatch Work Orders (CSV)
-        </button>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button class="btn-primary-neon" id="exportWorkOrdersPdfBtn" style="width:auto; padding:10px 20px;">
+            📄 Dispatch Work Orders (PDF)
+          </button>
+          <button class="demo-chip-btn" id="exportWorkOrdersCsvBtn" style="padding:9px 16px;">
+            📊 Export data (CSV)
+          </button>
+        </div>
       </div>
 
       <!-- Policy Sliders -->
@@ -1006,12 +989,15 @@
             Full inspection history with RFC 7946 GeoJSON and CSV download capabilities
           </p>
         </div>
-        <div style="display:flex; gap:12px;">
-          <a class="btn-primary-neon" href="/api/export/csv" download="roadsense.csv" style="width:auto; padding:10px 20px;">
-            📥 Download CSV
+        <div style="display:flex; gap:10px; align-items:center;">
+          <a class="btn-primary-neon" id="exportReportsPdfBtn" href="/api/export/incidents/pdf" download style="width:auto; padding:10px 20px;">
+            📄 Export Audit Report (PDF)
           </a>
-          <a class="btn-primary-neon" href="/api/export/geojson" download="roadsense.geojson" style="width:auto; padding:10px 20px; background:linear-gradient(135deg, #2563eb, #1d4ed8);">
-            🗺️ Download GeoJSON
+          <a class="demo-chip-btn" id="exportReportsCsvBtn" href="/api/export/csv" download style="padding:9px 16px;">
+            📊 Export Ledger (CSV) (data)
+          </a>
+          <a class="demo-chip-btn" id="exportReportsGeoJsonBtn" href="/api/export/geojson" download="roadsense_defects.geojson" style="padding:9px 16px;">
+            🗺️ Export GeoJSON (data)
           </a>
         </div>
       </div>

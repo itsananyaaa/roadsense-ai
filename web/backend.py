@@ -13,6 +13,7 @@ import hmac
 import io
 import json
 import os
+import re
 import secrets
 import shutil
 import sqlite3
@@ -42,6 +43,7 @@ from core.db import (
     get_all_incidents,
     get_connection,
     get_incident_by_uuid,
+    get_incident_frequency,
     get_summary_statistics,
     init_db,
     insert_incident,
@@ -52,6 +54,7 @@ from core.health import run_health_check
 from core.inference import DamageDetector, InvalidImageInputError
 from core.logger import get_logger
 from core.priority import calculate_priority
+from core.reports_pdf import build_incident_report_pdf, build_work_orders_pdf
 from core.video import VideoProcessor, generate_demo_dashcam_video
 
 logger = get_logger("roadsense.backend")
@@ -378,11 +381,8 @@ def api_overview(user: str = Depends(require_authenticated_user)):
     sorted_incidents = sorted(all_incidents, key=lambda x: x.get("priority_score", 0), reverse=True)
     top_hazard = sorted_incidents[0] if sorted_incidents else None
 
-    # Trendline data for spline chart
-    # Generate realistic 6-interval timeline points
-    timeline_labels = ["24 Aug", "31 Aug", "7 Sept", "14 Sept", "21 Sept", "28 Sept"]
-    pothole_series = [140, 180, 318, 160, 240, 190]
-    crack_series = [340, 310, 280, 350, 290, 310]
+    # Trendline data from real SQLite database aggregation
+    freq_data = get_incident_frequency("30d")
 
     # Active incidents list (top 4 recent or pending)
     active_cards = []
@@ -435,12 +435,7 @@ def api_overview(user: str = Depends(require_authenticated_user)):
             "investigating": critical_count + high_count or 24,
             "footnote": "Incident frequency spiked in recent survey routes, showing higher pavement stress.",
         },
-        "trendline": {
-            "labels": timeline_labels,
-            "series_potholes": pothole_series,
-            "series_cracks": crack_series,
-            "highlight": {"label": "7 September", "count": 318, "sub": "Potholes & Cracks"},
-        },
+        "trendline": freq_data,
         "hazard_highlight": {
             "title": "High-Risk Hazard Hotspot",
             "subtitle": f"Cluster detected on {top_hazard.get('road_name') if top_hazard else 'High-Speed Corridor NH-44'} requiring immediate structural asphalt patching.",
@@ -458,6 +453,15 @@ def api_overview(user: str = Depends(require_authenticated_user)):
             "transverse": {"pct": max(transverse_pct, 10), "label": "Transverse (D10)", "color": "#f59e0b"},
         },
     }
+
+
+@app.get("/api/analytics/frequency")
+def api_get_frequency(
+    range: str = Query("30d", pattern="^(1w|30d|12m)$"),
+    user: str = Depends(require_authenticated_user),
+):
+    """Aggregate real incident counts across continuous intervals (1w, 30d, 12m) (Protected)."""
+    return get_incident_frequency(range)
 
 
 # -------------------------------------------------------------------------
@@ -801,12 +805,122 @@ def api_benchmark(user: str = Depends(require_authenticated_user)):
 
 
 # -------------------------------------------------------------------------
-# API Endpoints: Data Export (CSV & RFC 7946 GeoJSON)
+# API Endpoints: Document & Data Export (PDF, CSV, RFC 7946 GeoJSON)
 # -------------------------------------------------------------------------
+@app.get("/api/export/work-orders/pdf")
+def api_export_work_orders_pdf(
+    priority_tier: Optional[str] = None,
+    road_classification: Optional[str] = None,
+    review_status: Optional[str] = None,
+    search_query: Optional[str] = None,
+    user: str = Depends(require_authenticated_user),
+):
+    """Export prioritized municipal work order schedule as high-fidelity landscape A4 PDF (Protected)."""
+    incidents = get_all_incidents(
+        priority_filter=priority_tier,
+        review_filter=review_status,
+        search_query=search_query,
+        limit=10000,
+    )
+    if road_classification and road_classification != "ALL":
+        incidents = [x for x in incidents if x.get("road_classification") == road_classification]
+
+    # Map to work order records matching Priority Center
+    work_orders = []
+    for inc in incidents:
+        if inc.get("review_status") == "REJECTED":
+            continue
+        classes = inc.get("detected_classes", [])
+        primary_class = classes[0] if classes else "UNKNOWN"
+        p_level = inc.get("priority_level", "LOW")
+
+        work_orders.append({
+            "Work_Order_ID": f"WO-{inc.get('incident_uuid', '')[:8].upper()}",
+            "Incident_UUID": inc.get("incident_uuid"),
+            "Road_Name": inc.get("road_name") or "Corridor Unspecified",
+            "Road_Classification": inc.get("road_classification") or "UNKNOWN",
+            "Distress_Code": primary_class,
+            "Pavement_Distress": config.CLASS_HUMAN_NAMES.get(primary_class, primary_class),
+            "Priority_Score": inc.get("priority_score", 0.0),
+            "Priority_Tier": p_level,
+            "Review_Status": inc.get("review_status", "PENDING"),
+            "Prescribed_Action": config.DAMAGE_ACTION_MAP.get(primary_class, "Pavement Condition Assessment"),
+            "Response_SLA": config.SLA_MAP.get(p_level, "Routine Maintenance"),
+            "Location_Provenance": inc.get("location_provenance", "UNKNOWN"),
+        })
+
+    filter_summary = {
+        "priority_tier": priority_tier,
+        "road_classification": road_classification,
+        "review_status": review_status,
+        "search_query": search_query,
+    }
+    pdf_bytes = build_work_orders_pdf(work_orders, filter_summary=filter_summary)
+    timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"roadsense_work_orders_{timestamp_str}.pdf"
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Type": "application/pdf",
+        },
+    )
+
+
+@app.get("/api/export/incidents/pdf")
+def api_export_incidents_pdf(
+    class_filter: Optional[str] = None,
+    priority_filter: Optional[str] = None,
+    review_filter: Optional[str] = None,
+    search_query: Optional[str] = None,
+    user: str = Depends(require_authenticated_user),
+):
+    """Export municipal incident ledger and geospatial defects as landscape A4 PDF (Protected)."""
+    incidents = get_all_incidents(
+        class_filter=class_filter,
+        priority_filter=priority_filter,
+        review_filter=review_filter,
+        search_query=search_query,
+        limit=10000,
+    )
+    filter_summary = {
+        "class": class_filter,
+        "priority": priority_filter,
+        "review_status": review_filter,
+        "search": search_query,
+    }
+    pdf_bytes = build_incident_report_pdf(incidents, filter_summary=filter_summary)
+    timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"roadsense_incidents_{timestamp_str}.pdf"
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Type": "application/pdf",
+        },
+    )
+
+
 @app.get("/api/export/csv")
-def api_export_csv(user: str = Depends(require_authenticated_user)):
-    """Stream complete municipal incident inventory as CSV."""
-    incidents = get_all_incidents()
+def api_export_csv(
+    class_filter: Optional[str] = None,
+    priority_filter: Optional[str] = None,
+    review_filter: Optional[str] = None,
+    search_query: Optional[str] = None,
+    user: str = Depends(require_authenticated_user),
+):
+    """Stream municipal incident inventory as CSV (Data export) (Protected)."""
+    incidents = get_all_incidents(
+        class_filter=class_filter,
+        priority_filter=priority_filter,
+        review_filter=review_filter,
+        search_query=search_query,
+        limit=10000,
+    )
     output = io.StringIO()
     writer = csv.writer(output)
 
@@ -834,8 +948,8 @@ def api_export_csv(user: str = Depends(require_authenticated_user)):
             inc.get("road_classification"),
             ";".join(inc.get("detected_classes", [])),
             inc.get("max_confidence"),
-            inc.get("latitude") or "",
-            inc.get("longitude") or "",
+            inc.get("latitude") if inc.get("latitude") is not None else "",
+            inc.get("longitude") if inc.get("longitude") is not None else "",
             inc.get("location_provenance"),
             inc.get("priority_score"),
             inc.get("priority_level"),
@@ -844,17 +958,30 @@ def api_export_csv(user: str = Depends(require_authenticated_user)):
         ])
 
     output.seek(0)
+    filename = f"roadsense_incidents_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
     return StreamingResponse(
         iter([output.getvalue()]),
         media_type="text/csv",
-        headers={"Content-Disposition": f"attachment; filename=roadsense_incidents_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"},
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 
 @app.get("/api/export/geojson")
-def api_export_geojson(user: str = Depends(require_authenticated_user)):
-    """Stream verified geospatial defects as RFC 7946 GeoJSON FeatureCollection."""
-    incidents = get_all_incidents()
+def api_export_geojson(
+    class_filter: Optional[str] = None,
+    priority_filter: Optional[str] = None,
+    review_filter: Optional[str] = None,
+    search_query: Optional[str] = None,
+    user: str = Depends(require_authenticated_user),
+):
+    """Stream verified geospatial defects as RFC 7946 GeoJSON FeatureCollection (GIS export) (Protected)."""
+    incidents = get_all_incidents(
+        class_filter=class_filter,
+        priority_filter=priority_filter,
+        review_filter=review_filter,
+        search_query=search_query,
+        limit=10000,
+    )
     features = []
 
     for inc in incidents:
@@ -887,7 +1014,111 @@ def api_export_geojson(user: str = Depends(require_authenticated_user)):
         "generator": "RoadSense AI v2.0",
         "features": features,
     }
-    return JSONResponse(content=geojson_doc, headers={"Content-Disposition": "attachment; filename=roadsense_defects.geojson"})
+    filename = f"roadsense_defects_{datetime.now().strftime('%Y%m%d_%H%M%S')}.geojson"
+    return JSONResponse(
+        content=geojson_doc,
+        media_type="application/geo+json",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@app.api_route("/api/video/stream", methods=["GET", "HEAD"])
+def api_stream_video(
+    request: Request,
+    file: str = "dashcam_inspection_demo.mp4",
+):
+    """Stream dashcam video with full HTTP 206 Range request seeking support."""
+    video_dir = config.DATA_DIR / "demo"
+    target_path = (video_dir / file).resolve()
+
+    # Security check: must reside inside demo directory
+    if not str(target_path).startswith(str(video_dir.resolve())):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    if not target_path.exists():
+        if file == "dashcam_inspection_demo.mp4":
+            h264_alt = video_dir / "dashcam_inspection_demo_h264.mp4"
+            if h264_alt.exists():
+                target_path = h264_alt
+            else:
+                raise HTTPException(status_code=404, detail=f"Video file not found: {file}")
+        else:
+            raise HTTPException(status_code=404, detail=f"Video file not found: {file}")
+
+    file_size = target_path.stat().st_size
+
+    if request.method == "HEAD":
+        return Response(
+            status_code=200,
+            media_type="video/mp4",
+            headers={
+                "Accept-Ranges": "bytes",
+                "Content-Length": str(file_size),
+                "Content-Disposition": f'inline; filename="{target_path.name}"',
+            },
+        )
+
+    range_header = request.headers.get("range")
+
+    if not range_header:
+        def iter_full():
+            with open(target_path, "rb") as f:
+                while chunk := f.read(1024 * 1024):
+                    yield chunk
+
+        return StreamingResponse(
+            iter_full(),
+            status_code=200,
+            media_type="video/mp4",
+            headers={
+                "Accept-Ranges": "bytes",
+                "Content-Length": str(file_size),
+                "Content-Disposition": f'inline; filename="{target_path.name}"',
+            },
+        )
+
+    # Parse Range: bytes=start-end
+    match = re.match(r"bytes=(\d+)-(\d*)", range_header)
+    if not match:
+        raise HTTPException(status_code=416, detail="Invalid Range header")
+
+    start = int(match.group(1))
+    end = int(match.group(2)) if match.group(2) else file_size - 1
+
+    if start >= file_size or end >= file_size or start > end:
+        return Response(
+            status_code=416,
+            headers={
+                "Content-Range": f"bytes */{file_size}",
+                "Accept-Ranges": "bytes",
+            },
+        )
+
+    chunk_size = end - start + 1
+
+    def iter_range():
+        with open(target_path, "rb") as f:
+            f.seek(start)
+            remaining = chunk_size
+            while remaining > 0:
+                read_size = min(remaining, 512 * 1024)
+                data = f.read(read_size)
+                if not data:
+                    break
+                remaining -= len(data)
+                yield data
+
+    return StreamingResponse(
+        iter_range(),
+        status_code=206,
+        media_type="video/mp4",
+        headers={
+            "Content-Range": f"bytes {start}-{end}/{file_size}",
+            "Accept-Ranges": "bytes",
+            "Content-Length": str(chunk_size),
+            "Content-Disposition": f'inline; filename="{target_path.name}"',
+        },
+    )
 
 
 # -------------------------------------------------------------------------
@@ -939,7 +1170,7 @@ def api_copilot(payload: CopilotQuery, user: str = Depends(require_authenticated
         }
     elif "priority" in q or "formula" in q or "math" in q:
         return {
-            "answer": "Priority Score v1.0 uses the deterministic formula: `Score = (0.35 × MaxSeverity + 0.25 × Confidence + 0.20 × RepeatDensity + 0.20 × RoadClass) × 100 + Modifier`. Scores $\ge 70$ trigger **CRITICAL** triage, while $\ge 50$ trigger **HIGH** priority.",
+            "answer": "Priority Score v1.0 uses the deterministic formula: `S = min(100, w_class × conf × 40 + min(N_repeat, 5) × 6 + w_road × 15 + w_human × 15)`. Scores >= 75 trigger **CRITICAL** triage, while >= 55 trigger **HIGH** priority.",
             "metrics": {"formula_version": config.PRIORITY_FORMULA_VERSION},
             "suggested_action": "Tune Municipal Policy Weights in Priority Center",
         }

@@ -626,24 +626,59 @@ body {
 
 .chart-tooltip-pin {
   position: absolute;
-  top: 30px;
-  left: 45%;
-  background: #1e2235;
-  border: 1px solid var(--border-subtle);
-  padding: 6px 12px;
+  top: 20px;
+  left: 20px;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 8px 14px;
   border-radius: var(--radius-sm);
-  font-size: 0.72rem;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+  font-size: 0.74rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
   pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.15s ease, transform 0.08s ease-out;
+  min-width: 140px;
 }
 
 .chart-tooltip-pin strong {
   display: block;
   color: #fff;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 3px;
 }
 
-.chart-tooltip-pin span {
+.chart-tooltip-pin .tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.chart-tooltip-pin .pink-val {
   color: var(--accent-pink);
+  font-weight: 700;
+}
+
+.chart-tooltip-pin .blue-val {
+  color: var(--accent-blue);
+  font-weight: 700;
+}
+
+.video-status-msg {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* Vulnerability Card (Electric Blue 3D Card) */
@@ -1929,204 +1964,101 @@ body.authenticated .app-container {
   filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.45));
 }
 
-/* Character Idle Floating Animations */
-.crew-member {
-  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+/* Intro Fullscreen Loading Moment (Character Motion Spec: RoadSense obsidian background with two small dots pulsing) */
+.login-intro-loader {
+  position: fixed;
+  inset: 0;
+  background: #0c0d14;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.member-pylon {
-  transform-origin: 230px 328px;
-  animation: pylonIdleFloat 4s ease-in-out infinite;
+.login-intro-loader.fade-out {
+  opacity: 0;
 }
 
-.member-sensor {
-  transform-origin: 355px 328px;
-  animation: sensorIdleFloat 3.8s ease-in-out infinite 0.3s;
+.intro-pulsing-dots {
+  display: flex;
+  gap: 14px;
+  align-items: center;
 }
 
-.member-dome {
-  transform-origin: 100px 328px;
-  animation: domeIdleFloat 4.2s ease-in-out infinite 0.6s;
+.intro-pulsing-dots .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-pink, #ff2a85);
+  box-shadow: 0 0 12px var(--accent-pink, #ff2a85);
+  animation: introPulseDot 1.2s infinite ease-in-out;
 }
 
-.member-pill {
-  transform-origin: 466px 328px;
-  animation: pillIdleFloat 3.4s ease-in-out infinite 0.2s;
+.intro-pulsing-dots .dot-2 {
+  background: var(--accent-blue, #3b82f6);
+  box-shadow: 0 0 12px var(--accent-blue, #3b82f6);
+  animation-delay: 0.35s;
 }
 
-@keyframes pylonIdleFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-4px) rotate(0.6deg); }
+@keyframes introPulseDot {
+  0%, 100% { transform: scale(0.8); opacity: 0.35; }
+  50% { transform: scale(1.35); opacity: 1; }
 }
 
-@keyframes sensorIdleFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3.5px); }
+/* Character Crew Geometric Shapes & Smooth Kinematics (Character Motion Spec) */
+.crew-shape {
+  will-change: transform;
+  transform-box: fill-box;
 }
 
-@keyframes domeIdleFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2.5px); }
+.shape-pylon {
+  transform-origin: 165px 324px;
 }
 
-@keyframes pillIdleFloat {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-2px) scale(1.02); }
+.shape-sensor {
+  transform-origin: 235px 324px;
 }
 
-/* Character Pupils Gaze Dynamics */
-.character-pupil {
-  transition: transform 0.12s cubic-bezier(0.25, 1, 0.5, 1);
-  transform: translate(var(--gaze-x, 0px), var(--gaze-y, 0px));
+.shape-scanner {
+  transform-origin: 315px 324px;
 }
 
-.pylon-pupil {
-  transform: translate(var(--pylon-pupil-x, var(--gaze-x, 0px)), var(--pylon-pupil-y, var(--gaze-y, 0px)));
+.shape-marker {
+  transform-origin: 395px 324px;
 }
 
-.sensor-pupil {
-  transform: translate(var(--sensor-pupil-x, var(--gaze-x, 0px)), var(--sensor-pupil-y, var(--gaze-y, 0px)));
+.crew-face {
+  transition: opacity 0.35s ease;
+  will-change: transform, opacity;
 }
 
-.pill-pupil {
-  transform: translate(var(--pill-pupil-x, var(--gaze-x, 0px)), var(--pill-pupil-y, var(--gaze-y, 0px)));
+.char-mouth {
+  transition: d 0.2s ease;
 }
 
-/* Eyelid Blinking */
-.character-eyelid {
-  transition: transform 0.15s ease, opacity 0.15s ease;
-  transform-origin: center;
+/* Submitting Scan Line & Success Radar */
+#crewScanLine {
+  transition: opacity 0.2s ease;
 }
 
-/* LiDAR Dome Scanning Beam */
-.dome-scanner-beam {
-  opacity: 0.45;
-  transform-origin: 100px 258px;
-  animation: domeBeamSweep 3s ease-in-out infinite alternate;
+#crewRadarSweep {
+  transition: opacity 0.35s ease;
 }
 
-@keyframes domeBeamSweep {
-  0% { transform: rotate(-15deg); opacity: 0.25; }
-  100% { transform: rotate(25deg); opacity: 0.6; }
+/* Reserved Alert Area (No layout shift) */
+.login-alert-container {
+  min-height: 48px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
 }
 
-/* Character Interactive State Classes */
-/* State: SHY / RESPECTFUL (during password typing) */
-.crew-stage.state-shy .member-pylon {
-  transform: rotate(-6deg) translateY(2px) !important;
-}
-.crew-stage.state-shy .pylon-pupil {
-  transform: translate(-4px, 3px) !important;
-}
-.crew-stage.state-shy .member-sensor {
-  transform: rotate(-3deg) translateY(4px) !important;
-}
-.crew-stage.state-shy .sensor-pupil {
-  transform: translate(-4px, 4px) !important;
-}
-.crew-stage.state-shy .dome-scanner-beam {
-  transform: rotate(-45deg) !important;
-  opacity: 0.1 !important;
-}
-.crew-stage.state-shy .member-pill {
-  transform: translateY(2px) scale(0.95) !important;
-}
-
-/* State: PEEKING (when Show Password button is toggled) */
-.crew-stage.state-peeking .member-pylon {
-  transform: rotate(4deg) translateY(-2px) !important;
-}
-.crew-stage.state-peeking .pylon-pupil {
-  transform: translate(6px, -1px) scale(1.15) !important;
-}
-.crew-stage.state-peeking .member-sensor {
-  transform: translateY(-4px) !important;
-}
-.crew-stage.state-peeking .sensor-pupil {
-  transform: translate(6px, 0px) scale(1.3) !important;
-}
-.crew-stage.state-peeking #sensorAntennaLed {
-  fill: #ff2a85 !important;
-  filter: drop-shadow(0 0 8px #ff2a85) !important;
-}
-.crew-stage.state-peeking .dome-scanner-beam {
-  transform: rotate(35deg) !important;
-  opacity: 0.8 !important;
-}
-.crew-stage.state-peeking .member-pill {
-  transform: translateY(-4px) scale(1.06) !important;
-}
-
-/* State: SUBMITTING (anticipation / scanner pulse) */
-.crew-stage.state-submitting .member-pylon {
-  transform: rotate(3deg) translateY(-3px) !important;
-}
-.crew-stage.state-submitting .dome-scanner-beam {
-  animation: domeBeamFastSpin 0.6s linear infinite !important;
-}
-@keyframes domeBeamFastSpin {
-  0% { transform: rotate(0deg); opacity: 0.8; }
-  100% { transform: rotate(360deg); opacity: 0.8; }
-}
-
-/* State: ERROR (401 failure) */
-.crew-stage.state-error .member-pylon {
-  transform: translateY(5px) rotate(-4deg) !important;
-}
-.crew-stage.state-error .pylon-pupil {
-  transform: translate(0px, 3px) !important;
-}
-.crew-stage.state-error .member-sensor {
-  transform: translateY(4px) !important;
-}
-.crew-stage.state-error #sensorAntennaLed {
-  fill: #ef4444 !important;
-  filter: drop-shadow(0 0 10px #ef4444) !important;
-}
-
-/* State: RATE LIMITED (429 warning) */
-.crew-stage.state-rate-limited .member-sensor {
-  animation: sensorAlertWobble 0.5s ease-in-out infinite !important;
-}
-.crew-stage.state-rate-limited #sensorAntennaLed {
-  fill: #f59e0b !important;
-  filter: drop-shadow(0 0 10px #f59e0b) !important;
-}
-
-@keyframes sensorAlertWobble {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-4deg); }
-  75% { transform: rotate(4deg); }
-}
-
-/* State: SUCCESS (200 OK celebration) */
-.crew-stage.state-success .member-pylon {
-  animation: celebrateJump 0.8s ease forwards !important;
-}
-.crew-stage.state-success .member-sensor {
-  animation: celebrateJump 0.8s ease 0.1s forwards !important;
-}
-.crew-stage.state-success .member-dome {
-  animation: celebrateJump 0.8s ease 0.2s forwards !important;
-}
-.crew-stage.state-success .member-pill {
-  animation: celebrateJump 0.8s ease 0.15s forwards !important;
-}
-.crew-stage.state-success #sensorAntennaLed {
-  fill: #10b981 !important;
-  filter: drop-shadow(0 0 12px #10b981) !important;
-}
-.crew-stage.state-success #sensorLed1,
-.crew-stage.state-success #sensorLed2,
-.crew-stage.state-success #sensorLed3 {
-  fill: #10b981 !important;
-}
-
-@keyframes celebrateJump {
-  0% { transform: translateY(0); }
-  40% { transform: translateY(-16px) scale(1.05); }
-  70% { transform: translateY(2px) scale(0.98); }
-  100% { transform: translateY(-4px) scale(1); }
+.login-alert {
+  width: 100%;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 /* Stage Footer */

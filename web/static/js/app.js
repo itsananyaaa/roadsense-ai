@@ -89,6 +89,7 @@ function initDashboard() {
   setupDemoSeedButton();
   setupCopilot();
   loadOverviewDashboard();
+  setupFrequencyRangePills();
   setupDetectDamageStudio();
   setupVideoIntelligenceStudio();
   setupPriorityCenter();
@@ -97,6 +98,9 @@ function initDashboard() {
 
 // -------------------------------------------------------------------------
 // Animated Inline SVG Character Crew & Form Controller
+// -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+// Animated Inline SVG Character Crew & Form Controller (Character Motion Spec)
 // -------------------------------------------------------------------------
 function setupLoginExperience() {
   const loginForm = document.getElementById('loginForm');
@@ -113,126 +117,435 @@ function setupLoginExperience() {
   const btnArrow = submitBtn ? submitBtn.querySelector('.btn-arrow-icon') : null;
   const crewStage = document.getElementById('crewStage');
 
+  // Crew SVG element handles
+  const shapePylon = document.getElementById('crewPylon');
+  const shapeSensor = document.getElementById('crewSensor');
+  const shapeScanner = document.getElementById('crewScanner');
+  const shapeMarker = document.getElementById('crewMarker');
+
+  const pylonFace = document.getElementById('pylonFace');
+  const sensorFace = document.getElementById('sensorFace');
+  const scannerFace = document.getElementById('scannerFace');
+  const markerFace = document.getElementById('markerFace');
+
   const pylonMouth = document.getElementById('pylonMouth');
+  const sensorMouth = document.getElementById('sensorMouth');
+  const scannerMouth = document.getElementById('scannerMouth');
+  const markerMouth = document.getElementById('markerMouth');
+
   const pylonLids = [document.getElementById('pylonLidLeft'), document.getElementById('pylonLidRight')].filter(Boolean);
+  const sensorLids = [document.getElementById('sensorLidLeft'), document.getElementById('sensorLidRight')].filter(Boolean);
+  const scannerLids = [document.getElementById('scannerLidLeft'), document.getElementById('scannerLidRight')].filter(Boolean);
+  const markerLids = [document.getElementById('markerLidLeft'), document.getElementById('markerLidRight')].filter(Boolean);
 
-  if (!loginForm || !crewStage) return;
+  const sensorPupilLeft = document.getElementById('sensorPupilLeft');
+  const sensorPupilRight = document.getElementById('sensorPupilRight');
+  const markerPupilLeft = document.getElementById('markerPupilLeft');
+  const markerPupilRight = document.getElementById('markerPupilRight');
 
-  // Helper: set crew gaze coordinate variables on crewStage
-  function setCrewGaze(x, y) {
-    crewStage.style.setProperty('--gaze-x', `${x}px`);
-    crewStage.style.setProperty('--gaze-y', `${y}px`);
-  }
+  const crewScanLine = document.getElementById('crewScanLine');
+  const crewRadarSweep = document.getElementById('crewRadarSweep');
+  const introLoader = document.getElementById('loginIntroLoader');
 
-  // Helper: set high-level crew mood/emotional state
-  function setCrewState(stateName) {
-    const states = ['state-shy', 'state-peeking', 'state-submitting', 'state-error', 'state-rate-limited', 'state-success'];
-    states.forEach(s => crewStage.classList.remove(s));
-    
-    if (stateName) {
-      crewStage.classList.add(`state-${stateName}`);
+  if (!loginForm || !shapePylon || !shapeSensor || !shapeScanner || !shapeMarker) return;
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Mouth path shapes
+  const mouths = {
+    pylon: {
+      neutral: 'M 158 208 Q 165 212 172 208',
+      frown: 'M 158 212 Q 165 206 172 212',
+      smile: 'M 157 207 Q 165 215 173 207',
+    },
+    sensor: {
+      neutral: 'M 229 252 L 241 252',
+      frown: 'M 229 255 Q 235 251 241 255',
+      smile: 'M 229 251 Q 235 255 241 251',
+    },
+    scanner: {
+      neutral: 'M 309 308 Q 315 313 321 308',
+      frown: 'M 309 313 Q 315 307 321 313',
+      smile: 'M 308 307 Q 315 316 322 307',
+    },
+    marker: {
+      neutral: 'M 391 282 Q 395 285 399 282',
+      wavy: 'M 390 283 Q 393 280 395 283 T 400 283',
+      smile: 'M 391 281 Q 395 287 399 281',
     }
+  };
 
-    // Morph pylon mouth expression
-    if (pylonMouth) {
-      if (stateName === 'error') {
-        pylonMouth.setAttribute('d', 'M 223 234 Q 230 226 237 234'); // frown
-      } else if (stateName === 'rate-limited') {
-        pylonMouth.setAttribute('d', 'M 226 230 A 4 4 0 1 0 234 230 A 4 4 0 1 0 226 230'); // round surprised "O"
-      } else if (stateName === 'success') {
-        pylonMouth.setAttribute('d', 'M 221 224 Q 230 236 239 224'); // broad beam smile
-      } else if (stateName === 'shy') {
-        pylonMouth.setAttribute('d', 'M 225 228 L 235 228'); // modest straight line
-      } else {
-        pylonMouth.setAttribute('d', 'M 223 227 Q 230 234 237 227'); // pleasant warm curve
-      }
-    }
-  }
+  // Kinematic state parameters
+  const cur = {
+    pylon: { y: prefersReducedMotion ? 0 : -320, rot: prefersReducedMotion ? 0 : -14, skew: 0, gazeX: 0, gazeY: 0 },
+    sensor: { y: prefersReducedMotion ? 0 : -320, rot: prefersReducedMotion ? 0 : 10, gazeX: 0, gazeY: 0 },
+    scanner: { y: prefersReducedMotion ? 0 : -320, rot: prefersReducedMotion ? 0 : -8, scaleY: 1, gazeX: 0, gazeY: 0 },
+    marker: { y: prefersReducedMotion ? 0 : -320, rot: prefersReducedMotion ? 0 : 16, gazeX: 0, gazeY: 0 },
+  };
 
-  // Periodic subtle idle blink for Pylon eyes
-  let blinkTimer = setInterval(() => {
-    if (crewStage.classList.contains('state-shy')) return;
-    pylonLids.forEach(lid => {
-      lid.style.transform = 'scaleY(1)';
-      lid.style.opacity = '1';
-    });
+  const target = {
+    pylon: { y: 0, rot: 0, skew: 0, gazeX: 0, gazeY: 0 },
+    sensor: { y: 0, rot: 0, gazeX: 0, gazeY: 0 },
+    scanner: { y: 0, rot: 0, scaleY: 1, gazeX: 0, gazeY: 0 },
+    marker: { y: 0, rot: 0, gazeX: 0, gazeY: 0 },
+  };
+
+  let currentState = 'intro';
+  let pointerGaze = { x: 0, y: 0 };
+  let scanLineY = 160;
+  let scanLineDir = 2.5;
+  let rafId = null;
+
+  // Intro Sequence
+  if (!prefersReducedMotion && introLoader) {
     setTimeout(() => {
-      pylonLids.forEach(lid => {
-        lid.style.transform = 'scaleY(0)';
-        lid.style.opacity = '0';
-      });
-    }, 120);
-  }, 4200);
+      introLoader.classList.add('fade-out');
+      setTimeout(() => {
+        introLoader.style.display = 'none';
+        // Shapes drop in and settle into cluster
+        setTimeout(() => {
+          currentState = 'idle';
+          // Reveal faces once settled
+          [pylonFace, sensorFace, scannerFace, markerFace].forEach(f => {
+            if (f) f.style.opacity = '1';
+          });
+        }, 1200);
+      }, 450);
+    }, 400);
+  } else {
+    if (introLoader) introLoader.style.display = 'none';
+    currentState = 'idle';
+    [pylonFace, sensorFace, scannerFace, markerFace].forEach(f => {
+      if (f) f.style.opacity = '1';
+    });
+  }
 
-  // --- Username Field Focus & Typing Reactivity ---
+  // Smooth lerp helper
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  // Main Unified Animation Loop
+  function animateCrew(timestamp) {
+    if (document.hidden) {
+      rafId = requestAnimationFrame(animateCrew);
+      return;
+    }
+
+    const t = prefersReducedMotion ? 1.0 : 0.12;
+
+    // Apply state-specific targets
+    if (currentState === 'intro') {
+      // Shapes dropping in towards 0 with subtle overshoot
+      target.pylon.y = 0;
+      target.pylon.rot = 0;
+      target.sensor.y = 0;
+      target.sensor.rot = 0;
+      target.scanner.y = 0;
+      target.scanner.rot = 0;
+      target.marker.y = 0;
+      target.marker.rot = 0;
+    } else if (currentState === 'idle') {
+      target.pylon.rot = 0;
+      target.pylon.skew = 0;
+      target.sensor.rot = 0;
+      target.scanner.rot = 0;
+      target.marker.rot = 0;
+
+      // Subtle breathing on dome
+      target.scanner.scaleY = 1 + 0.015 * Math.sin(timestamp * 0.002);
+
+      // Natural gaze following pointer
+      target.pylon.gazeX = pointerGaze.x;
+      target.pylon.gazeY = pointerGaze.y;
+      target.sensor.gazeX = pointerGaze.x;
+      target.sensor.gazeY = pointerGaze.y;
+      target.scanner.gazeX = pointerGaze.x * 0.8;
+      target.scanner.gazeY = pointerGaze.y * 0.8;
+      target.marker.gazeX = pointerGaze.x;
+      target.marker.gazeY = pointerGaze.y;
+
+    } else if (currentState === 'username') {
+      const len = usernameInput ? usernameInput.value.length : 0;
+      const progress = Math.min(len / 15, 1);
+      target.pylon.rot = 5 + progress * 6.5; // Bends toward form (right)
+      target.pylon.skew = -1.5 - progress * 2.5; // Curvature via skewX
+      target.pylon.gazeX = 4.5 + progress * 2.5;
+      target.pylon.gazeY = 0.5;
+
+      target.sensor.gazeX = 5.0;
+      target.sensor.gazeY = 0.5;
+      target.scanner.gazeX = 4.0;
+      target.scanner.gazeY = 0.5;
+      target.marker.gazeX = 4.5;
+      target.marker.gazeY = 0.5;
+
+    } else if (currentState === 'password') {
+      // Polite "not looking" pose: pylon tilts away
+      target.pylon.rot = -4.5;
+      target.pylon.skew = 0.5;
+      target.pylon.gazeX = -4.0;
+      target.pylon.gazeY = 1.0;
+
+      // Sensor and marker look away from field
+      target.sensor.rot = -2.0;
+      target.sensor.gazeX = -5.0;
+      target.sensor.gazeY = 1.5;
+
+      target.scanner.rot = 0;
+      target.scanner.gazeX = -3.5;
+      target.scanner.gazeY = 1.0;
+
+      target.marker.rot = -2.0;
+      target.marker.gazeX = -4.5;
+      target.marker.gazeY = 1.5;
+
+    } else if (currentState === 'peeking') {
+      // Show password toggled on: sensor eyes widen, pylon and dome peek back
+      target.pylon.rot = 3.0;
+      target.pylon.skew = -1.0;
+      target.pylon.gazeX = 5.5;
+      target.pylon.gazeY = 0;
+
+      target.sensor.rot = 0;
+      target.sensor.gazeX = 6.0;
+      target.sensor.gazeY = 0;
+
+      target.scanner.rot = 0;
+      target.scanner.gazeX = 5.0;
+      target.scanner.gazeY = 0;
+
+      target.marker.rot = 0;
+      target.marker.gazeX = 5.0;
+      target.marker.gazeY = 0;
+
+    } else if (currentState === 'submitting') {
+      // Straighten up and look toward submit button
+      target.pylon.rot = 0.5;
+      target.pylon.skew = 0;
+      target.pylon.gazeX = 3.5;
+      target.pylon.gazeY = 3.5;
+
+      target.sensor.rot = 0;
+      target.sensor.gazeX = 3.5;
+      target.sensor.gazeY = 3.5;
+
+      target.scanner.rot = 0;
+      target.scanner.gazeX = 3.0;
+      target.scanner.gazeY = 3.0;
+
+      target.marker.rot = 0;
+      target.marker.gazeX = 3.5;
+      target.marker.gazeY = 3.5;
+
+      // Scan line animation
+      if (crewScanLine) {
+        scanLineY += scanLineDir;
+        if (scanLineY > 320 || scanLineY < 160) scanLineDir = -scanLineDir;
+        crewScanLine.setAttribute('y1', scanLineY);
+        crewScanLine.setAttribute('y2', scanLineY);
+      }
+
+    } else if (currentState === 'error') {
+      // Rejection pose: pylon tilts away with frown, dome frowns, marker wavy
+      target.pylon.rot = -5.0;
+      target.pylon.skew = 0.5;
+      target.pylon.gazeX = -2.0;
+      target.pylon.gazeY = 2.0;
+
+      target.sensor.rot = -2.0;
+      target.sensor.gazeX = -2.0;
+      target.sensor.gazeY = 2.0;
+
+      target.scanner.rot = 0;
+      target.scanner.gazeX = 0;
+      target.scanner.gazeY = 2.5;
+
+      target.marker.rot = 0;
+      target.marker.gazeX = 0;
+      target.marker.gazeY = 2.0;
+
+    } else if (currentState === 'success') {
+      // Success celebration: upright smiles, soft glow
+      target.pylon.rot = 0;
+      target.pylon.skew = 0;
+      target.pylon.gazeX = 0;
+      target.pylon.gazeY = -1.5;
+
+      target.sensor.rot = 0;
+      target.sensor.gazeX = 0;
+      target.sensor.gazeY = -1.5;
+
+      target.scanner.rot = 0;
+      target.scanner.gazeX = 0;
+      target.scanner.gazeY = -1.5;
+
+      target.marker.rot = 0;
+      target.marker.gazeX = 0;
+      target.marker.gazeY = -1.5;
+    }
+
+    // Lerp values
+    cur.pylon.y = lerp(cur.pylon.y, target.pylon.y, t);
+    cur.pylon.rot = lerp(cur.pylon.rot, target.pylon.rot, t);
+    cur.pylon.skew = lerp(cur.pylon.skew, target.pylon.skew, t);
+    cur.pylon.gazeX = lerp(cur.pylon.gazeX, target.pylon.gazeX, t);
+    cur.pylon.gazeY = lerp(cur.pylon.gazeY, target.pylon.gazeY, t);
+
+    cur.sensor.y = lerp(cur.sensor.y, target.sensor.y, t);
+    cur.sensor.rot = lerp(cur.sensor.rot, target.sensor.rot, t);
+    cur.sensor.gazeX = lerp(cur.sensor.gazeX, target.sensor.gazeX, t);
+    cur.sensor.gazeY = lerp(cur.sensor.gazeY, target.sensor.gazeY, t);
+
+    cur.scanner.y = lerp(cur.scanner.y, target.scanner.y, t);
+    cur.scanner.rot = lerp(cur.scanner.rot, target.scanner.rot, t);
+    cur.scanner.scaleY = lerp(cur.scanner.scaleY, target.scanner.scaleY, t);
+    cur.scanner.gazeX = lerp(cur.scanner.gazeX, target.scanner.gazeX, t);
+    cur.scanner.gazeY = lerp(cur.scanner.gazeY, target.scanner.gazeY, t);
+
+    cur.marker.y = lerp(cur.marker.y, target.marker.y, t);
+    cur.marker.rot = lerp(cur.marker.rot, target.marker.rot, t);
+    cur.marker.gazeX = lerp(cur.marker.gazeX, target.marker.gazeX, t);
+    cur.marker.gazeY = lerp(cur.marker.gazeY, target.marker.gazeY, t);
+
+    // Render transforms
+    shapePylon.setAttribute('transform', `translate(0, ${cur.pylon.y.toFixed(2)}) rotate(${cur.pylon.rot.toFixed(2)}) skewX(${cur.pylon.skew.toFixed(2)})`);
+    shapeSensor.setAttribute('transform', `translate(0, ${cur.sensor.y.toFixed(2)}) rotate(${cur.sensor.rot.toFixed(2)})`);
+    shapeScanner.setAttribute('transform', `translate(0, ${cur.scanner.y.toFixed(2)}) scale(1, ${cur.scanner.scaleY.toFixed(3)}) rotate(${cur.scanner.rot.toFixed(2)})`);
+    shapeMarker.setAttribute('transform', `translate(0, ${cur.marker.y.toFixed(2)}) rotate(${cur.marker.rot.toFixed(2)})`);
+
+    // Render face offsets (Pylon face shifts slightly more)
+    pylonFace.setAttribute('transform', `translate(${(cur.pylon.gazeX * 1.35).toFixed(2)}, ${(cur.pylon.gazeY * 1.2).toFixed(2)})`);
+    sensorFace.setAttribute('transform', `translate(${cur.sensor.gazeX.toFixed(2)}, ${cur.sensor.gazeY.toFixed(2)})`);
+    scannerFace.setAttribute('transform', `translate(${cur.scanner.gazeX.toFixed(2)}, ${cur.scanner.gazeY.toFixed(2)})`);
+    markerFace.setAttribute('transform', `translate(${cur.marker.gazeX.toFixed(2)}, ${cur.marker.gazeY.toFixed(2)})`);
+
+    // Pupils micro-offset
+    if (sensorPupilLeft) sensorPupilLeft.setAttribute('transform', `translate(${(cur.sensor.gazeX * 0.4).toFixed(2)}, ${(cur.sensor.gazeY * 0.4).toFixed(2)})`);
+    if (sensorPupilRight) sensorPupilRight.setAttribute('transform', `translate(${(cur.sensor.gazeX * 0.4).toFixed(2)}, ${(cur.sensor.gazeY * 0.4).toFixed(2)})`);
+    if (markerPupilLeft) markerPupilLeft.setAttribute('transform', `translate(${(cur.marker.gazeX * 0.35).toFixed(2)}, ${(cur.marker.gazeY * 0.35).toFixed(2)})`);
+    if (markerPupilRight) markerPupilRight.setAttribute('transform', `translate(${(cur.marker.gazeX * 0.35).toFixed(2)}, ${(cur.marker.gazeY * 0.35).toFixed(2)})`);
+
+    rafId = requestAnimationFrame(animateCrew);
+  }
+
+  // Start RAF loop
+  rafId = requestAnimationFrame(animateCrew);
+
+  // Blinking cycle: random desynchronized blinks (120ms every 2.5-5s)
+  function setupDesynchronizedBlinking(lids, intervalBase) {
+    if (prefersReducedMotion || lids.length === 0) return;
+    function triggerBlink() {
+      if (currentState === 'password') {
+        // In password mode, scanner dome eyes stay closed
+        setTimeout(triggerBlink, intervalBase + Math.random() * 2000);
+        return;
+      }
+      lids.forEach(lid => {
+        lid.setAttribute('stroke-width', '18');
+      });
+      setTimeout(() => {
+        lids.forEach(lid => {
+          lid.setAttribute('stroke-width', '0');
+        });
+        setTimeout(triggerBlink, intervalBase + Math.random() * 2500);
+      }, 120);
+    }
+    setTimeout(triggerBlink, intervalBase * 0.5 + Math.random() * 1500);
+  }
+
+  setupDesynchronizedBlinking(pylonLids, 3200);
+  setupDesynchronizedBlinking(sensorLids, 2800);
+  setupDesynchronizedBlinking(scannerLids, 4200);
+  setupDesynchronizedBlinking(markerLids, 3600);
+
+  // Pointer move gaze listener (clamped, smoothed)
+  window.addEventListener('pointermove', (e) => {
+    if (currentState === 'password' || currentState === 'submitting') return;
+    const stageRect = crewStage.getBoundingClientRect();
+    const centerX = stageRect.left + stageRect.width * 0.5;
+    const centerY = stageRect.top + stageRect.height * 0.6;
+    const dx = (e.clientX - centerX) / (window.innerWidth * 0.5);
+    const dy = (e.clientY - centerY) / (window.innerHeight * 0.5);
+
+    // Clamped gaze values (-5 to +5 px)
+    pointerGaze.x = Math.max(-5, Math.min(5, dx * 5));
+    pointerGaze.y = Math.max(-3, Math.min(3, dy * 3));
+  }, { passive: true });
+
+  // Update mouths based on mood state
+  function updateCrewMouths(mood) {
+    if (pylonMouth && mouths.pylon[mood]) pylonMouth.setAttribute('d', mouths.pylon[mood]);
+    if (sensorMouth && mouths.sensor[mood]) sensorMouth.setAttribute('d', mouths.sensor[mood]);
+    if (scannerMouth && mouths.scanner[mood]) scannerMouth.setAttribute('d', mouths.scanner[mood]);
+    if (markerMouth && mouths.marker[mood]) markerMouth.setAttribute('d', mouths.marker[mood]);
+  }
+
+  // --- Input Field Listeners ---
   if (usernameInput) {
     usernameInput.addEventListener('focus', () => {
-      if (!crewStage.classList.contains('state-submitting')) {
-        setCrewState(null);
-        const len = usernameInput.value.length;
-        const gazeX = Math.min(2.5 + len * 0.22, 6.5);
-        setCrewGaze(gazeX, 0);
+      if (currentState !== 'submitting') {
+        currentState = 'username';
+        updateCrewMouths('neutral');
+        hideAlert();
       }
     });
 
     usernameInput.addEventListener('input', () => {
-      if (crewStage.classList.contains('state-error')) {
-        setCrewState(null);
+      if (currentState === 'error') {
+        currentState = 'username';
+        updateCrewMouths('neutral');
         hideAlert();
       }
-      const len = usernameInput.value.length;
-      // Clamped horizontal pupil tracking mapped to typing depth
-      const gazeX = Math.min(2.5 + len * 0.22, 7.5);
-      const gazeY = (len % 2 === 0) ? 0.4 : -0.2;
-      setCrewGaze(gazeX, gazeY);
     });
 
-    usernameInput.addEventListener('blur', (e) => {
-      // If moving focus to password, let password focus handler take over
+    usernameInput.addEventListener('blur', () => {
       setTimeout(() => {
-        if (document.activeElement !== passwordInput && !crewStage.classList.contains('state-submitting') && !crewStage.classList.contains('state-error')) {
-          setCrewGaze(0, 0);
-        }
-      }, 50);
-    });
-  }
-
-  // --- Password Field Focus & Polite Privacy Reactivity ---
-  if (passwordInput) {
-    passwordInput.addEventListener('focus', () => {
-      if (crewStage.classList.contains('state-submitting')) return;
-      if (passwordInput.type === 'password') {
-        // Polite privacy mode: crew looks away respectfully
-        setCrewState('shy');
-      } else {
-        // Password is visible: crew peeks curiously
-        setCrewState('peeking');
-      }
-    });
-
-    passwordInput.addEventListener('input', () => {
-      if (crewStage.classList.contains('state-error')) {
-        setCrewState(null);
-        hideAlert();
-      }
-      if (passwordInput.type === 'text') {
-        setCrewState('peeking');
-      } else {
-        setCrewState('shy');
-      }
-    });
-
-    passwordInput.addEventListener('blur', () => {
-      setTimeout(() => {
-        if (document.activeElement !== togglePasswordBtn && !crewStage.classList.contains('state-submitting') && !crewStage.classList.contains('state-error') && !crewStage.classList.contains('state-rate-limited')) {
-          setCrewState(null);
-          setCrewGaze(0, 0);
+        if (document.activeElement !== passwordInput && currentState !== 'submitting' && currentState !== 'error') {
+          currentState = 'idle';
+          updateCrewMouths('neutral');
         }
       }, 60);
     });
   }
 
-  // --- Show/Hide Password Eye Toggle ---
+  if (passwordInput) {
+    passwordInput.addEventListener('focus', () => {
+      if (currentState !== 'submitting') {
+        if (passwordInput.type === 'text') {
+          currentState = 'peeking';
+        } else {
+          currentState = 'password';
+          // Scanner dome closes eyes
+          scannerLids.forEach(lid => lid.setAttribute('stroke-width', '18'));
+        }
+        hideAlert();
+      }
+    });
+
+    passwordInput.addEventListener('input', () => {
+      if (currentState === 'error') {
+        hideAlert();
+      }
+      if (passwordInput.type === 'text') {
+        currentState = 'peeking';
+        scannerLids.forEach(lid => lid.setAttribute('stroke-width', '0'));
+      } else {
+        currentState = 'password';
+        scannerLids.forEach(lid => lid.setAttribute('stroke-width', '18'));
+      }
+    });
+
+    passwordInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (document.activeElement !== togglePasswordBtn && currentState !== 'submitting' && currentState !== 'error') {
+          currentState = 'idle';
+          scannerLids.forEach(lid => lid.setAttribute('stroke-width', '0'));
+          updateCrewMouths('neutral');
+        }
+      }, 60);
+    });
+  }
+
+  // Show/Hide Password Eye Toggle
   if (togglePasswordBtn && passwordInput) {
     togglePasswordBtn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -243,21 +556,21 @@ function setupLoginExperience() {
       const eyeClosed = togglePasswordBtn.querySelector('.eye-closed-icon');
 
       if (isPassword) {
-        // Now showing password text
         if (eyeOpen) eyeOpen.style.display = 'none';
         if (eyeClosed) eyeClosed.style.display = 'block';
         togglePasswordBtn.setAttribute('aria-label', 'Hide password');
-        setCrewState('peeking');
+        currentState = 'peeking';
+        scannerLids.forEach(lid => lid.setAttribute('stroke-width', '0'));
       } else {
-        // Password masked again
         if (eyeOpen) eyeOpen.style.display = 'block';
         if (eyeClosed) eyeClosed.style.display = 'none';
         togglePasswordBtn.setAttribute('aria-label', 'Show password');
         if (document.activeElement === passwordInput) {
-          setCrewState('shy');
+          currentState = 'password';
+          scannerLids.forEach(lid => lid.setAttribute('stroke-width', '18'));
         } else {
-          setCrewState(null);
-          setCrewGaze(0, 0);
+          currentState = 'idle';
+          scannerLids.forEach(lid => lid.setAttribute('stroke-width', '0'));
         }
       }
       passwordInput.focus();
@@ -274,35 +587,39 @@ function setupLoginExperience() {
     if (!username || !password) {
       showAlert('Please enter both inspector username and passcode.', 'warning');
       wobbleCard();
-      setCrewState('error');
+      currentState = 'error';
+      updateCrewMouths('frown');
       return;
     }
 
     hideAlert();
-    setCrewState('submitting');
+    currentState = 'submitting';
+    if (crewScanLine) crewScanLine.style.opacity = '0.9';
     setLoadingState(true);
 
     try {
       const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({ username, password }),
       });
 
+      if (crewScanLine) crewScanLine.style.opacity = '0';
+
       if (res.status === 200) {
         const data = await res.json();
-        setCrewState('success');
-        
+        currentState = 'success';
+        updateCrewMouths('smile');
+        if (crewRadarSweep) crewRadarSweep.style.opacity = '0.7';
+
         if (btnText) btnText.textContent = '✓ Access Granted';
         if (submitBtn) {
           submitBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
           submitBtn.style.borderColor = 'rgba(16, 185, 129, 0.4)';
         }
 
-        // Celebrate briefly then smoothly reveal authenticated console
+        // Celebrate briefly then reveal dashboard
         setTimeout(() => {
           const loginScreen = document.getElementById('loginScreen');
           if (loginScreen) {
@@ -317,29 +634,40 @@ function setupLoginExperience() {
       } else if (res.status === 401) {
         const errData = await res.json().catch(() => ({}));
         const msg = errData.detail || 'Incorrect username or password.';
-        setCrewState('error');
+        currentState = 'error';
+        updateCrewMouths('frown');
         showAlert(msg, 'error');
         wobbleCard();
         setLoadingState(false);
-        if (passwordInput) {
-          passwordInput.select();
-        }
+        if (passwordInput) passwordInput.select();
+        setTimeout(() => {
+          if (currentState === 'error') {
+            currentState = 'idle';
+            updateCrewMouths('neutral');
+          }
+        }, 4000);
+
       } else if (res.status === 429) {
         const errData = await res.json().catch(() => ({}));
         const msg = errData.detail || 'Too many failed attempts. Please wait 60 seconds.';
-        setCrewState('rate-limited');
+        currentState = 'error';
+        updateCrewMouths('frown');
         showAlert(msg, 'warning');
         wobbleCard();
         setLoadingState(false);
+
       } else {
-        setCrewState('error');
+        currentState = 'error';
+        updateCrewMouths('frown');
         showAlert('Unable to connect to authentication backend. Please try again.', 'error');
         wobbleCard();
         setLoadingState(false);
       }
     } catch (err) {
       console.error('Login network error:', err);
-      setCrewState('error');
+      if (crewScanLine) crewScanLine.style.opacity = '0';
+      currentState = 'error';
+      updateCrewMouths('frown');
       showAlert('Network error: Unable to reach RoadSense API server.', 'error');
       wobbleCard();
       setLoadingState(false);
@@ -354,7 +682,7 @@ function setupLoginExperience() {
     if (btnSpinner) btnSpinner.style.display = loading ? 'inline-block' : 'none';
     if (btnArrow) btnArrow.style.display = loading ? 'none' : 'inline-block';
     if (btnText && loading) btnText.textContent = 'Verifying Credentials...';
-    if (btnText && !loading && !crewStage.classList.contains('state-success')) {
+    if (btnText && !loading && currentState !== 'success') {
       btnText.textContent = 'Authenticate & Launch Console';
       if (submitBtn) {
         submitBtn.style.background = '';
@@ -367,6 +695,9 @@ function setupLoginExperience() {
     if (!loginAlert || !loginAlertText) return;
     loginAlert.style.display = 'flex';
     loginAlert.className = `login-alert alert-${type}`;
+    loginAlert.style.opacity = '1';
+    loginAlert.style.pointerEvents = 'auto';
+    loginAlert.style.transform = 'translateY(0)';
     loginAlertText.textContent = message;
     if (loginAlertIcon) {
       loginAlertIcon.textContent = type === 'warning' ? '⏳' : '⚠️';
@@ -374,18 +705,20 @@ function setupLoginExperience() {
   }
 
   function hideAlert() {
-    if (loginAlert) loginAlert.style.display = 'none';
+    if (!loginAlert) return;
+    loginAlert.style.opacity = '0';
+    loginAlert.style.pointerEvents = 'none';
+    loginAlert.style.transform = 'translateY(-4px)';
   }
 
   function wobbleCard() {
     if (!loginCard) return;
     loginCard.classList.remove('card-wobble');
-    // Force reflow
-    void loginCard.offsetWidth;
+    void loginCard.offsetWidth; // Force reflow
     loginCard.classList.add('card-wobble');
     setTimeout(() => {
       loginCard.classList.remove('card-wobble');
-    }, 500);
+    }, 450);
   }
 }
 
@@ -578,72 +911,214 @@ function renderOverviewDashboard(data) {
   }
 
   // 6. Render Glowing Spline Frequency Chart
-  renderSplineChart(data.trendline);
+  if (data.trendline) {
+    renderSplineChart(data.trendline);
+  } else {
+    fetchAndRenderFrequencyChart('30d');
+  }
+}
+
+// -------------------------------------------------------------------------
+// Incident Frequency Dynamic Spline Chart & Range Controller (Issue B)
+// -------------------------------------------------------------------------
+let currentFrequencyRange = '30d';
+let activeTrendData = null;
+
+function setupFrequencyRangePills() {
+  const container = document.getElementById('freqRangePills');
+  if (!container) return;
+  const buttons = container.querySelectorAll('.filter-pill-btn');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const range = btn.dataset.range || '30d';
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      fetchAndRenderFrequencyChart(range);
+    });
+  });
+}
+
+async function fetchAndRenderFrequencyChart(rangeType = '30d') {
+  currentFrequencyRange = rangeType;
+  const svg = document.getElementById('incidentFrequencySvg');
+  if (!svg) return;
+
+  // Visual active toggle
+  const buttons = document.querySelectorAll('#freqRangePills .filter-pill-btn');
+  buttons.forEach(b => {
+    if (b.dataset.range === rangeType) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+
+  try {
+    const res = await fetch(`${API_BASE}/api/analytics/frequency?range=${rangeType}`, {
+      credentials: 'same-origin'
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    renderSplineChart(data);
+
+    // Update footnote insight text based on real range data
+    const footnoteEl = document.getElementById('summaryFootnoteText');
+    if (footnoteEl) {
+      const totalP = (data.series_potholes || []).reduce((a, b) => a + b, 0);
+      const totalC = (data.series_cracks || []).reduce((a, b) => a + b, 0);
+      const rangeLabel = rangeType === '1w' ? 'Past 7 Days' : (rangeType === '12m' ? 'Past 12 Months' : 'Past 30 Days');
+      footnoteEl.textContent = `${rangeLabel}: ${totalP} potholes & ${totalC} structural cracks tracked across municipal corridors.`;
+    }
+  } catch (err) {
+    console.warn('Failed to fetch frequency range data:', err);
+  }
 }
 
 function renderSplineChart(trend) {
   const svg = document.getElementById('incidentFrequencySvg');
+  const container = document.getElementById('splineChartContainer');
+  const tooltipPin = document.getElementById('chartTooltipPin');
+  const tooltipDate = document.getElementById('tooltipDate');
+  const tooltipPotholes = document.getElementById('tooltipPotholes');
+  const tooltipCracks = document.getElementById('tooltipCracks');
   if (!svg || !trend) return;
+  activeTrendData = trend;
 
-  const height = 170;
-  const width = 620;
-  const xs = [60, 165, 270, 380, 490, 595];
-  const pSeries = trend.series_potholes || [140, 180, 318, 160, 240, 190];
-  const cSeries = trend.series_cracks || [340, 310, 280, 350, 290, 310];
+  const width = 640;
+  const height = 220;
+  const leftPad = 48;
+  const rightPad = 24;
+  const topPad = 22;
+  const bottomPad = 38;
+  const plotW = width - leftPad - rightPad;
+  const plotH = height - topPad - bottomPad;
 
-  const pPoints = xs.map((x, i) => [x, height - (pSeries[i] / 450) * height + 10]);
-  const cPoints = xs.map((x, i) => [x, height - (cSeries[i] / 450) * height + 10]);
+  const labels = trend.labels || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const n = labels.length;
+  const pSeries = trend.series_potholes || labels.map(() => 0);
+  const cSeries = trend.series_cracks || labels.map(() => 0);
+
+  // Compute dynamic scale with zero-fill continuous bounds
+  const maxValRaw = Math.max(...pSeries, ...cSeries, 1);
+  const maxVal = maxValRaw <= 4 ? 4 : (maxValRaw <= 10 ? 10 : (maxValRaw <= 25 ? 25 : Math.ceil(maxValRaw / 10) * 10));
+
+  // Compute x coordinates for each bucket
+  const xs = labels.map((_, i) => leftPad + (i / Math.max(n - 1, 1)) * plotW);
+  const pPoints = xs.map((x, i) => [x, topPad + plotH - (pSeries[i] / maxVal) * plotH]);
+  const cPoints = xs.map((x, i) => [x, topPad + plotH - (cSeries[i] / maxVal) * plotH]);
 
   const pPathD = buildSmoothPath(pPoints);
   const cPathD = buildSmoothPath(cPoints);
 
-  const yValues = [400, 300, 200, 100];
+  // Generate 3 gridlines
+  const yTicks = [maxVal, Math.round(maxVal * 0.66), Math.round(maxVal * 0.33)];
   let gridMarkup = '';
-  yValues.forEach(val => {
-    const y = height - (val / 450) * height + 10;
+  yTicks.forEach(val => {
+    const y = topPad + plotH - (val / maxVal) * plotH;
     gridMarkup += `
-      <line x1="45" y1="${y}" x2="${width}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4 4" />
-      <text x="12" y="${y + 4}" fill="#64748b" font-size="11" font-family="sans-serif">${val}</text>
+      <line x1="${leftPad}" y1="${y}" x2="${width - rightPad}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4 4" />
+      <text x="${leftPad - 8}" y="${y + 4}" fill="#64748b" font-size="10" font-family="sans-serif" text-anchor="end">${val}</text>
     `;
   });
 
+  // Generate X-axis labels (render sensible subset if labels > 10)
   let xLabelsMarkup = '';
-  trend.labels.forEach((lbl, i) => {
-    xLabelsMarkup += `
-      <text x="${xs[i] - 18}" y="${height + 32}" fill="#94a3b8" font-size="11" font-family="sans-serif">${lbl}</text>
-    `;
+  const step = n <= 8 ? 1 : (n <= 16 ? 2 : Math.ceil(n / 7));
+  labels.forEach((lbl, i) => {
+    if (i % step === 0 || i === n - 1) {
+      xLabelsMarkup += `
+        <text x="${xs[i]}" y="${height - 12}" fill="#94a3b8" font-size="10" font-family="sans-serif" text-anchor="middle">${lbl}</text>
+      `;
+    }
   });
 
-  const peakX = pPoints[2][0];
-  const peakY = pPoints[2][1];
+  // Default highlight index: highlight_index or last point
+  const defaultIdx = (trend.highlight_index != null && trend.highlight_index < n) ? trend.highlight_index : (n - 1);
+  const peakX = xs[defaultIdx];
+  const peakY_p = pPoints[defaultIdx][1];
+  const peakY_c = cPoints[defaultIdx][1];
 
   svg.innerHTML = `
     <defs>
       <linearGradient id="potholeGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#ff2a85" stop-opacity="0.35"/>
+        <stop offset="0%" stop-color="#ff2a85" stop-opacity="0.32"/>
         <stop offset="100%" stop-color="#ff2a85" stop-opacity="0.0"/>
       </linearGradient>
       <linearGradient id="crackGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/>
+        <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.22"/>
         <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/>
       </linearGradient>
       <filter id="glowPink" x="-30%" y="-30%" width="160%" height="160%">
-        <feGaussianBlur stdDeviation="3.5" result="blur"/>
+        <feGaussianBlur stdDeviation="3" result="blur"/>
         <feComposite in="SourceGraphic" in2="blur" operator="over"/>
       </filter>
       <filter id="glowBlue" x="-30%" y="-30%" width="160%" height="160%">
-        <feGaussianBlur stdDeviation="3.5" result="blur"/>
+        <feGaussianBlur stdDeviation="3" result="blur"/>
         <feComposite in="SourceGraphic" in2="blur" operator="over"/>
       </filter>
     </defs>
     ${gridMarkup}
-    <path d="${cPathD} L ${xs[xs.length-1]},${height+10} L ${xs[0]},${height+10} Z" fill="url(#crackGrad)" />
-    <path d="${pPathD} L ${xs[xs.length-1]},${height+10} L ${xs[0]},${height+10} Z" fill="url(#potholeGrad)" />
-    <path d="${cPathD}" fill="none" stroke="#3b82f6" stroke-width="3" filter="url(#glowBlue)" stroke-linecap="round" />
-    <path d="${pPathD}" fill="none" stroke="#ff2a85" stroke-width="3" filter="url(#glowPink)" stroke-linecap="round" />
-    <circle cx="${peakX}" cy="${peakY}" r="7" fill="#ffffff" stroke="#ff2a85" stroke-width="3.5" filter="url(#glowPink)"/>
+    <path d="${cPathD} L ${xs[n-1]},${topPad + plotH} L ${xs[0]},${topPad + plotH} Z" fill="url(#crackGrad)" />
+    <path d="${pPathD} L ${xs[n-1]},${topPad + plotH} L ${xs[0]},${topPad + plotH} Z" fill="url(#potholeGrad)" />
+    <path d="${cPathD}" fill="none" stroke="#3b82f6" stroke-width="2.8" filter="url(#glowBlue)" stroke-linecap="round" />
+    <path d="${pPathD}" fill="none" stroke="#ff2a85" stroke-width="2.8" filter="url(#glowPink)" stroke-linecap="round" />
+    <circle id="freqCrackHighlight" cx="${peakX}" cy="${peakY_c}" r="5.5" fill="#ffffff" stroke="#3b82f6" stroke-width="3" filter="url(#glowBlue)"/>
+    <circle id="freqPotholeHighlight" cx="${peakX}" cy="${peakY_p}" r="5.5" fill="#ffffff" stroke="#ff2a85" stroke-width="3" filter="url(#glowPink)"/>
     ${xLabelsMarkup}
   `;
+
+  // Attach Pointer Move & Leave Handlers to container
+  if (container && tooltipPin) {
+    function updateTooltip(idx) {
+      if (idx < 0 || idx >= n) return;
+      const cHighlight = document.getElementById('freqCrackHighlight');
+      const pHighlight = document.getElementById('freqPotholeHighlight');
+
+      if (cHighlight) {
+        cHighlight.setAttribute('cx', xs[idx]);
+        cHighlight.setAttribute('cy', cPoints[idx][1]);
+      }
+      if (pHighlight) {
+        pHighlight.setAttribute('cx', xs[idx]);
+        pHighlight.setAttribute('cy', pPoints[idx][1]);
+      }
+
+      if (tooltipDate) tooltipDate.textContent = labels[idx];
+      if (tooltipPotholes) tooltipPotholes.textContent = pSeries[idx];
+      if (tooltipCracks) tooltipCracks.textContent = cSeries[idx];
+
+      const rect = container.getBoundingClientRect();
+      const pinW = 150;
+      const pointScreenX = (xs[idx] / width) * rect.width;
+      const pointScreenY = (Math.min(pPoints[idx][1], cPoints[idx][1]) / height) * rect.height;
+
+      const pinLeft = Math.max(12, Math.min(rect.width - pinW - 14, pointScreenX - pinW / 2));
+      const pinTop = Math.max(10, pointScreenY - 65);
+
+      tooltipPin.style.left = `${pinLeft}px`;
+      tooltipPin.style.top = `${pinTop}px`;
+      tooltipPin.style.display = 'block';
+    }
+
+    container.onpointermove = (e) => {
+      const rect = container.getBoundingClientRect();
+      const relX = (e.clientX - rect.left) / rect.width;
+      const clampedRelX = Math.max(0, Math.min(1, relX));
+      const svgX = leftPad + clampedRelX * plotW;
+
+      let closestIdx = 0;
+      let minDiff = Infinity;
+      xs.forEach((xVal, idx) => {
+        const diff = Math.abs(xVal - svgX);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestIdx = idx;
+        }
+      });
+      updateTooltip(closestIdx);
+    };
+
+    container.onpointerleave = () => {
+      tooltipPin.style.display = 'none';
+    };
+  }
 }
 
 
@@ -811,6 +1286,8 @@ function setupVideoIntelligenceStudio() {
   const runVideoBtn = document.getElementById('runVideoInspectionBtn');
   const fpsSlider = document.getElementById('videoFpsSlider');
   const fpsBadge = document.getElementById('videoFpsBadge');
+  const videoEl = document.getElementById('dashcamVideoPlayer');
+  const videoStatus = document.getElementById('videoPlayerStatus');
 
   if (fpsSlider && fpsBadge) {
     fpsSlider.addEventListener('input', (e) => {
@@ -818,12 +1295,43 @@ function setupVideoIntelligenceStudio() {
     });
   }
 
+  // Handle Video Player loading, buffering, error, and playback states
+  if (videoEl && videoStatus) {
+    videoEl.addEventListener('playing', () => {
+      videoStatus.style.display = 'none';
+    });
+
+    videoEl.addEventListener('waiting', () => {
+      videoStatus.style.display = 'block';
+      videoStatus.style.background = 'rgba(59, 130, 246, 0.12)';
+      videoStatus.style.borderColor = 'rgba(59, 130, 246, 0.35)';
+      videoStatus.style.color = '#93c5fd';
+      videoStatus.textContent = 'Buffering municipal dashcam stream...';
+    });
+
+    videoEl.addEventListener('canplay', () => {
+      videoStatus.style.display = 'none';
+    });
+
+    videoEl.addEventListener('error', () => {
+      videoStatus.style.display = 'block';
+      videoStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+      videoStatus.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+      videoStatus.style.color = '#fca5a5';
+      videoStatus.textContent = 'Unable to play video stream. Please verify server status and browser media codec support.';
+    });
+  }
+
   if (loadDemoBtn) {
     loadDemoBtn.addEventListener('click', () => {
-      const videoEl = document.getElementById('dashcamVideoPlayer');
-      videoEl.src = `${API_BASE}/demo-assets/dashcam_inspection_demo.mp4`;
-      videoEl.load();
-      videoEl.play();
+      if (videoEl) {
+        // Stream via authenticated/range-supporting endpoint
+        videoEl.src = `${API_BASE}/api/video/stream?file=dashcam_inspection_demo.mp4`;
+        videoEl.load();
+        videoEl.play().catch(err => {
+          console.warn('Playback notice:', err);
+        });
+      }
     });
   }
 
@@ -1043,9 +1551,18 @@ function setupPriorityCenter() {
     }
   });
 
-  const exportBtn = document.getElementById('exportWorkOrdersBtn');
-  if (exportBtn) {
-    exportBtn.addEventListener('click', () => {
+  // Primary: Dispatch Work Orders (PDF)
+  const exportPdfBtn = document.getElementById('exportWorkOrdersPdfBtn');
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', () => {
+      window.location.href = `${API_BASE}/api/export/work-orders/pdf`;
+    });
+  }
+
+  // Secondary: Export data (CSV)
+  const exportCsvBtn = document.getElementById('exportWorkOrdersCsvBtn') || document.getElementById('exportWorkOrdersBtn');
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', () => {
       window.location.href = `${API_BASE}/api/export/csv`;
     });
   }
