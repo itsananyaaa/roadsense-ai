@@ -6,6 +6,16 @@
 
 const API_BASE = window.location.origin;
 
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // Application State
 const state = {
   currentTab: 'overview',
@@ -802,6 +812,8 @@ function switchTab(tabId) {
     loadModelLab();
   } else if (tabId === 'reports-history') {
     loadReportsInventory();
+  } else if (tabId === 'methodology') {
+    loadMethodologyAnalytics();
   }
 }
 
@@ -824,6 +836,98 @@ function switchMethodSubtab(subtabId) {
   });
 }
 window.switchMethodSubtab = switchMethodSubtab;
+
+async function loadMethodologyAnalytics() {
+  try {
+    const res = await fetch(`${API_BASE}/api/analytics/methodology`);
+    if (!res.ok) {
+      console.warn('Methodology analytics response not OK:', res.status);
+      return;
+    }
+    const data = await res.json();
+    if (!data || !data.success) return;
+
+    // 1. In-Domain & Unseen-Domain summary cards
+    if (data.benchmark && data.benchmark.in_domain_summary) {
+      const ids = data.benchmark.in_domain_summary;
+      const el = document.getElementById('method-indomain-val');
+      if (el && ids.mAP50 != null) el.textContent = `${(ids.mAP50 * 100).toFixed(1)}% mAP`;
+      const sub = document.getElementById('method-indomain-sub');
+      if (sub && ids.mAP50_95 != null) sub.innerHTML = `India Held-Out &bull; ${(ids.mAP50_95 * 100).toFixed(1)}% mAP50-95`;
+    }
+
+    if (data.benchmark && data.benchmark.unseen_country_summary) {
+      const ucs = data.benchmark.unseen_country_summary;
+      const el = document.getElementById('method-unseen-val');
+      if (el && ucs.mAP50 != null) el.textContent = `${(ucs.mAP50 * 100).toFixed(1)}% mAP`;
+      const sub = document.getElementById('method-unseen-sub');
+      if (sub && ucs.mAP50_95 != null) sub.innerHTML = `Czech Republic Zero-Shot &bull; ${(ucs.mAP50_95 * 100).toFixed(1)}% mAP50-95`;
+      const dropEl = document.getElementById('method-drop-val');
+      if (dropEl && ucs.domain_degradation_pct != null) dropEl.textContent = `-${ucs.domain_degradation_pct.toFixed(1)}%`;
+    }
+
+    // 2. Hardware Latency & Throughput Benchmark
+    if (data.benchmark && data.benchmark.latency_benchmark) {
+      const lb = data.benchmark.latency_benchmark;
+      if (lb.mps) {
+        const mpsLat = document.getElementById('method-mps-latency');
+        if (mpsLat) mpsLat.textContent = `${lb.mps.mean_latency_ms.toFixed(2)} ms / frame`;
+        const mpsFps = document.getElementById('method-mps-fps');
+        if (mpsFps) mpsFps.innerHTML = `${lb.mps.fps.toFixed(1)} FPS &bull; Real-Time Capable`;
+      }
+      if (lb.cpu) {
+        const cpuLat = document.getElementById('method-cpu-latency');
+        if (cpuLat) cpuLat.textContent = `${lb.cpu.mean_latency_ms.toFixed(2)} ms / frame`;
+        const cpuFps = document.getElementById('method-cpu-fps');
+        if (cpuFps) cpuFps.innerHTML = `${lb.cpu.fps.toFixed(1)} FPS &bull; Standard Execution`;
+      }
+    }
+
+    // 3. Populate per-class table if both in_domain and unseen_eval available
+    if (data.india_eval && data.india_eval.per_class && data.czech_eval && data.czech_eval.per_class) {
+      const tbody = document.getElementById('method-per-class-tbody');
+      if (tbody) {
+        const order = ['D40', 'D20', 'D00', 'D10'];
+        const names = {
+          'D00': 'Longitudinal Crack',
+          'D10': 'Transverse Crack',
+          'D20': 'Alligator Crack',
+          'D40': 'Pothole'
+        };
+        let rowsHtml = '';
+        order.forEach(code => {
+          const inC = data.india_eval.per_class[code] || {};
+          const czC = data.czech_eval.per_class[code] || {};
+          const inMap = inC.mAP50 != null ? (inC.mAP50 * 100).toFixed(1) + '%' : '—';
+          const czMap = czC.mAP50 != null ? (czC.mAP50 * 100).toFixed(1) + '%' : '—';
+          let deltaStr = '—';
+          let deltaColor = '#94a3b8';
+          if (inC.mAP50 != null && czC.mAP50 != null) {
+            const delta = ((czC.mAP50 - inC.mAP50) / inC.mAP50) * 100;
+            deltaStr = `${delta.toFixed(1)}%`;
+            deltaColor = delta >= 0 ? '#10b981' : (delta > -25 ? '#f59e0b' : '#ef4444');
+          }
+
+          rowsHtml += `<tr>
+            <td><strong>${code}</strong> ${escapeHtml(names[code] || code)}</td>
+            <td style="text-align:right;">${inC.samples ?? '—'}</td>
+            <td style="text-align:right;">${inC.precision != null ? (inC.precision * 100).toFixed(1) + '%' : '—'}</td>
+            <td style="text-align:right;">${inC.recall != null ? (inC.recall * 100).toFixed(1) + '%' : '—'}</td>
+            <td style="text-align:right;">${inC.f1 != null ? inC.f1.toFixed(3) : '—'}</td>
+            <td style="text-align:right; color:#10b981; font-weight:600;">${inMap}</td>
+            <td style="text-align:right;">${czC.samples ?? '—'}</td>
+            <td style="text-align:right;">${czMap}</td>
+            <td style="text-align:right; color:${deltaColor}; font-weight:600;">${deltaStr}</td>
+          </tr>`;
+        });
+        tbody.innerHTML = rowsHtml;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load methodology analytics:', err);
+  }
+}
+window.loadMethodologyAnalytics = loadMethodologyAnalytics;
 
 // -------------------------------------------------------------------------
 // 1. Overview Dashboard (Matching the Resq.io Reference Mockup)

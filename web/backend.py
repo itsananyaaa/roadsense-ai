@@ -40,6 +40,7 @@ from pydantic import BaseModel
 
 from core import config
 from core.db import (
+    count_nearby_incidents,
     get_all_incidents,
     get_connection,
     get_incident_by_uuid,
@@ -50,11 +51,16 @@ from core.db import (
     update_review_status,
 )
 from core.demo import seed_demo_database
-from core.health import run_health_check
-from core.inference import DamageDetector, InvalidImageInputError
+from core.geo import extract_exif_gps
+from core.health import check_checkpoint_status, run_health_check
+from core.inference import DamageDetector, InvalidImageInputError, ModelWeightsNotFoundError
 from core.logger import get_logger
 from core.priority import calculate_priority
-from core.reports_pdf import build_incident_report_pdf, build_work_orders_pdf
+from core.reports_pdf import (
+    build_incident_report_pdf,
+    build_methodology_report_pdf,
+    build_work_orders_pdf,
+)
 from core.video import VideoProcessor, generate_demo_dashcam_video
 
 logger = get_logger("roadsense.backend")
@@ -464,6 +470,95 @@ def api_get_frequency(
     return get_incident_frequency(range)
 
 
+@app.get("/api/analytics/methodology")
+def api_get_methodology_analytics(user: str = Depends(require_authenticated_user)):
+    """
+    Structured, physical-artifact-backed data analytics for the Methodology engine (Protected).
+    Returns verified metrics from RDD2022 held-out benchmarks, hardware profiles,
+    formula v1.0 parameters, live operational incident distributions, and model pedigree.
+    """
+    india_path = config.REPORTS_DIR / "eval_india.json"
+    czech_path = config.REPORTS_DIR / "eval_czech.json"
+    bench_path = config.REPORTS_DIR / "eval_benchmark.json"
+
+    india_eval = json.loads(india_path.read_text()) if india_path.exists() else None
+    czech_eval = json.loads(czech_path.read_text()) if czech_path.exists() else None
+    bench_data = json.loads(bench_path.read_text()) if bench_path.exists() else None
+
+    # Checkpoint status
+    resolved_path, status_label = check_checkpoint_status()
+    file_size_mb = 0.0
+    sha256_hex = "N/A"
+    if resolved_path != "None" and Path(resolved_path).exists():
+        p = Path(resolved_path)
+        file_size_mb = round(p.stat().st_size / 1e6, 2)
+        import hashlib
+        sha256_hex = hashlib.sha256(p.read_bytes()[:65536]).hexdigest()[:16]
+
+    # Operational statistics from live SQLite DB
+    db_stats = get_summary_statistics()
+
+    # Priority formula v1.0 reference specification
+    formula_spec = {
+        "formula": "S = min(100, w_class * mean_conf * 40 + min(N_cluster, 5) * 6 + w_road * 15 + w_human * 15)",
+        "version": config.PRIORITY_FORMULA_VERSION,
+        "class_weights": config.CLASS_SEVERITY_WEIGHTS,
+        "road_weights": config.ROAD_CLASS_WEIGHTS,
+        "bands": {
+            "CRITICAL": {"min": 75.0, "max": 100.0, "color": "#dc2626", "sla": "24-48 Hours"},
+            "HIGH": {"min": 55.0, "max": 74.9, "color": "#ea580c", "sla": "3-5 Business Days"},
+            "MODERATE": {"min": 35.0, "max": 54.9, "color": "#d97706", "sla": "10-14 Business Days"},
+            "LOW": {"min": 0.0, "max": 34.9, "color": "#16a34a", "sla": "Routine Maintenance Cycle"},
+        },
+        "clustering_radius_meters": 25.0,
+        "clustering_cap": 5,
+    }
+
+    # Worked example calculated live via calculate_priority
+    worked_example_calc = calculate_priority(
+        detected_classes=["D40"],
+        max_confidence=0.88,
+        nearby_repeat_count=3,
+        road_classification="PRIMARY_ARTERIAL",
+        human_urgency_modifier=1.0,
+    )
+    worked_example = {
+        "inputs": {
+            "distress_class": "D40 (Pothole)",
+            "class_weight": config.CLASS_SEVERITY_WEIGHTS.get("D40", 1.0),
+            "mean_confidence": 0.88,
+            "nearby_repeat_count": 3,
+            "road_classification": "PRIMARY_ARTERIAL (Weight: 1.0)",
+            "human_urgency_modifier": 1.0,
+        },
+        "score": worked_example_calc.score,
+        "level": worked_example_calc.level,
+        "breakdown": worked_example_calc.breakdown,
+    }
+
+    return {
+        "success": True,
+        "artifacts_available": bool(india_eval and czech_eval and bench_data),
+        "india_eval": india_eval,
+        "czech_eval": czech_eval,
+        "benchmark": bench_data,
+        "checkpoint": {
+            "path": resolved_path,
+            "status": status_label,
+            "label": status_label,
+            "is_evaluated_trained": status_label == "EVALUATED_TRAINED",
+            "is_smoke_test": status_label == "SMOKE_CHECKPOINT",
+            "is_pretrained_baseline": status_label == "PRETRAINED_BASELINE",
+            "file_exists": resolved_path != "None" and Path(resolved_path).exists(),
+            "file_size_mb": file_size_mb,
+            "sha256": sha256_hex,
+        },
+        "database_analytics": db_stats,
+        "priority_engine": formula_spec,
+        "worked_example": worked_example,
+    }
+
+
 # -------------------------------------------------------------------------
 # API Endpoints: Incident Database & Triage
 # -------------------------------------------------------------------------
@@ -531,20 +626,21 @@ def api_update_review(
 # API Endpoints: Image Inference & Detection
 # -------------------------------------------------------------------------
 @app.post("/api/detect/image")
-async def api_detect_image(
+def api_detect_image(
     file: Optional[UploadFile] = File(None),
     demo_filename: Optional[str] = Form(None),
     road_name: Optional[str] = Form("Corridor NH-44"),
     road_classification: Optional[str] = Form("PRIMARY_ARTERIAL"),
-    location_provenance: Optional[str] = Form("USER_ENTERED"),
-    latitude: Optional[float] = Form(12.9716),
-    longitude: Optional[float] = Form(77.5946),
+    location_provenance: Optional[str] = Form(None),
+    latitude: Optional[float] = Form(None),
+    longitude: Optional[float] = Form(None),
     save_to_db: Optional[bool] = Form(True),
     user: str = Depends(require_authenticated_user),
 ):
     """
     Run real YOLO inference on Apple Silicon MPS hardware on an uploaded or demo image.
-    Generates bounding boxes, computes deterministic priority score, and commits to SQLite.
+    Extracts authentic EXIF GPS where available, applies 25m spatial clustering,
+    computes deterministic priority score, and commits to SQLite.
     """
     config.EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
     temp_image_path = None
@@ -555,7 +651,7 @@ async def api_detect_image(
         if ext not in config.SUPPORTED_IMAGE_EXTENSIONS:
             raise HTTPException(status_code=400, detail=f"Unsupported format {ext}")
         
-        file_bytes = await file.read()
+        file_bytes = file.file.read()
         unique_name = f"upload_{uuid.uuid4().hex[:8]}{ext}"
         temp_image_path = config.EVIDENCE_DIR / unique_name
         with open(temp_image_path, "wb") as f:
@@ -575,8 +671,29 @@ async def api_detect_image(
     detector = DamageDetector.get_instance()
     try:
         detection_result = detector.predict(temp_image_path, conf_threshold=config.DEFAULT_CONFIDENCE_THRESHOLD)
+    except InvalidImageInputError as e:
+        logger.warning(f"Image validation rejected: {e}")
+        if temp_image_path and temp_image_path.exists():
+            try:
+                temp_image_path.unlink()
+            except Exception:
+                pass
+        raise HTTPException(status_code=400, detail=str(e))
+    except ModelWeightsNotFoundError as e:
+        logger.error(f"Weights missing: {e}")
+        if temp_image_path and temp_image_path.exists():
+            try:
+                temp_image_path.unlink()
+            except Exception:
+                pass
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         logger.error(f"Inference error: {e}")
+        if temp_image_path and temp_image_path.exists():
+            try:
+                temp_image_path.unlink()
+            except Exception:
+                pass
         raise HTTPException(status_code=500, detail=f"Inference failed: {str(e)}")
 
     # Save annotated image for high-speed client viewing
@@ -586,12 +703,39 @@ async def api_detect_image(
 
     h, w = detection_result.annotated_image_bgr.shape[:2]
 
+    # Resolve GPS Coordinates and Provenance
+    if demo_filename:
+        final_lat = float(latitude) if latitude is not None else 12.9716
+        final_lon = float(longitude) if longitude is not None else 77.5946
+        final_prov = "EXPLICIT_SYNTHETIC_DEMO"
+    else:
+        exif_lat, exif_lon, exif_prov = extract_exif_gps(str(temp_image_path))
+        if exif_lat is not None and exif_lon is not None:
+            final_lat = exif_lat
+            final_lon = exif_lon
+            final_prov = exif_prov
+        elif latitude is not None and longitude is not None:
+            final_lat = float(latitude)
+            final_lon = float(longitude)
+            final_prov = location_provenance or "USER_ENTERED"
+        else:
+            final_lat = None
+            final_lon = None
+            final_prov = "UNKNOWN"
+
+    # Calculate spatial repetition count using Haversine prefilter if located
+    nearby_count = (
+        count_nearby_incidents(final_lat, final_lon, radius_meters=25.0)
+        if (final_lat is not None and final_lon is not None)
+        else 0
+    )
+
     # Calculate deterministic priority score
     detected_classes = [d.class_code for d in detection_result.detections]
     priority_result = calculate_priority(
         detected_classes=detected_classes,
         max_confidence=detection_result.max_confidence,
-        nearby_repeat_count=0,
+        nearby_repeat_count=nearby_count,
         road_classification=road_classification or "PRIMARY_ARTERIAL",
         human_urgency_modifier=1.0,
     )
@@ -613,9 +757,9 @@ async def api_detect_image(
             detection_count=detection_result.detection_count,
             max_confidence=detection_result.max_confidence,
             raw_detections=raw_det_dicts,
-            latitude=latitude,
-            longitude=longitude,
-            location_provenance=location_provenance or "USER_ENTERED",
+            latitude=final_lat,
+            longitude=final_lon,
+            location_provenance=final_prov,
             road_name=road_name or "Survey Corridor",
             road_classification=road_classification or "PRIMARY_ARTERIAL",
             priority_score=priority_result.score,
@@ -637,6 +781,9 @@ async def api_detect_image(
         "annotated_image_url": f"/evidence/{annotated_filename}",
         "image_width": w,
         "image_height": h,
+        "latitude": final_lat,
+        "longitude": final_lon,
+        "location_provenance": final_prov,
         "detections": [
             {
                 "class_code": d.class_code,
@@ -668,12 +815,11 @@ async def api_detect_image(
     }
 
 
-
 # -------------------------------------------------------------------------
 # API Endpoints: Video Stream Intelligence
 # -------------------------------------------------------------------------
 @app.post("/api/detect/video")
-async def api_detect_video(
+def api_detect_video(
     file: Optional[UploadFile] = File(None),
     use_demo: Optional[bool] = Form(False),
     sampling_fps: Optional[float] = Form(2.0),
@@ -688,6 +834,7 @@ async def api_detect_video(
     """
     config.DATA_DIR.mkdir(parents=True, exist_ok=True)
     video_path = None
+    temp_vid = None
 
     if use_demo or not file:
         demo_vid = config.DATA_DIR / "demo" / "dashcam_inspection_demo.mp4"
@@ -699,7 +846,14 @@ async def api_detect_video(
         if ext not in config.SUPPORTED_VIDEO_EXTENSIONS:
             raise HTTPException(status_code=400, detail=f"Unsupported video format: {ext}")
         temp_vid = config.EVIDENCE_DIR / f"upload_video_{uuid.uuid4().hex[:8]}{ext}"
-        content = await file.read()
+        content = file.file.read()
+        if len(content) == 0:
+            raise HTTPException(status_code=400, detail="Video file is empty (0 bytes)")
+        if len(content) > config.MAX_VIDEO_SIZE_BYTES:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Video exceeds maximum allowed size ({config.MAX_VIDEO_SIZE_BYTES / 1e6:.0f} MB)",
+            )
         with open(temp_vid, "wb") as f:
             f.write(content)
         video_path = temp_vid
@@ -707,14 +861,43 @@ async def api_detect_video(
     # Initialize video processor and analyze stream
     processor = VideoProcessor()
     sample_rate = max(1.0, min(5.0, sampling_fps or 2.0))
-    report = processor.analyze_video(
-        video_path=video_path,
-        sample_fps=sample_rate,
-        conf_threshold=config.DEFAULT_CONFIDENCE_THRESHOLD,
-    )
+    try:
+        report = processor.analyze_video(
+            video_path=video_path,
+            sample_fps=sample_rate,
+            conf_threshold=config.DEFAULT_CONFIDENCE_THRESHOLD,
+        )
+    except (ValueError, RuntimeError, FileNotFoundError) as e:
+        logger.warning(f"Video validation/processing rejected: {e}")
+        if temp_vid and temp_vid.exists():
+            try:
+                temp_vid.unlink()
+            except Exception:
+                pass
+        raise HTTPException(status_code=400, detail=str(e))
+    except ModelWeightsNotFoundError as e:
+        logger.error(f"Weights missing during video processing: {e}")
+        if temp_vid and temp_vid.exists():
+            try:
+                temp_vid.unlink()
+            except Exception:
+                pass
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        logger.error(f"Video processing error: {e}")
+        if temp_vid and temp_vid.exists():
+            try:
+                temp_vid.unlink()
+            except Exception:
+                pass
+        raise HTTPException(status_code=500, detail=f"Video analysis failed: {str(e)}")
 
     # If save_incidents, commit deduplicated keyframe incidents to SQLite
     if save_incidents:
+        v_lat = 12.9716 if use_demo else None
+        v_lon = 77.5946 if use_demo else None
+        v_prov = "EXPLICIT_SYNTHETIC_DEMO" if use_demo else "UNKNOWN"
+
         for kf in report.keyframe_events:
             raw_det_dicts = [
                 {
@@ -731,9 +914,9 @@ async def api_detect_video(
                 detection_count=len(kf.detections),
                 max_confidence=kf.max_confidence,
                 raw_detections=raw_det_dicts,
-                latitude=12.9716,
-                longitude=77.5946,
-                location_provenance="USER_ENTERED",
+                latitude=v_lat,
+                longitude=v_lon,
+                location_provenance=v_prov,
                 road_name=road_name or "Inspection Corridor",
                 road_classification=road_classification or "PRIMARY_ARTERIAL",
                 priority_score=kf.priority_score,
@@ -905,6 +1088,16 @@ def api_export_incidents_pdf(
     )
 
 
+def sanitize_csv_cell(value: Any) -> Any:
+    """Prepend an apostrophe to text cells beginning with formula characters (=, +, -, @, \\t, \\r) to prevent CSV injection."""
+    if value is None:
+        return ""
+    s = str(value)
+    if s and s[0] in ("=", "+", "-", "@", "\t", "\r"):
+        return "'" + s
+    return s
+
+
 @app.get("/api/export/csv")
 def api_export_csv(
     class_filter: Optional[str] = None,
@@ -913,7 +1106,7 @@ def api_export_csv(
     search_query: Optional[str] = None,
     user: str = Depends(require_authenticated_user),
 ):
-    """Stream municipal incident inventory as CSV (Data export) (Protected)."""
+    """Stream municipal incident inventory as UTF-8 BOM CSV with formula injection sanitization (Data export) (Protected)."""
     incidents = get_all_incidents(
         class_filter=class_filter,
         priority_filter=priority_filter,
@@ -930,39 +1123,49 @@ def api_export_csv(
         "Road Name",
         "Road Classification",
         "Detected Classes",
+        "Detection Count",
         "Max Confidence",
         "Latitude",
         "Longitude",
         "Location Provenance",
+        "Synthetic Demo Flag",
         "Priority Score",
         "Priority Level",
         "Review Status",
         "Reviewer Notes",
+        "Checkpoint ID",
     ])
 
     for inc in incidents:
+        is_synthetic = (inc.get("location_provenance") == "EXPLICIT_SYNTHETIC_DEMO")
         writer.writerow([
-            inc.get("incident_uuid"),
-            inc.get("timestamp"),
-            inc.get("road_name"),
-            inc.get("road_classification"),
-            ";".join(inc.get("detected_classes", [])),
-            inc.get("max_confidence"),
+            sanitize_csv_cell(inc.get("incident_uuid")),
+            sanitize_csv_cell(inc.get("timestamp")),
+            sanitize_csv_cell(inc.get("road_name")),
+            sanitize_csv_cell(inc.get("road_classification")),
+            sanitize_csv_cell(";".join(inc.get("detected_classes", []))),
+            inc.get("detection_count", 0),
+            round(inc.get("max_confidence", 0.0), 4) if inc.get("max_confidence") is not None else "",
             inc.get("latitude") if inc.get("latitude") is not None else "",
             inc.get("longitude") if inc.get("longitude") is not None else "",
-            inc.get("location_provenance"),
-            inc.get("priority_score"),
-            inc.get("priority_level"),
-            inc.get("review_status"),
-            inc.get("reviewer_notes") or "",
+            sanitize_csv_cell(inc.get("location_provenance")),
+            "TRUE" if is_synthetic else "FALSE",
+            round(inc.get("priority_score", 0.0), 1) if inc.get("priority_score") is not None else "",
+            sanitize_csv_cell(inc.get("priority_level")),
+            sanitize_csv_cell(inc.get("review_status")),
+            sanitize_csv_cell(inc.get("reviewer_notes") or ""),
+            sanitize_csv_cell(inc.get("checkpoint_id") or ""),
         ])
 
-    output.seek(0)
+    csv_bytes = output.getvalue().encode("utf-8-sig")
     filename = f"roadsense_incidents_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-    return StreamingResponse(
-        iter([output.getvalue()]),
-        media_type="text/csv",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    return Response(
+        content=csv_bytes,
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Type": "text/csv; charset=utf-8",
+        },
     )
 
 
@@ -972,9 +1175,15 @@ def api_export_geojson(
     priority_filter: Optional[str] = None,
     review_filter: Optional[str] = None,
     search_query: Optional[str] = None,
+    include_unlocated: bool = False,
     user: str = Depends(require_authenticated_user),
 ):
-    """Stream verified geospatial defects as RFC 7946 GeoJSON FeatureCollection (GIS export) (Protected)."""
+    """
+    Stream verified geospatial defects as RFC 7946 GeoJSON FeatureCollection (GIS export) (Protected).
+    By default, only features with valid geospatial coordinates are included as Point geometries
+    for GIS layers. If include_unlocated=True, unlocated incidents are included with geometry: null
+    per RFC 7946 Section 3.2 without invented coordinates.
+    """
     incidents = get_all_incidents(
         class_filter=class_filter,
         priority_filter=priority_filter,
@@ -988,24 +1197,32 @@ def api_export_geojson(
         lat = inc.get("latitude")
         lon = inc.get("longitude")
         if lat is None or lon is None:
-            continue
+            if not include_unlocated:
+                continue
+            geometry = None
+        else:
+            geometry = {
+                "type": "Point",
+                "coordinates": [float(lon), float(lat)],
+            }
 
         features.append({
             "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [float(lon), float(lat)],
-            },
+            "geometry": geometry,
             "properties": {
                 "incident_uuid": inc.get("incident_uuid"),
                 "timestamp": inc.get("timestamp"),
                 "road_name": inc.get("road_name"),
                 "road_classification": inc.get("road_classification"),
                 "detected_classes": inc.get("detected_classes"),
-                "priority_score": inc.get("priority_score"),
+                "detection_count": inc.get("detection_count", 0),
+                "max_confidence": round(inc.get("max_confidence", 0.0), 4) if inc.get("max_confidence") is not None else None,
+                "priority_score": round(inc.get("priority_score", 0.0), 1) if inc.get("priority_score") is not None else None,
                 "priority_level": inc.get("priority_level"),
                 "location_provenance": inc.get("location_provenance"),
+                "is_synthetic_demo": inc.get("location_provenance") == "EXPLICIT_SYNTHETIC_DEMO",
                 "review_status": inc.get("review_status"),
+                "reviewer_notes": inc.get("reviewer_notes") or "",
             },
         })
 
@@ -1019,6 +1236,22 @@ def api_export_geojson(
         content=geojson_doc,
         media_type="application/geo+json",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@app.get("/api/export/methodology/pdf")
+def api_export_methodology_pdf(user: str = Depends(require_authenticated_user)):
+    """Export authoritative methodology and validation report as landscape A4 PDF (Protected)."""
+    pdf_bytes = build_methodology_report_pdf()
+    timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"roadsense_methodology_{timestamp_str}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Type": "application/pdf",
+        },
     )
 
 
