@@ -95,39 +95,71 @@ def insert_incident(
     thumbnail_path: Optional[str] = None,
     video_source_path: Optional[str] = None,
     video_frame_number: Optional[int] = None,
+    timestamp: Optional[str] = None,
     db_path: Optional[Path] = None,
 ) -> str:
     """Insert a new incident record using strict parameterized SQL."""
     inc_uuid = f"INC-{datetime.utcnow().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
 
-    query = """
-    INSERT INTO incidents (
-        incident_uuid, image_path, thumbnail_path, video_source_path, video_frame_number,
-        checkpoint_id, detected_classes, detection_count, max_confidence, raw_detections,
-        latitude, longitude, location_provenance, road_name, road_classification,
-        priority_score, priority_level, priority_formula_version
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """
-    params = (
-        inc_uuid,
-        str(image_path),
-        str(thumbnail_path) if thumbnail_path else None,
-        str(video_source_path) if video_source_path else None,
-        video_frame_number,
-        checkpoint_id,
-        json.dumps(detected_classes),
-        detection_count,
-        max_confidence,
-        json.dumps(raw_detections),
-        latitude,
-        longitude,
-        location_provenance,
-        road_name,
-        road_classification,
-        priority_score,
-        priority_level,
-        priority_formula_version,
-    )
+    if timestamp:
+        query = """
+        INSERT INTO incidents (
+            incident_uuid, timestamp, image_path, thumbnail_path, video_source_path, video_frame_number,
+            checkpoint_id, detected_classes, detection_count, max_confidence, raw_detections,
+            latitude, longitude, location_provenance, road_name, road_classification,
+            priority_score, priority_level, priority_formula_version
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        params = (
+            inc_uuid,
+            str(timestamp),
+            str(image_path),
+            str(thumbnail_path) if thumbnail_path else None,
+            str(video_source_path) if video_source_path else None,
+            video_frame_number,
+            checkpoint_id,
+            json.dumps(detected_classes),
+            detection_count,
+            max_confidence,
+            json.dumps(raw_detections),
+            latitude,
+            longitude,
+            location_provenance,
+            road_name,
+            road_classification,
+            priority_score,
+            priority_level,
+            priority_formula_version,
+        )
+    else:
+        query = """
+        INSERT INTO incidents (
+            incident_uuid, image_path, thumbnail_path, video_source_path, video_frame_number,
+            checkpoint_id, detected_classes, detection_count, max_confidence, raw_detections,
+            latitude, longitude, location_provenance, road_name, road_classification,
+            priority_score, priority_level, priority_formula_version
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        params = (
+            inc_uuid,
+            str(image_path),
+            str(thumbnail_path) if thumbnail_path else None,
+            str(video_source_path) if video_source_path else None,
+            video_frame_number,
+            checkpoint_id,
+            json.dumps(detected_classes),
+            detection_count,
+            max_confidence,
+            json.dumps(raw_detections),
+            latitude,
+            longitude,
+            location_provenance,
+            road_name,
+            road_classification,
+            priority_score,
+            priority_level,
+            priority_formula_version,
+        )
 
     with get_connection(db_path) as conn:
         conn.execute(query, params)
@@ -335,3 +367,109 @@ def clear_all_incidents(confirm: bool = False, db_path: Optional[Path] = None) -
         conn.commit()
     logger.info("Cleared all records from incidents table.")
     return True
+
+
+def get_incident_frequency(
+    range_type: str = "30d",
+    db_path: Optional[Path] = None,
+) -> Dict[str, Any]:
+    """
+    Aggregate incident frequencies by day (1w, 30d) or month (12m)
+    with continuous zero-filling, anchored to today's date (UTC).
+    Returns real database counts for Potholes (D40) and Cracks (D00, D10, D20).
+    """
+    from datetime import datetime, timedelta
+
+    today = datetime.utcnow().date()
+
+    if range_type == "1w":
+        # 7 days ending today
+        num_days = 7
+        dates = [today - timedelta(days=num_days - 1 - i) for i in range(num_days)]
+        date_keys = [d.strftime("%Y-%m-%d") for d in dates]
+        labels = [d.strftime("%a %d") for d in dates]
+        key_format = "%Y-%m-%d"
+    elif range_type == "12m":
+        # 12 calendar months ending current month
+        months = []
+        cur_year = today.year
+        cur_month = today.month
+        for i in range(11, -1, -1):
+            m = cur_month - i
+            y = cur_year
+            while m <= 0:
+                m += 12
+                y -= 1
+            months.append((y, m))
+        date_keys = [f"{y:04d}-{m:02d}" for (y, m) in months]
+        labels = [datetime(y, m, 1).strftime("%b %y") for (y, m) in months]
+        key_format = "%Y-%m"
+    else:  # "30d" default
+        num_days = 30
+        dates = [today - timedelta(days=num_days - 1 - i) for i in range(num_days)]
+        date_keys = [d.strftime("%Y-%m-%d") for d in dates]
+        labels = [d.strftime("%d %b") for d in dates]
+        key_format = "%Y-%m-%d"
+
+    potholes_map = {k: 0 for k in date_keys}
+    cracks_map = {k: 0 for k in date_keys}
+
+    query = "SELECT timestamp, detected_classes FROM incidents WHERE timestamp IS NOT NULL"
+    total_found = 0
+    with get_connection(db_path) as conn:
+        cursor = conn.execute(query)
+        for row in cursor.fetchall():
+            ts_val = row["timestamp"]
+            if not ts_val:
+                continue
+            ts_str = str(ts_val)[:10] if key_format == "%Y-%m-%d" else str(ts_val)[:7]
+            if ts_str in potholes_map:
+                try:
+                    raw_c = row["detected_classes"]
+                    classes = json.loads(raw_c) if isinstance(raw_c, str) else (raw_c or [])
+                except Exception:
+                    classes = []
+
+                has_pothole = "D40" in classes
+                has_crack = any(c in classes for c in ["D00", "D10", "D20"])
+
+                if has_pothole:
+                    potholes_map[ts_str] += 1
+                if has_crack:
+                    cracks_map[ts_str] += 1
+                total_found += 1
+
+    series_potholes = [potholes_map[k] for k in date_keys]
+    series_cracks = [cracks_map[k] for k in date_keys]
+
+    # Find peak or active highlight
+    peak_count = -1
+    peak_idx = len(date_keys) - 1
+    for i, k in enumerate(date_keys):
+        tot = series_potholes[i] + series_cracks[i]
+        if tot > peak_count:
+            peak_count = tot
+            peak_idx = i
+
+    highlight_label = labels[peak_idx]
+    highlight_count = series_potholes[peak_idx] + series_cracks[peak_idx]
+
+    return {
+        "range": range_type,
+        "labels": labels,
+        "date_keys": date_keys,
+        "series_potholes": series_potholes,
+        "series_cracks": series_cracks,
+        "total_potholes": sum(series_potholes),
+        "total_cracks": sum(series_cracks),
+        "total_incidents": total_found,
+        "is_empty": (total_found == 0),
+        "highlight": {
+            "index": peak_idx,
+            "label": highlight_label,
+            "count": highlight_count,
+            "potholes": series_potholes[peak_idx],
+            "cracks": series_cracks[peak_idx],
+            "sub": "Potholes & Cracks",
+        },
+    }

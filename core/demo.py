@@ -75,6 +75,7 @@ DEMO_FIXTURES: List[Dict[str, Any]] = [
         "lat": 12.978000,
         "lon": 77.612000,
         "notes": "Narrow surface crack along paving joint. Stable; monitor next cycle.",
+        "days_ago": 12,
     },
     {
         "filename": "demo_undamaged_clean.jpg",
@@ -89,6 +90,52 @@ DEMO_FIXTURES: List[Dict[str, Any]] = [
         "lat": 13.012500,
         "lon": 77.654000,
         "notes": "Newly paved asphalt surface exhibiting zero structural distress.",
+        "days_ago": 18,
+    },
+    {
+        "filename": "demo_pothole_historical_1.jpg",
+        "damage_type": "D40",
+        "human_name": "Pothole",
+        "confidence": 0.88,
+        "bbox": [150, 200, 370, 390],
+        "road_name": "Outer Ring Road Corridor",
+        "road_class": "PRIMARY_ARTERIAL",
+        "priority_score": 83.2,
+        "priority_level": "CRITICAL",
+        "lat": 12.975400,
+        "lon": 77.598200,
+        "notes": "Historical deep wheel-impact pothole documented in previous survey.",
+        "days_ago": 4,
+    },
+    {
+        "filename": "demo_alligator_historical_2.jpg",
+        "damage_type": "D20",
+        "human_name": "Alligator Crack",
+        "confidence": 0.81,
+        "bbox": [140, 180, 460, 430],
+        "road_name": "North Highway NH-7",
+        "road_class": "PRIMARY_ARTERIAL",
+        "priority_score": 65.0,
+        "priority_level": "HIGH",
+        "lat": 12.986000,
+        "lon": 77.608000,
+        "notes": "Fatigue crocodile cracking expanding along perimeter lane.",
+        "days_ago": 25,
+    },
+    {
+        "filename": "demo_transverse_historical_3.jpg",
+        "damage_type": "D10",
+        "human_name": "Transverse Crack",
+        "confidence": 0.72,
+        "bbox": [100, 260, 520, 310],
+        "road_name": "Central Avenue Corridor",
+        "road_class": "SECONDARY_COLLECTOR",
+        "priority_score": 41.5,
+        "priority_level": "MODERATE",
+        "lat": 12.968000,
+        "lon": 77.589000,
+        "notes": "Seasonal thermal expansion crack recorded in early quarterly survey.",
+        "days_ago": 75,
     },
 ]
 
@@ -183,6 +230,10 @@ def seed_demo_database(reset_existing: bool = True) -> int:
             detected_classes = []
             det_count = 0
 
+        from datetime import datetime, timedelta
+        days_ago = fix.get("days_ago", 0)
+        ts_str = (datetime.utcnow() - timedelta(days=days_ago)).strftime("%Y-%m-%d %H:%M:%S")
+
         insert_incident(
             image_path=str(img_path),
             checkpoint_id="demo_calibrated_weights_v1.pt",
@@ -197,6 +248,7 @@ def seed_demo_database(reset_existing: bool = True) -> int:
             location_provenance="EXPLICIT_SYNTHETIC_DEMO",
             road_name=fix["road_name"],
             road_classification=fix["road_class"],
+            timestamp=ts_str,
         )
         count += 1
 
