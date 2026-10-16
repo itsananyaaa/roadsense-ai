@@ -23,3 +23,14 @@ streamlit>=1.50.0,<1.60.0
 # Testing and Verification
 pytest>=8.3.0
 requests>=2.31.0
+
+# Reporting and Document Generation
+reportlab>=4.0.0,<=5.1.0
+pypdf>=5.0.0
+
+# Video and Media
+imageio-ffmpeg>=0.5.0
+
+# FastAPI Console Backend
+fastapi>=0.110.0
+uvicorn>=0.30.0

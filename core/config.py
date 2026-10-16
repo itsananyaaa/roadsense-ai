@@ -117,6 +117,22 @@ CLASS_SEVERITY_WEIGHTS: Dict[str, float] = {
     "D00": 0.4,  # Longitudinal cracks are early-stage surface defects
 }
 
+# Prescribed civil maintenance actions per damage class
+DAMAGE_ACTION_MAP: Dict[str, str] = {
+    "D40": "Cold/Hot Asphalt Patch Compaction",
+    "D20": "Milling and Asphalt Overlay",
+    "D10": "Hot-Pour Bituminous Crack Sealing",
+    "D00": "Linear Crack Sealant Application",
+}
+
+# Municipal Response SLA per priority tier
+SLA_MAP: Dict[str, str] = {
+    "CRITICAL": "24–48 Hours (Emergency Triage)",
+    "HIGH": "7 Days (Scheduled Repair)",
+    "MODERATE": "30 Days (Routine Backlog)",
+    "LOW": "Subsequent Survey Cycle (Monitor)",
+}
+
 
 # ==============================================================================
 # 3. PRIORITY ENGINE CONFIGURATION (Formula v1.0)

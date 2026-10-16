@@ -18,12 +18,15 @@ if str(PROJECT_ROOT) not in sys.path:
 import pandas as pd
 import streamlit as st
 
+from datetime import datetime
+
 from app import theme
 from core import config
 from core.db import get_all_incidents, update_review_status
 from core.demo import seed_demo_incidents_if_empty
 from core.logger import get_logger
 from core.priority import calculate_priority, get_priority_level
+from core.reports_pdf import build_work_orders_pdf
 
 logger = get_logger("roadsense.ui.priority")
 
@@ -237,11 +240,31 @@ with col_queue:
     df_wo.to_csv(csv_buffer, index=False)
     csv_data = csv_buffer.getvalue().encode("utf-8")
 
-    st.download_button(
-        label=f"📥 Download Municipal Dispatch Work Orders ({len(work_orders)} active jobs)",
-        data=csv_data,
-        file_name=f"RoadSense_Work_Orders_{int(time.time())}.csv",
-        mime="text/csv",
-        type="primary",
-        use_container_width=True
+    # Generate genuine Landscape A4 enterprise PDF
+    raw_wo_incidents = [item["_raw_incident"] for item in queue_data if item["Status"] != "REJECTED"]
+    pdf_bytes = build_work_orders_pdf(
+        raw_wo_incidents,
+        filter_desc=f"Active Triage Queue ({len(raw_wo_incidents)} orders, Non-Rejected)"
     )
+
+    now_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    col_btn_pdf, col_btn_csv = st.columns([1.4, 1.0])
+    with col_btn_pdf:
+        st.download_button(
+            label=f"📄 Dispatch Work Orders (PDF) ({len(work_orders)} active jobs)",
+            data=pdf_bytes,
+            file_name=f"roadsense_work_orders_{now_str}.pdf",
+            mime="application/pdf",
+            type="primary",
+            use_container_width=True
+        )
+
+    with col_btn_csv:
+        st.download_button(
+            label=f"📊 Export data (CSV) ({len(work_orders)} jobs)",
+            data=csv_data,
+            file_name=f"roadsense_work_orders_{now_str}.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
