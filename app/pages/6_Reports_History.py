@@ -128,102 +128,26 @@ st.dataframe(
 
 st.markdown("---")
 
-# 3. Export Formats (PDF Formal Report, CSV & GeoJSON Data)
-st.subheader("📦 Data Export Center")
-st.caption("Human-readable municipal audit reports (PDF) and machine-readable GIS datasets (CSV, GeoJSON).")
-
-exp_col1, exp_col2, exp_col3 = st.columns(3)
+# 3. Export Formats (PDF Formal Report)
+st.subheader("📦 Formal Municipal Report Export")
+st.caption("Human-readable municipal audit reports (PDF) complying with civil asset reporting standards.")
 
 now_str = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-with exp_col1:
-    theme.render_card_start(title="Export Audit Report (PDF)")
-    st.markdown("Formal landscape A4 engineering report with summary KPIs, repeated headers, and civil safety notices.")
+theme.render_card_start(title="Export Audit Report (PDF)")
+st.markdown("Formal landscape A4 engineering report with summary KPIs, repeated headers, and civil safety notices.")
 
-    pdf_bytes = build_incident_report_pdf(
-        incidents,
-        filter_desc=f"Full Network Ledger ({len(incidents)} total defects)"
-    )
+pdf_bytes = build_incident_report_pdf(
+    incidents,
+    filter_desc=f"Full Network Ledger ({len(incidents)} total defects)"
+)
 
-    st.download_button(
-        label=f"📄 Download Formal Audit PDF ({len(incidents)} items)",
-        data=pdf_bytes,
-        file_name=f"roadsense_incident_report_{now_str}.pdf",
-        mime="application/pdf",
-        type="primary",
-        use_container_width=True
-    )
-    theme.render_card_end()
-
-with exp_col2:
-    theme.render_card_start(title="Export Ledger (CSV) (data)")
-    st.markdown("Full incident inventory with coordinates, provenance tags, bounding boxes, and formula scores.")
-
-    csv_buffer = io.StringIO()
-    df_table.to_csv(csv_buffer, index=False)
-    csv_bytes = csv_buffer.getvalue().encode("utf-8")
-
-    st.download_button(
-        label=f"📊 Download Incident CSV ({len(df_table)} records)",
-        data=csv_bytes,
-        file_name=f"roadsense_inventory_{now_str}.csv",
-        mime="text/csv",
-        use_container_width=True
-    )
-    theme.render_card_end()
-
-with exp_col3:
-    theme.render_card_start(title="Export GeoJSON (GIS) (data)")
-    st.markdown("RFC 7946 compliant GeoJSON FeatureCollection with Point geometry for ArcGIS, QGIS, or Mapbox.")
-
-    geojson_features = []
-    for inc in incidents:
-        lat = inc.get("latitude")
-        lon = inc.get("longitude")
-        prov = inc.get("location_provenance", "UNKNOWN")
-
-        if lat is not None and lon is not None and prov != "UNKNOWN":
-            det_classes = inc.get("detected_classes", [])
-            primary_class = det_classes[0] if det_classes else "UNKNOWN"
-            feature = {
-                "type": "Feature",
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [float(lon), float(lat)]
-                },
-                "properties": {
-                    "id": inc.get("incident_uuid", ""),
-                    "damage_class": primary_class,
-                    "human_name": config.CLASS_HUMAN_NAMES.get(primary_class, primary_class),
-                    "confidence": float(inc.get("max_confidence", 0.0)),
-                    "priority_score": float(inc.get("priority_score", 0.0)),
-                    "priority_level": inc.get("priority_level", "LOW"),
-                    "road_classification": inc.get("road_classification", "UNKNOWN"),
-                    "location_provenance": prov,
-                    "review_status": inc.get("review_status", "PENDING"),
-                    "timestamp": inc.get("timestamp", ""),
-                    "notes": inc.get("reviewer_notes", "")
-                }
-            }
-            geojson_features.append(feature)
-
-    geojson_doc = {
-        "type": "FeatureCollection",
-        "features": geojson_features,
-        "metadata": {
-            "generator": "RoadSense AI Municipal Engine",
-            "exported_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "feature_count": len(geojson_features)
-        }
-    }
-
-    geojson_str = json.dumps(geojson_doc, indent=2).encode("utf-8")
-
-    st.download_button(
-        label=f"🗺️ Download GeoJSON ({len(geojson_features)} points)",
-        data=geojson_str,
-        file_name=f"roadsense_spatial_{now_str}.geojson",
-        mime="application/geo+json",
-        use_container_width=True
-    )
-    theme.render_card_end()
+st.download_button(
+    label=f"📄 Download Formal Audit PDF ({len(incidents)} items)",
+    data=pdf_bytes,
+    file_name=f"roadsense_incident_report_{now_str}.pdf",
+    mime="application/pdf",
+    type="primary",
+    use_container_width=True
+)
+theme.render_card_end()
