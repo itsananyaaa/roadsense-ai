@@ -240,7 +240,9 @@ class DamageDetector:
         cv2.putText(img_bgr, label_text, (x1 + 5, tag_y2 - 4), font, font_scale, text_color, font_thick, cv2.LINE_AA)
 
     def _validate_image_input(self, image_input: Union[str, Path, np.ndarray, Image.Image]) -> np.ndarray:
-        """Validate format, dimensions, readability, and return BGR numpy array."""
+        """Validate format, dimensions, readability, and return BGR numpy array with EXIF orientation corrected."""
+        from PIL import ImageOps
+
         if isinstance(image_input, (str, Path)):
             p = Path(image_input)
             if not p.exists():
@@ -249,14 +251,23 @@ class DamageDetector:
                 raise InvalidImageInputError(
                     f"File size ({p.stat().st_size / 1e6:.1f} MB) exceeds maximum allowed limit ({config.MAX_IMAGE_SIZE_BYTES / 1e6:.0f} MB)."
                 )
-            img = cv2.imread(str(p))
-            if img is None:
-                raise InvalidImageInputError(f"File could not be decoded as an image: {p}")
-            return img
+            try:
+                with Image.open(p) as pil_img:
+                    pil_img = ImageOps.exif_transpose(pil_img)
+                    if pil_img.mode != "RGB":
+                        pil_img = pil_img.convert("RGB")
+                    return cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
+            except Exception:
+                img = cv2.imread(str(p))
+                if img is None:
+                    raise InvalidImageInputError(f"File could not be decoded as an image: {p}")
+                return img
 
         if isinstance(image_input, Image.Image):
-            rgb = np.array(image_input)
-            return cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+            pil_img = ImageOps.exif_transpose(image_input)
+            if pil_img.mode != "RGB":
+                pil_img = pil_img.convert("RGB")
+            return cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
 
         if isinstance(image_input, np.ndarray):
             if len(image_input.shape) == 2:
