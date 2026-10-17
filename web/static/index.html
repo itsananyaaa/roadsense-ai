@@ -510,12 +510,12 @@
 
           <div class="hazard-layered-pills">
             <div class="layered-pill">
-              <span>Priority</span>
-              <span class="layered-badge" id="hazardPriorityBadge">CRITICAL</span>
+              <span>Priority Level</span>
+              <span class="layered-badge prio-critical" id="hazardPriorityBadge">CRITICAL</span>
             </div>
             <div class="layered-pill">
-              <span>Score</span>
-              <span class="layered-badge" id="hazardScoreBadge">86.4</span>
+              <span>Deterministic Score</span>
+              <span class="layered-badge score-badge" id="hazardScoreBadge">86.4 pts</span>
             </div>
           </div>
         </div>
@@ -579,32 +579,102 @@
           </div>
         </div>
 
-        <!-- 5. Statistics Card (Overlapping Radial Bubbles) -->
-        <div class="glass-card">
+        <!-- 5. Statistics Card (Overlapping Radial Bubbles + Dynamic Analytics) -->
+        <div class="glass-card statistics-card-wrapper">
           <div class="card-header-flex">
-            <h2 class="card-title">Statistics</h2>
-            <div class="card-action-icon" onclick="switchTab('reports-history')">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <h2 class="card-title">Statistics</h2>
+              <span class="live-pulse-badge">
+                <span class="pulse-dot"></span> LIVE
+              </span>
+            </div>
+            <div class="card-action-icon" onclick="switchTab('reports-history')" title="View Detailed Reports">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
             </div>
           </div>
 
+          <!-- Overlapping Radial Bubbles -->
           <div class="stats-bubble-wrapper">
-            <!-- Big Pink Bubble (64% Investigating / Potholes) -->
+            <!-- Big Pink Bubble (Investigating / Potholes) -->
             <div class="bubble-circle bubble-main">
-              <span class="bubble-pct" id="statPotholePct">64%</span>
+              <span class="bubble-pct" id="statPotholePct">22%</span>
               <span class="bubble-lbl">Investigating</span>
             </div>
 
-            <!-- Blue Bubble (26% Triage / Longitudinal) -->
+            <!-- Blue Bubble (Triage / Longitudinal) -->
             <div class="bubble-circle bubble-secondary">
-              <span class="bubble-pct" id="statLongitudinalPct">26%</span>
+              <span class="bubble-pct" id="statLongitudinalPct">11%</span>
               <span class="bubble-lbl">Triage</span>
             </div>
 
-            <!-- Striped Hatched Circle (15% Fixing / Alligator) -->
+            <!-- Striped Hatched Circle (Fixing / Alligator) -->
             <div class="bubble-circle bubble-hatched">
-              <span class="bubble-pct" id="statAlligatorPct">15%</span>
+              <span class="bubble-pct" id="statAlligatorPct">33%</span>
               <span class="bubble-lbl">Fixing</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Info & Analytics Below Bubbles -->
+          <div class="stats-dynamic-container">
+            <!-- Live Distress Class Distribution Stacked Bar -->
+            <div>
+              <div class="stats-section-label-row">
+                <span class="stats-micro-label">Class Distribution</span>
+                <span class="stats-micro-val" id="statsTotalDefectsLabel">18 logged</span>
+              </div>
+              <div class="stat-stacked-bar" style="margin-top:6px;">
+                <div id="statBarD40" class="stacked-bar-segment" style="width: 38%; background: var(--accent-pink);" title="D40 Pothole"></div>
+                <div id="statBarD20" class="stacked-bar-segment" style="width: 25%; background: #8b5cf6;" title="D20 Alligator"></div>
+                <div id="statBarD00" class="stacked-bar-segment" style="width: 22%; background: #38bdf8;" title="D00 Longitudinal"></div>
+                <div id="statBarD10" class="stacked-bar-segment" style="width: 15%; background: #fbbf24;" title="D10 Transverse"></div>
+              </div>
+            </div>
+
+            <div class="stat-class-legend-grid">
+              <div class="stat-class-legend-item">
+                <span class="legend-dot" style="background:var(--accent-pink);"></span>
+                <span>D40:</span> <strong id="statD40Text">38%</strong>
+              </div>
+              <div class="stat-class-legend-item">
+                <span class="legend-dot" style="background:#8b5cf6;"></span>
+                <span>D20:</span> <strong id="statD20Text">25%</strong>
+              </div>
+              <div class="stat-class-legend-item">
+                <span class="legend-dot" style="background:#38bdf8;"></span>
+                <span>D00:</span> <strong id="statD00Text">22%</strong>
+              </div>
+              <div class="stat-class-legend-item">
+                <span class="legend-dot" style="background:#fbbf24;"></span>
+                <span>D10:</span> <strong id="statD10Text">15%</strong>
+              </div>
+            </div>
+
+            <!-- SLA Resolution & Turnaround Velocity -->
+            <div class="stats-metrics-duo">
+              <div class="stats-duo-item">
+                <div class="stats-duo-header">
+                  <span class="stats-duo-title">Audit Consensus</span>
+                  <span class="stats-duo-val" id="statAuditConsensus">88%</span>
+                </div>
+                <div class="stats-mini-track">
+                  <div class="stats-mini-fill" id="statAuditFill" style="width: 88%;"></div>
+                </div>
+              </div>
+              <div class="stats-duo-item">
+                <div class="stats-duo-header">
+                  <span class="stats-duo-title">Dispatch SLA</span>
+                  <span class="sla-status-pill" id="statSlaStatus">&le; 48h SLA</span>
+                </div>
+                <div class="stats-duo-sub" id="statAvgTurnaround">
+                  3.4h avg response
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Smart Insight Banner -->
+            <div class="stats-smart-insight" id="statsDynamicInsight">
+              <span class="insight-icon">⚡</span>
+              <span class="insight-text" id="statsDynamicInsightText">Live fleet telemetry active across municipal sectors</span>
             </div>
           </div>
         </div>
