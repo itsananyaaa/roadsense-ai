@@ -661,6 +661,10 @@
           <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">
             Ultralytics YOLO inference accelerated via Apple Metal Performance Shaders (MPS)
           </p>
+          <div id="detectCheckpointBanner" style="margin-top: 8px; display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 6px; font-size: 0.78rem; background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25);">
+            <span>🟡 Active Checkpoint: <strong>smoke_test.pt</strong> (Smoke-Test Validation · 1 Epoch)</span>
+            <span style="color: var(--text-dim);">· Real-photo detection requires trained weights (models/best.pt)</span>
+          </div>
         </div>
         <div style="display:flex; gap:12px;">
           <span class="prio-badge LOW" id="detectLatencyBadge">Latency: Ready</span>
@@ -699,13 +703,26 @@
             <input type="text" id="detectRoadName" value="Surveyed Corridor Alpha (Synthetic Location)" style="width:100%; padding:10px 14px; background:#171925; border:1px solid var(--border-subtle); border-radius:10px; color:#fff; font-size:0.85rem;" />
           </div>
 
-          <div style="margin-bottom:20px;">
+          <div style="margin-bottom:16px;">
             <label style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px; display:block;">Road Classification:</label>
             <select id="detectRoadClass" style="width:100%; padding:10px 14px; background:#171925; border:1px solid var(--border-subtle); border-radius:10px; color:#fff; font-size:0.85rem;">
               <option value="PRIMARY_ARTERIAL">Primary Arterial (Highway)</option>
               <option value="SECONDARY_COLLECTOR">Secondary Collector</option>
               <option value="RESIDENTIAL_LOCAL">Residential / Local Road</option>
             </select>
+          </div>
+
+          <div style="margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <label for="detectConfThresh" style="font-size:0.8rem; color:var(--text-muted);">Confidence Threshold:</label>
+              <span id="confThreshVal" style="font-size:0.8rem; color:var(--accent-pink); font-weight:600;">25%</span>
+            </div>
+            <input type="range" id="detectConfThresh" min="1" max="95" value="25" step="1" style="width:100%; accent-color:var(--accent-pink); cursor:pointer;" />
+            <div style="font-size:0.7rem; color:var(--text-dim); margin-top:4px; display:flex; justify-content:space-between;">
+              <span>1% (Exploratory)</span>
+              <span>25% (Standard)</span>
+              <span>95% (High Precision)</span>
+            </div>
           </div>
 
           <button class="btn-primary-neon" id="runImageInferenceBtn">

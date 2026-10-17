@@ -661,6 +661,7 @@ def api_detect_image(
     location_provenance: Optional[str] = Form(None),
     latitude: Optional[float] = Form(None),
     longitude: Optional[float] = Form(None),
+    conf_threshold: Optional[float] = Form(None),
     save_to_db: Optional[bool] = Form(True),
     user: str = Depends(require_authenticated_user),
 ):
@@ -671,6 +672,10 @@ def api_detect_image(
     """
     config.EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
     temp_image_path = None
+
+    # Resolve confidence threshold (preserving default 0.25)
+    conf_val = float(conf_threshold) if conf_threshold is not None else config.DEFAULT_CONFIDENCE_THRESHOLD
+    conf_val = max(0.01, min(0.99, conf_val))
 
     if file and file.filename:
         # Save uploaded file
@@ -699,7 +704,7 @@ def api_detect_image(
     # Run real YOLO inference via DamageDetector singleton
     detector = DamageDetector.get_instance()
     try:
-        detection_result = detector.predict(temp_image_path, conf_threshold=config.DEFAULT_CONFIDENCE_THRESHOLD)
+        detection_result = detector.predict(temp_image_path, conf_threshold=conf_val)
     except InvalidImageInputError as e:
         logger.warning(f"Image validation rejected: {e}")
         if temp_image_path and temp_image_path.exists():
@@ -802,6 +807,8 @@ def api_detect_image(
         "success": True,
         "checkpoint_id": detection_result.checkpoint_id,
         "checkpoint_status": detection_result.checkpoint_status,
+        "is_smoke_test": detection_result.checkpoint_status == "SMOKE_CHECKPOINT",
+        "confidence_threshold": conf_val,
         "inference_time_ms": round(detection_result.inference_latency_ms, 2),
         "device": detector.device,
         "detection_count": detection_result.detection_count,

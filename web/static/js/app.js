@@ -1435,6 +1435,14 @@ function setupDetectDamageStudio() {
     reader.readAsDataURL(file);
   }
 
+  const confSlider = document.getElementById('detectConfThresh');
+  const confValLabel = document.getElementById('confThreshVal');
+  if (confSlider && confValLabel) {
+    confSlider.addEventListener('input', () => {
+      confValLabel.textContent = `${confSlider.value}%`;
+    });
+  }
+
   if (runBtn) {
     runBtn.addEventListener('click', async () => {
       if (!selectedFile && !selectedDemoName) {
@@ -1454,6 +1462,9 @@ function setupDetectDamageStudio() {
       formData.append('road_name', document.getElementById('detectRoadName').value || 'Surveyed Corridor Alpha (Synthetic Location)');
       formData.append('road_classification', document.getElementById('detectRoadClass').value || 'PRIMARY_ARTERIAL');
       formData.append('save_to_db', 'true');
+      
+      const confVal = confSlider ? (parseFloat(confSlider.value) / 100) : 0.25;
+      formData.append('conf_threshold', confVal.toString());
 
       try {
         const res = await fetch(`${API_BASE}/api/detect/image`, {
@@ -1539,7 +1550,32 @@ function renderDetectionResults(data) {
   tbody.innerHTML = '';
 
   if (data.detections.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: #94a3b8;">No distress features detected. Pavement surface appears undamaged.</td></tr>`;
+    if (data.checkpoint_status === 'SMOKE_CHECKPOINT' || data.is_smoke_test) {
+      const threshPct = Math.round((data.confidence_threshold || 0.25) * 100);
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align:left; padding: 22px 24px;">
+            <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.28); border-radius: 12px; padding: 20px; color: #e2e8f0;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span style="font-size:1.35rem;">⚠️</span>
+                <strong style="color: #fbbf24; font-size: 0.98rem;">No detections above ${threshPct}% threshold with active smoke-test checkpoint (${data.checkpoint_id || 'smoke_test.pt'})</strong>
+              </div>
+              <p style="font-size: 0.85rem; color: #cbd5e1; margin: 0 0 14px 0; line-height: 1.55;">
+                The active model is a <strong>1-epoch smoke-test validation checkpoint</strong> created to verify Apple MPS tensor execution. It was trained on 12 synthetic canvas fixtures and has <strong>not yet been trained on real road photography</strong>. On real field photos, its maximum activation confidence is typically 1–3%, which is filtered out by the ${threshPct}% safety cutoff.
+              </p>
+              <div style="font-size: 0.82rem; color: #94a3b8; display: flex; flex-direction: column; gap: 8px;">
+                <div style="color:#f8fafc; font-weight:600;">How to observe detections:</div>
+                <div>1. <strong>Test with Benchmark Fixtures:</strong> Click any of the <em>Curated Demo Benchmark Fixtures</em> on the left (e.g. <em>🕳️ Pothole D40</em>) with ground-truth comparisons enabled.</div>
+                <div>2. <strong>Inspect Raw Activations:</strong> Lower the <em>Confidence Threshold</em> slider on the left to <strong>1%</strong> and click <em>Run Apple MPS Inference</em> to inspect raw low-confidence feature maps.</div>
+                <div>3. <strong>Train Production Weights:</strong> Train a full YOLO model on the 13.26 GB RDD2022 dataset using <code>ml/colab_train.ipynb</code> on Google Colab GPU and place <code>best.pt</code> into <code>models/</code>.</div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+    } else {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: #94a3b8;">No distress features detected. Pavement surface appears undamaged.</td></tr>`;
+    }
   } else {
     data.detections.forEach((d, idx) => {
       const tr = document.createElement('tr');
