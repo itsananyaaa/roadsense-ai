@@ -110,17 +110,33 @@ def main() -> None:
                 st.error(f"Invalid or corrupted image file: {e}")
 
     with tab_sample:
-        # Discover existing demo images in data/demo/
-        sample_files = list(config.DEMO_DIR.glob("*.jpg"))
-        if not sample_files:
-            st.caption("No sample images in data/demo/. Seed demo data from sidebar first.")
+        from core.demo import get_demo_tiles
+        tiles = get_demo_tiles()
+        if not tiles:
+            st.caption("No sample images in manifest. Run `python ml/build_demo_media.py` first.")
         else:
-            sample_names = [f.name for f in sample_files]
-            chosen_sample = st.selectbox("Choose benchmark fixture:", sample_names, key="sel_sample")
-            if chosen_sample:
-                image_temp_path = config.DEMO_DIR / chosen_sample
+            tile_options = {f"{t['caption']} ({t['filename']})": t for t in tiles}
+            chosen_label = st.selectbox("Choose benchmark fixture:", list(tile_options.keys()), key="sel_sample")
+            chosen_tile = tile_options[chosen_label]
+            fname = chosen_tile["filename"]
+
+            cand1 = config.DEMO_DIR / fname
+            cand2 = config.DATA_DIR / "demo_media" / "images" / fname
+            image_temp_path = cand1 if cand1.exists() else (cand2 if cand2.exists() else None)
+
+            if image_temp_path and image_temp_path.exists():
                 selected_image = Image.open(image_temp_path)
-                image_source_name = chosen_sample
+                image_source_name = fname
+                st.info(f"🏷️ **Provenance:** `{chosen_tile.get('badge')}` | Origin: `{chosen_tile.get('origin')}`")
+
+                gt_boxes = chosen_tile.get("ground_truth_boxes", [])
+                if gt_boxes:
+                    show_gt = st.checkbox(f"Show Ground-Truth Annotations ({len(gt_boxes)} boxes from RDD2022 XML)", value=False, key="cb_show_gt")
+                    st.session_state["show_gt"] = show_gt
+                    st.session_state["gt_boxes"] = gt_boxes
+                else:
+                    st.session_state["show_gt"] = False
+                    st.session_state["gt_boxes"] = []
 
     if selected_image is None:
         st.info("👆 Please upload an image or select a benchmark sample above to begin analysis.")
@@ -198,14 +214,36 @@ def main() -> None:
         r_class = st.session_state.get("road_class", "UNKNOWN")
 
         # Side-by-side image comparison
-        st.markdown("#### Visual Analysis (Original vs. Annotated)")
-        c_orig, c_anno = st.columns(2)
-        with c_orig:
-            st.image(img_orig, caption=f"Original Input: {st.session_state['image_source_name']}", use_container_width=True)
-        with c_anno:
-            # Convert BGR annotated image to RGB for Streamlit rendering
-            anno_rgb = cv2.cvtColor(res.annotated_image_bgr, cv2.COLOR_BGR2RGB)
-            st.image(anno_rgb, caption=f"Annotated Output (Model: {res.checkpoint_id} | {res.inference_latency_ms:.1f} ms)", use_container_width=True)
+        st.markdown("#### Visual Analysis")
+        gt_boxes = st.session_state.get("gt_boxes", [])
+        if st.session_state.get("show_gt") and gt_boxes:
+            c_orig, c_gt, c_anno = st.columns(3)
+            # Render GT annotated copy
+            gt_img = np.array(img_orig).copy()
+            if len(gt_img.shape) == 2:
+                gt_img = cv2.cvtColor(gt_img, cv2.COLOR_GRAY2RGB)
+            elif gt_img.shape[2] == 4:
+                gt_img = cv2.cvtColor(gt_img, cv2.COLOR_RGBA2RGB)
+            for box in gt_boxes:
+                b = box.get("box", [])
+                c = box.get("class", "GT")
+                if len(b) == 4:
+                    cv2.rectangle(gt_img, (int(b[0]), int(b[1])), (int(b[2]), int(b[3])), (0, 255, 255), 2)
+                    cv2.putText(gt_img, f"GT: {c}", (int(b[0]), max(15, int(b[1]) - 5)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+            with c_orig:
+                st.image(img_orig, caption=f"Original Input: {st.session_state['image_source_name']}", use_container_width=True)
+            with c_gt:
+                st.image(gt_img, caption=f"Ground-Truth Annotations ({len(gt_boxes)} boxes)", use_container_width=True)
+            with c_anno:
+                anno_rgb = cv2.cvtColor(res.annotated_image_bgr, cv2.COLOR_BGR2RGB)
+                st.image(anno_rgb, caption=f"Model Prediction ({res.checkpoint_id} | {res.inference_latency_ms:.1f} ms)", use_container_width=True)
+        else:
+            c_orig, c_anno = st.columns(2)
+            with c_orig:
+                st.image(img_orig, caption=f"Original Input: {st.session_state['image_source_name']}", use_container_width=True)
+            with c_anno:
+                anno_rgb = cv2.cvtColor(res.annotated_image_bgr, cv2.COLOR_BGR2RGB)
+                st.image(anno_rgb, caption=f"Annotated Output (Model: {res.checkpoint_id} | {res.inference_latency_ms:.1f} ms)", use_container_width=True)
 
         # Detection Summary
         st.markdown("#### Detection Findings")

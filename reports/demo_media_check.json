@@ -1,0 +1,136 @@
+{
+  "artifact_description": "Demo-set live inference audit against ground-truth annotations.",
+  "disclaimer": "This report documents demo-set behavior selected for class coverage. It is NOT a measure of overall benchmark accuracy (see reports/eval_india.json for benchmark metrics).",
+  "active_checkpoint_path": "/Users/ananyabiju/Desktop/roadsense-ai/models/smoke_test.pt",
+  "active_checkpoint_status": "SMOKE_CHECKPOINT",
+  "is_smoke_model": true,
+  "smoke_model_warning": "Active checkpoint is a smoke-test model (1-2 epochs on miniature sample). Lower precision or false detections on diverse field images are expected.",
+  "total_demo_images": 8,
+  "aggregate_metrics": {
+    "total_true_positives": 0,
+    "total_false_positives": 2,
+    "total_false_negatives": 7,
+    "demo_precision": 0.0,
+    "demo_recall": 0.0
+  },
+  "per_image_results": [
+    {
+      "id": "fixture_demo_pothole_critical",
+      "filename": "demo_pothole_critical.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "ground_truth_count": 1,
+      "prediction_count": 1,
+      "predictions": [
+        {
+          "class_code": "D20",
+          "confidence": 0.962,
+          "bbox": [
+            198.0,
+            195.0,
+            373.0,
+            390.0
+          ]
+        }
+      ],
+      "true_positives_iou50": 0,
+      "false_positives_iou50": 1,
+      "false_negatives_iou50": 1
+    },
+    {
+      "id": "fixture_demo_alligator_high",
+      "filename": "demo_alligator_high.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "ground_truth_count": 1,
+      "prediction_count": 0,
+      "predictions": [],
+      "true_positives_iou50": 0,
+      "false_positives_iou50": 0,
+      "false_negatives_iou50": 1
+    },
+    {
+      "id": "fixture_demo_transverse_moderate",
+      "filename": "demo_transverse_moderate.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "ground_truth_count": 1,
+      "prediction_count": 0,
+      "predictions": [],
+      "true_positives_iou50": 0,
+      "false_positives_iou50": 0,
+      "false_negatives_iou50": 1
+    },
+    {
+      "id": "fixture_demo_longitudinal_low",
+      "filename": "demo_longitudinal_low.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "ground_truth_count": 1,
+      "prediction_count": 0,
+      "predictions": [],
+      "true_positives_iou50": 0,
+      "false_positives_iou50": 0,
+      "false_negatives_iou50": 1
+    },
+    {
+      "id": "fixture_demo_undamaged_clean",
+      "filename": "demo_undamaged_clean.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "ground_truth_count": 0,
+      "prediction_count": 0,
+      "predictions": [],
+      "true_positives_iou50": 0,
+      "false_positives_iou50": 0,
+      "false_negatives_iou50": 0
+    },
+    {
+      "id": "fixture_demo_pothole_historical_1",
+      "filename": "demo_pothole_historical_1.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "ground_truth_count": 1,
+      "prediction_count": 1,
+      "predictions": [
+        {
+          "class_code": "D20",
+          "confidence": 0.751,
+          "bbox": [
+            167.0,
+            178.0,
+            353.0,
+            353.0
+          ]
+        }
+      ],
+      "true_positives_iou50": 0,
+      "false_positives_iou50": 1,
+      "false_negatives_iou50": 1
+    },
+    {
+      "id": "fixture_demo_alligator_historical_2",
+      "filename": "demo_alligator_historical_2.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "ground_truth_count": 1,
+      "prediction_count": 0,
+      "predictions": [],
+      "true_positives_iou50": 0,
+      "false_positives_iou50": 0,
+      "false_negatives_iou50": 1
+    },
+    {
+      "id": "fixture_demo_transverse_historical_3",
+      "filename": "demo_transverse_historical_3.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "ground_truth_count": 1,
+      "prediction_count": 0,
+      "predictions": [],
+      "true_positives_iou50": 0,
+      "false_positives_iou50": 0,
+      "false_negatives_iou50": 1
+    }
+  ]
+}

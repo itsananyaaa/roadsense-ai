@@ -6,6 +6,7 @@ unambiguously badged 'CACHED — not live inference' and 'EXPLICIT_SYNTHETIC_DEM
 """
 
 import json
+import shutil
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -27,13 +28,14 @@ DEMO_FIXTURES: List[Dict[str, Any]] = [
         "human_name": "Pothole",
         "confidence": 0.91,
         "bbox": [180, 220, 390, 410],
-        "road_name": "MG Road Outer Ring",
+        "road_name": "Corridor Alpha (Synthetic Location)",
         "road_class": "PRIMARY_ARTERIAL",
         "priority_score": 86.4,
         "priority_level": "CRITICAL",
         "lat": 12.971599,
         "lon": 77.594566,
-        "notes": "Severe cavity located directly in inner wheel path; high vehicle deflection risk.",
+        "badge": "illustrative sample — synthetic location",
+        "notes": "Severe cavity located directly in inner wheel path; high vehicle deflection risk. [Illustrative sample (not real field imagery)]",
     },
     {
         "filename": "demo_alligator_high.jpg",
@@ -41,13 +43,14 @@ DEMO_FIXTURES: List[Dict[str, Any]] = [
         "human_name": "Alligator Crack",
         "confidence": 0.84,
         "bbox": [120, 160, 480, 450],
-        "road_name": "Industrial Area Access Blvd",
+        "road_name": "Collector Route Beta (Synthetic Location)",
         "road_class": "SECONDARY_COLLECTOR",
         "priority_score": 67.2,
         "priority_level": "HIGH",
         "lat": 12.982210,
         "lon": 77.601520,
-        "notes": "Extensive structural map cracking with base layer moisture seepage.",
+        "badge": "illustrative sample — synthetic location",
+        "notes": "Extensive structural map cracking with base layer moisture seepage. [Illustrative sample (not real field imagery)]",
     },
     {
         "filename": "demo_transverse_moderate.jpg",
@@ -55,13 +58,14 @@ DEMO_FIXTURES: List[Dict[str, Any]] = [
         "human_name": "Transverse Crack",
         "confidence": 0.76,
         "bbox": [80, 290, 560, 330],
-        "road_name": "Suburban 4th Main",
+        "road_name": "Local Road Gamma (Synthetic Location)",
         "road_class": "RESIDENTIAL_LOCAL",
         "priority_score": 42.8,
         "priority_level": "MODERATE",
         "lat": 12.964100,
         "lon": 77.585200,
-        "notes": "Thermal contraction crack spanning 80% of road width. Recommend hot-pour seal.",
+        "badge": "illustrative sample — synthetic location",
+        "notes": "Thermal contraction crack spanning 80% of road width. Recommend hot-pour seal. [Illustrative sample (not real field imagery)]",
     },
     {
         "filename": "demo_longitudinal_low.jpg",
@@ -69,13 +73,14 @@ DEMO_FIXTURES: List[Dict[str, Any]] = [
         "human_name": "Longitudinal Crack",
         "confidence": 0.69,
         "bbox": [280, 140, 320, 520],
-        "road_name": "East Park Crescent",
+        "road_name": "Local Road Delta (Synthetic Location)",
         "road_class": "RESIDENTIAL_LOCAL",
         "priority_score": 28.5,
         "priority_level": "LOW",
         "lat": 12.978000,
         "lon": 77.612000,
-        "notes": "Narrow surface crack along paving joint. Stable; monitor next cycle.",
+        "badge": "illustrative sample — synthetic location",
+        "notes": "Narrow surface crack along paving joint. Stable; monitor next cycle. [Illustrative sample (not real field imagery)]",
         "days_ago": 12,
     },
     {
@@ -84,13 +89,14 @@ DEMO_FIXTURES: List[Dict[str, Any]] = [
         "human_name": "Undamaged Pavement",
         "confidence": 0.0,
         "bbox": [],
-        "road_name": "Airport Expressway",
+        "road_name": "Expressway Epsilon (Synthetic Location)",
         "road_class": "PRIMARY_ARTERIAL",
         "priority_score": 0.0,
         "priority_level": "LOW",
         "lat": 13.012500,
         "lon": 77.654000,
-        "notes": "Newly paved asphalt surface exhibiting zero structural distress.",
+        "badge": "illustrative sample — synthetic location",
+        "notes": "Newly paved asphalt surface exhibiting zero structural distress. [Illustrative sample (not real field imagery)]",
         "days_ago": 18,
     },
     {
@@ -99,13 +105,14 @@ DEMO_FIXTURES: List[Dict[str, Any]] = [
         "human_name": "Pothole",
         "confidence": 0.88,
         "bbox": [150, 200, 370, 390],
-        "road_name": "Outer Ring Road Corridor",
+        "road_name": "Corridor Zeta (Synthetic Location)",
         "road_class": "PRIMARY_ARTERIAL",
         "priority_score": 83.2,
         "priority_level": "CRITICAL",
         "lat": 12.975400,
         "lon": 77.598200,
-        "notes": "Historical deep wheel-impact pothole documented in previous survey.",
+        "badge": "illustrative sample — synthetic location",
+        "notes": "Historical deep wheel-impact pothole documented in previous survey. [Illustrative sample (not real field imagery)]",
         "days_ago": 4,
     },
     {
@@ -114,13 +121,14 @@ DEMO_FIXTURES: List[Dict[str, Any]] = [
         "human_name": "Alligator Crack",
         "confidence": 0.81,
         "bbox": [140, 180, 460, 430],
-        "road_name": "North Highway NH-7",
+        "road_name": "Highway Eta (Synthetic Location)",
         "road_class": "PRIMARY_ARTERIAL",
         "priority_score": 65.0,
         "priority_level": "HIGH",
         "lat": 12.986000,
         "lon": 77.608000,
-        "notes": "Fatigue crocodile cracking expanding along perimeter lane.",
+        "badge": "illustrative sample — synthetic location",
+        "notes": "Fatigue crocodile cracking expanding along perimeter lane. [Illustrative sample (not real field imagery)]",
         "days_ago": 25,
     },
     {
@@ -129,13 +137,14 @@ DEMO_FIXTURES: List[Dict[str, Any]] = [
         "human_name": "Transverse Crack",
         "confidence": 0.72,
         "bbox": [100, 260, 520, 310],
-        "road_name": "Central Avenue Corridor",
+        "road_name": "Avenue Theta (Synthetic Location)",
         "road_class": "SECONDARY_COLLECTOR",
         "priority_score": 41.5,
         "priority_level": "MODERATE",
         "lat": 12.968000,
         "lon": 77.589000,
-        "notes": "Seasonal thermal expansion crack recorded in early quarterly survey.",
+        "badge": "illustrative sample — synthetic location",
+        "notes": "Seasonal thermal expansion crack recorded in early quarterly survey. [Illustrative sample (not real field imagery)]",
         "days_ago": 75,
     },
 ]
@@ -202,58 +211,177 @@ def generate_synthetic_demo_image(fixture: Dict[str, Any], output_path: Path) ->
     logger.info(f"Generated synthetic demo asset: {output_path.name}")
 
 
+def load_demo_manifest() -> Dict[str, Any]:
+    """
+    Load data/demo_media/manifest.json.
+    If the manifest does not exist, invokes ml.build_demo_media to construct it.
+    """
+    manifest_path = config.DATA_DIR / "demo_media" / "manifest.json"
+    if not manifest_path.exists():
+        try:
+            from ml.build_demo_media import build_demo_media_suite
+            return build_demo_media_suite()
+        except Exception as e:
+            logger.warning(f"Could not automatically build demo manifest ({e}); using fallback.")
+            return {"assets": [], "videos": []}
+
+    try:
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to read demo manifest {manifest_path}: {e}")
+        return {"assets": [], "videos": []}
+
+
+def get_demo_tiles() -> List[Dict[str, Any]]:
+    """
+    Retrieve curated sample tiles for the Detect Damage acquisition tab.
+    Every tile has a neutral, truthful caption, origin metadata, and optional ground truth boxes.
+    """
+    manifest = load_demo_manifest()
+    assets = manifest.get("assets", [])
+
+    tiles: List[Dict[str, Any]] = []
+    for item in assets:
+        img_name = item["filename"]
+        tiles.append({
+            "id": item.get("id", img_name),
+            "filename": img_name,
+            "caption": item.get("caption", f"Sample — {img_name}"),
+            "badge": item.get("badge", "illustrative sample (not real field imagery)"),
+            "origin": item.get("origin", "synthetic_demo"),
+            "is_real_imagery": item.get("is_real_imagery", False),
+            "ground_truth": item.get("ground_truth", []),
+            "image_url": f"/demo-assets/{img_name}",
+        })
+
+    # Fallback to DEMO_FIXTURES if manifest was empty
+    if not tiles:
+        for fix in DEMO_FIXTURES:
+            fname = fix["filename"]
+            tiles.append({
+                "id": f"fixture_{Path(fname).stem}",
+                "filename": fname,
+                "caption": f"Illustrative sample (not real field imagery) — {fix['human_name']}",
+                "badge": "illustrative sample — synthetic location",
+                "origin": "synthetic_demo",
+                "is_real_imagery": False,
+                "ground_truth": [{
+                    "class_code": fix["damage_type"],
+                    "class_name": fix["human_name"],
+                    "bbox": fix["bbox"],
+                }] if fix.get("damage_type") else [],
+                "image_url": f"/demo-assets/{fname}",
+            })
+
+    return tiles
+
+
 def seed_demo_database(reset_existing: bool = True) -> int:
     """
     Populate local SQLite database with calibrated demonstration incidents.
-    Every record is explicitly tagged location_provenance='EXPLICIT_SYNTHETIC_DEMO'.
+    Every record is explicitly tagged with authentic location provenance:
+    - User field captures with EXIF GPS: location_provenance='EXIF_GPS'
+    - RDD / synthetic fixtures: location_provenance='EXPLICIT_SYNTHETIC_DEMO'
     """
     config.DEMO_DIR.mkdir(parents=True, exist_ok=True)
     if reset_existing:
         clear_all_incidents(confirm=True)
 
+    manifest = load_demo_manifest()
+    assets = manifest.get("assets", [])
+    if not assets:
+        assets = DEMO_FIXTURES
+
     count = 0
-    for fix in DEMO_FIXTURES:
-        img_path = config.DEMO_DIR / fix["filename"]
-        generate_synthetic_demo_image(fix, img_path)
+    from datetime import datetime, timedelta
 
-        if fix["damage_type"] is not None:
+    for idx, item in enumerate(assets):
+        fname = item["filename"]
+        img_path = config.DEMO_DIR / fname
+
+        # If file is not in data/demo/, copy from demo_media/images or generate
+        if not img_path.exists():
+            media_img = config.DATA_DIR / "demo_media" / "images" / fname
+            if media_img.exists():
+                shutil.copy2(media_img, img_path)
+            else:
+                matching_fix = next((f for f in DEMO_FIXTURES if f["filename"] == fname), None)
+                if matching_fix:
+                    generate_synthetic_demo_image(matching_fix, img_path)
+
+        gt_boxes = item.get("ground_truth", [])
+        if gt_boxes:
+            detected_classes = sorted(list({b["class_code"] for b in gt_boxes}))
+            raw_dets = [
+                {
+                    "class_id": 3 if b["class_code"] == "D40" else (2 if b["class_code"] == "D20" else (1 if b["class_code"] == "D10" else 0)),
+                    "class_code": b["class_code"],
+                    "class_name": b.get("class_name", config.CLASS_HUMAN_NAMES.get(b["class_code"], b["class_code"])),
+                    "confidence": item.get("confidence", 0.88),
+                    "bbox": b["bbox"],
+                }
+                for b in gt_boxes
+            ]
+            det_count = len(raw_dets)
+            max_conf = max(d["confidence"] for d in raw_dets)
+        elif item.get("damage_type") is not None:
+            c_code = item["damage_type"]
+            detected_classes = [c_code]
             raw_dets = [{
-                "class_id": 3 if fix["damage_type"] == "D40" else (2 if fix["damage_type"] == "D20" else (1 if fix["damage_type"] == "D10" else 0)),
-                "class_code": fix["damage_type"],
-                "class_name": fix["human_name"],
-                "confidence": fix["confidence"],
-                "bbox": fix["bbox"],
+                "class_id": 3 if c_code == "D40" else (2 if c_code == "D20" else (1 if c_code == "D10" else 0)),
+                "class_code": c_code,
+                "class_name": item["human_name"],
+                "confidence": item.get("confidence", 0.88),
+                "bbox": item.get("bbox", [150, 150, 350, 350]),
             }]
-            detected_classes = [fix["damage_type"]]
             det_count = 1
+            max_conf = item.get("confidence", 0.88)
         else:
-            raw_dets = []
             detected_classes = []
+            raw_dets = []
             det_count = 0
+            max_conf = 0.0
 
-        from datetime import datetime, timedelta
-        days_ago = fix.get("days_ago", 0)
+        days_ago = item.get("days_ago", idx * 5)
         ts_str = (datetime.utcnow() - timedelta(days=days_ago)).strftime("%Y-%m-%d %H:%M:%S")
+
+        badge = item.get("badge", "illustrative sample — synthetic location")
+        notes = f"[{badge}] {item.get('notes', item.get('caption', 'Demonstration survey incident'))}"
+
+        prov = item.get("location_provenance", "EXPLICIT_SYNTHETIC_DEMO")
+        lat = item.get("latitude", item.get("lat", 12.971599 + (idx * 0.003)))
+        lon = item.get("longitude", item.get("lon", 77.594566 + (idx * 0.003)))
+
+        # Priority score
+        from core.priority import calculate_priority
+        prio = calculate_priority(
+            detected_classes=detected_classes,
+            max_confidence=max_conf,
+            nearby_repeat_count=min(idx, 3),
+            road_classification=item.get("road_classification", item.get("road_class", "PRIMARY_ARTERIAL")),
+            human_urgency_modifier=1.0,
+        )
 
         insert_incident(
             image_path=str(img_path),
             checkpoint_id="demo_calibrated_weights_v1.pt",
             detected_classes=detected_classes,
             detection_count=det_count,
-            max_confidence=fix["confidence"],
+            max_confidence=max_conf,
             raw_detections=raw_dets,
-            priority_score=fix["priority_score"],
-            priority_level=fix["priority_level"],
-            latitude=fix["lat"],
-            longitude=fix["lon"],
-            location_provenance="EXPLICIT_SYNTHETIC_DEMO",
-            road_name=fix["road_name"],
-            road_classification=fix["road_class"],
+            priority_score=prio.score,
+            priority_level=prio.level,
+            latitude=lat,
+            longitude=lon,
+            location_provenance=prov,
+            road_name=item.get("road_name", item.get("caption", f"Corridor {idx+1} (Synthetic Location)")),
+            road_classification=item.get("road_classification", item.get("road_class", "PRIMARY_ARTERIAL")),
             timestamp=ts_str,
         )
         count += 1
 
-    logger.info(f"Seeded {count} demo incidents into database.")
+    logger.info(f"Seeded {count} demo incidents into database from manifest.")
     return count
 
 
