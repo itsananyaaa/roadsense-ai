@@ -310,6 +310,14 @@ def seed_demo_database(reset_existing: bool = True) -> int:
                 if matching_fix:
                     generate_synthetic_demo_image(matching_fix, img_path)
 
+        # Ensure demo asset is also mirrored in evidence directory for drawer rendering
+        evidence_copy = config.EVIDENCE_DIR / fname
+        if not evidence_copy.exists() and img_path.exists():
+            try:
+                shutil.copy2(img_path, evidence_copy)
+            except Exception:
+                pass
+
         gt_boxes = item.get("ground_truth", [])
         if gt_boxes:
             detected_classes = sorted(list({b["class_code"] for b in gt_boxes}))

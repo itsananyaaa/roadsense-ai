@@ -234,6 +234,16 @@ def startup_event():
     init_auth_system()
     for directory in [config.DATA_DIR, config.EVIDENCE_DIR, config.MODELS_DIR, config.REPORTS_DIR]:
         directory.mkdir(parents=True, exist_ok=True)
+    # Mirror demo images into evidence directory for reliable incident preview rendering
+    demo_dir = config.DATA_DIR / "demo"
+    if demo_dir.exists():
+        for p in demo_dir.glob("*.jpg"):
+            target = config.EVIDENCE_DIR / p.name
+            if not target.exists():
+                try:
+                    shutil.copy2(p, target)
+                except Exception:
+                    pass
     # If database is empty, seed demo incidents
     stats = get_summary_statistics()
     if stats.get("total_incidents", 0) == 0:
@@ -619,7 +629,15 @@ def api_get_incidents(
     for inc in filtered:
         img_p = inc.get("image_path")
         if img_p:
-            inc["image_url"] = f"/evidence/{Path(img_p).name}"
+            p_name = Path(img_p).name
+            if (config.EVIDENCE_DIR / p_name).exists():
+                inc["image_url"] = f"/evidence/{p_name}"
+            elif (config.DATA_DIR / "demo" / p_name).exists():
+                inc["image_url"] = f"/demo-assets/{p_name}"
+            elif (config.DATA_DIR / "demo_media" / "images" / p_name).exists():
+                inc["image_url"] = f"/demo-assets/{p_name}"
+            else:
+                inc["image_url"] = f"/evidence/{p_name}"
         else:
             inc["image_url"] = ""
 

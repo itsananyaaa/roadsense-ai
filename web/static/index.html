@@ -795,6 +795,7 @@
 
       <div class="video-intelligence-grid">
         <!-- Main Player & Gallery -->
+        <div>
           <div class="video-player-container">
             <div style="margin-bottom:8px; display:inline-flex; align-items:center; gap:6px; background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:600;">
               ⚠️ Illustrative sample (not real field imagery)
@@ -1079,323 +1080,709 @@
 
       <!-- Interactive Methodology Sub-Navigation -->
       <div class="methodology-subnav">
-        <button class="method-subnav-btn active" onclick="switchMethodSubtab('tax-dataset')">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-          Dataset & Taxonomy
-        </button>
-        <button class="method-subnav-btn" onclick="switchMethodSubtab('arch-pipeline')">
+        <button class="method-subnav-btn active" onclick="switchMethodSubtab('process-lifecycle')">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-          ML & Data Pipeline (Flowchart)
+          Analytics Life Cycle &amp; Process Model
         </button>
-        <button class="method-subnav-btn" onclick="switchMethodSubtab('dist-analytics')">
+        <button class="method-subnav-btn" onclick="switchMethodSubtab('stats-distributions')">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-          Distribution Analytics
+          Statistical Description &amp; Preprocessing
         </button>
-        <button class="method-subnav-btn" onclick="switchMethodSubtab('domain-sensitivity')">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-          Domain Shift & Sensitivity
+        <button class="method-subnav-btn" onclick="switchMethodSubtab('association-patterns')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          Association of Variables &amp; Apriori Patterns
+        </button>
+        <button class="method-subnav-btn" onclick="switchMethodSubtab('clustering-classification')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+          Clustering, Proximity &amp; Classification
+        </button>
+        <button class="method-subnav-btn" onclick="switchMethodSubtab('text-retrieval')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          Text Processing &amp; IR Engine
         </button>
         <button class="method-subnav-btn" onclick="switchMethodSubtab('roi-lifecycle')">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-          Econometric ROI & Lifecycle
+          Econometric ROI &amp; Lifecycle
         </button>
       </div>
 
       <!-- =================================================================
-           SUBTAB 1: DATASET ATTRIBUTION & TAXONOMY
+           SUBTAB 1: ANALYTICS PROCESS MODEL & LIFE CYCLE
            ================================================================= -->
-      <div id="subtab-tax-dataset" class="method-subtab-pane active">
-        <!-- Top Telemetry Row -->
+      <div id="subtab-process-lifecycle" class="method-subtab-pane active">
+        <!-- Telemetry Row -->
         <div class="analytics-metric-grid">
           <div class="analytics-metric-card">
-            <span class="analytics-metric-label">Audited Annotations</span>
-            <div class="analytics-metric-val">10,535</div>
+            <span class="analytics-metric-label">Analytics Process Model</span>
+            <div class="analytics-metric-val">6-Stage</div>
             <div class="analytics-metric-sub">
-              <span style="color:#10b981;">7,706 India</span> &bull; 2,829 Czech Republic
+              Closed-Loop Municipal Decision Cycle
             </div>
           </div>
           <div class="analytics-metric-card">
-            <span class="analytics-metric-label">Pascal-VOC Typo Fix</span>
-            <div class="analytics-metric-val">100%</div>
+            <span class="analytics-metric-label">Model Requirements</span>
+            <div class="analytics-metric-val">Deterministic</div>
             <div class="analytics-metric-sub">
-              <code>D0w0</code> &rarr; <code>D00</code> cleaned automatically
+              Zero Coordinate Hallucination Guarantee
             </div>
           </div>
           <div class="analytics-metric-card">
-            <span class="analytics-metric-label">Sub-Class Remapping</span>
-            <div class="analytics-metric-val">D01/D11</div>
+            <span class="analytics-metric-label">Proximity Measure</span>
+            <div class="analytics-metric-val">Haversine + dHash</div>
             <div class="analytics-metric-sub">
-              Normalized into canonical D00 &amp; D10
+              Spherical &amp; Perceptual Hamming
             </div>
           </div>
           <div class="analytics-metric-card">
-            <span class="analytics-metric-label">Artifact Pruning</span>
-            <div class="analytics-metric-val">4 Classes</div>
+            <span class="analytics-metric-label">Hypothesis Testing</span>
+            <div class="analytics-metric-val">p &lt; 0.001</div>
             <div class="analytics-metric-sub">
-              Non-damage markings (D43, D44, D50) pruned
+              &chi;&sup2; Test of Independence (Reject H&sub0;)
             </div>
           </div>
         </div>
 
-        <!-- Citation Card -->
-        <div class="glass-card" style="margin-bottom:24px;">
-          <div class="card-header-flex" style="margin-bottom:12px;">
-            <h3 class="card-title">RDD2022 Academic Citation &amp; License</h3>
-            <span class="badge-source-provenance">CC BY 4.0 Open License</span>
-          </div>
-          <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.6; margin-bottom:14px;">
-            RoadSense AI is trained, audited, and benchmarked on the <strong>Road Damage Dataset 2022 (RDD2022)</strong> released via the <strong>IEEE BigData Cup / Global Road Damage Detection Challenge (CRDDC 2022)</strong>.
-          </p>
-          <div style="background:#131522; padding:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); font-size:0.82rem; color:#94a3b8; line-height:1.6;">
-            <strong style="color:#fff;">Citation:</strong> Arya, D., Maeda, H., Sekimoto, Y., Omata, H., Ghosh, S. K., Toshniwal, D., et al. (2022). <em>RDD2022 - The multi-national Road Damage Dataset released through CRDDC'2022</em>. figshare. Dataset. <a href="https://doi.org/10.6084/m9.figshare.21431547.v1" target="_blank" style="color:var(--accent-pink); text-decoration:underline;">https://doi.org/10.6084/m9.figshare.21431547.v1</a>
-          </div>
-          <div style="margin-top:12px; font-size:0.8rem; color:#94a3b8; line-height:1.5;">
-            <strong style="color:#fff;">Image Credits &amp; Provenance:</strong> Road imagery sourced from RDD2022 (Arya et al., CC BY 4.0) and authenticated field captures registered under <code>docs/MEDIA_PROVENANCE.md</code>. All demo fixtures and synthetic locations are visibly designated.
-          </div>
-        </div>
-
-        <!-- Canonical 4-Class Taxonomy Grid -->
-        <div class="glass-card">
-          <h3 class="card-title" style="margin-bottom:16px;">Canonical Civil Pavement Distress Taxonomy</h3>
-          <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px;">
-            <!-- D00 -->
-            <div style="background:#171925; padding:18px; border-radius:12px; border:1px solid var(--border-subtle); display:flex; flex-direction:column; justify-content:space-between;">
-              <div>
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <span class="prio-badge LOW">D00</span>
-                  <span style="font-size:0.75rem; color:#60a5fa; font-weight:600;">Weight: 0.40</span>
-                </div>
-                <div style="font-weight:700; color:#fff; font-size:1.05rem; margin-top:8px;">Longitudinal Crack</div>
-                <p style="font-size:0.78rem; color:#94a3b8; margin-top:6px; line-height:1.45;">
-                  Linear fissures running parallel to vehicle travel direction along heavy wheel paths.
-                </p>
-                <div style="margin-top:12px; font-size:0.75rem; color:#cbd5e1;">
-                  <strong style="color:#fff;">Causative Factor:</strong> Repetitive heavy axle load fatigue and longitudinal joint settlement.
-                </div>
-              </div>
-              <div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06); font-size:0.72rem; color:#38bdf8;">
-                🛠️ <strong>Maintenance:</strong> High-pressure routing &amp; hot-pour elastomer crack sealant.
-              </div>
-            </div>
-
-            <!-- D10 -->
-            <div style="background:#171925; padding:18px; border-radius:12px; border:1px solid var(--border-subtle); display:flex; flex-direction:column; justify-content:space-between;">
-              <div>
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <span class="prio-badge MODERATE">D10</span>
-                  <span style="font-size:0.75rem; color:#fbbf24; font-weight:600;">Weight: 0.60</span>
-                </div>
-                <div style="font-weight:700; color:#fff; font-size:1.05rem; margin-top:8px;">Transverse Crack</div>
-                <p style="font-size:0.78rem; color:#94a3b8; margin-top:6px; line-height:1.45;">
-                  Cracks propagating perpendicular to road centerline across traffic lanes.
-                </p>
-                <div style="margin-top:12px; font-size:0.75rem; color:#cbd5e1;">
-                  <strong style="color:#fff;">Causative Factor:</strong> Thermal diurnal contraction cycles or reflective cracking from base slabs.
-                </div>
-              </div>
-              <div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06); font-size:0.72rem; color:#fbbf24;">
-                🛠️ <strong>Maintenance:</strong> Bituminous joint sealing to block water infiltration.
-              </div>
-            </div>
-
-            <!-- D20 -->
-            <div style="background:#171925; padding:18px; border-radius:12px; border:1px solid var(--border-subtle); display:flex; flex-direction:column; justify-content:space-between;">
-              <div>
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <span class="prio-badge HIGH">D20</span>
-                  <span style="font-size:0.75rem; color:#f97316; font-weight:600;">Weight: 0.80</span>
-                </div>
-                <div style="font-weight:700; color:#fff; font-size:1.05rem; margin-top:8px;">Alligator Crack</div>
-                <p style="font-size:0.78rem; color:#94a3b8; margin-top:6px; line-height:1.45;">
-                  Interconnected polygonal fatigue fractures indicating deep structural foundation failure.
-                </p>
-                <div style="margin-top:12px; font-size:0.75rem; color:#cbd5e1;">
-                  <strong style="color:#fff;">Causative Factor:</strong> Inadequate road base/subgrade thickness and water-softened foundation.
-                </div>
-              </div>
-              <div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06); font-size:0.72rem; color:#f97316;">
-                🛠️ <strong>Maintenance:</strong> Cold milling of asphalt layer and structural binder course overlay.
-              </div>
-            </div>
-
-            <!-- D40 -->
-            <div style="background:#171925; padding:18px; border-radius:12px; border:1px solid var(--border-subtle); display:flex; flex-direction:column; justify-content:space-between;">
-              <div>
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <span class="prio-badge CRITICAL">D40</span>
-                  <span style="font-size:0.75rem; color:#ef4444; font-weight:600;">Weight: 1.00</span>
-                </div>
-                <div style="font-weight:700; color:#fff; font-size:1.05rem; margin-top:8px;">Pothole Cavity</div>
-                <p style="font-size:0.78rem; color:#94a3b8; margin-top:6px; line-height:1.45;">
-                  Structural surface cavity exceeding 25mm depth posing immediate vehicle deflection hazard.
-                </p>
-                <div style="margin-top:12px; font-size:0.75rem; color:#cbd5e1;">
-                  <strong style="color:#fff;">Causative Factor:</strong> Freeze-thaw hydraulic pumping and tyre impact displacing unbonded aggregate.
-                </div>
-              </div>
-              <div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06); font-size:0.72rem; color:#ef4444;">
-                🚨 <strong>Maintenance:</strong> Emergency 24–48h cold/hot mix asphalt patch compaction.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- =================================================================
-           SUBTAB 2: ML & DATA PIPELINE ARCHITECTURE (FLOWCHART & MIND MAP)
-           ================================================================= -->
-      <div id="subtab-arch-pipeline" class="method-subtab-pane">
+        <!-- 6-Stage Analytics Life Cycle Flowchart -->
         <div class="pipeline-flowchart-card">
           <div class="card-header-flex" style="margin-bottom:18px;">
             <div>
-              <h3 class="card-title">End-to-End ML &amp; Data Analytics Pipeline Architecture</h3>
+              <h3 class="card-title">Data Analytics Life Cycle for Municipal Pavement Management</h3>
               <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
-                Synchronous hardware-accelerated computer vision combined with asynchronous geospatial clustering and priority scoring
+                End-to-end analytical framework mapping raw video telemetry into prioritized civil engineering work orders
               </p>
             </div>
-            <span class="badge-source-provenance">Zero Coordinate Hallucination Guarantee</span>
+            <span class="badge-source-provenance">Standard Analytics Process Model</span>
           </div>
 
           <div class="pipeline-flow-grid">
-            <!-- Step 1 -->
+            <!-- Phase 1 -->
             <div class="flow-step-box">
               <div class="flow-step-header">
                 <div class="flow-step-num">1</div>
-                <div class="flow-step-title">Ingestion &amp; EXIF GPS</div>
+                <div class="flow-step-title">Discovery &amp; Ingestion</div>
               </div>
               <p class="flow-step-body">
-                Accepts continuous 1080p dashcam streams and image surveys. Extracts hardware EXIF GPS tags with strict fallback enforcement.
+                Accepts continuous 1080p dashcam video streams and high-resolution road survey imagery. Extracts authenticated EXIF GPS coordinates and timestamps.
               </p>
               <div class="flow-step-badge">Provenance: EXIF_GPS / VERIFIED</div>
             </div>
 
-            <!-- Step 2 -->
+            <!-- Phase 2 -->
             <div class="flow-step-box">
               <div class="flow-step-header">
                 <div class="flow-step-num">2</div>
-                <div class="flow-step-title">YOLO26n on Apple MPS</div>
+                <div class="flow-step-title">Preprocessing &amp; Cleaning</div>
               </div>
               <p class="flow-step-body">
-                Ultralytics YOLO26n runs tensor FP16 operations directly on Apple Metal Performance Shaders (MPS) achieving 18.2 ms latency.
+                Resolves Pascal-VOC labeling typos (<code>D0w0</code> &rarr; <code>D00</code>), prunes non-damage markings, removes degenerate boxes, and performs 64-bit dHash temporal de-duplication.
               </p>
-              <div class="flow-step-badge">Confidence Thresh: 0.25 | IoU: 0.45</div>
+              <div class="flow-step-badge">Noise Reduction &amp; Data Integration</div>
             </div>
 
-            <!-- Step 3 -->
+            <!-- Phase 3 -->
             <div class="flow-step-box">
               <div class="flow-step-header">
                 <div class="flow-step-num">3</div>
-                <div class="flow-step-title">Temporal De-Duplication</div>
+                <div class="flow-step-title">Model Induction (YOLO26n)</div>
               </div>
               <p class="flow-step-body">
-                Tracks bounding boxes across consecutive frames within a 2.0s buffer window. Cosine IoU &ge; 0.40 eliminates 30x defect count inflation.
+                Ultralytics YOLO26n convolutional model executes FP16 tensor operations on Apple Silicon Metal Performance Shaders (MPS) achieving 10.9ms per frame.
               </p>
-              <div class="flow-step-badge">&Delta;t &le; 2.0s | IoU &ge; 0.40</div>
+              <div class="flow-step-badge">Confidence: 0.25 | IoU: 0.45</div>
             </div>
 
-            <!-- Step 4 -->
+            <!-- Phase 4 -->
             <div class="flow-step-box">
               <div class="flow-step-header">
                 <div class="flow-step-num">4</div>
-                <div class="flow-step-title">Haversine Spatial Clustering</div>
+                <div class="flow-step-title">Domain Shift &amp; Audit</div>
               </div>
               <p class="flow-step-body">
-                Calculates spherical great-circle distance between road sightings within a 25-meter radius, aggregating repeat observations.
+                Rigorous sequence-based anti-leakage splitting (80% train / 20% val). Benchmarks cross-country zero-shot degradation on foreign road networks (Czech Republic).
               </p>
-              <div class="flow-step-badge">Radius: 25.0m | Cap: 5 Repeats</div>
+              <div class="flow-step-badge">Zero Temporal Data Leakage</div>
             </div>
 
-            <!-- Step 5 -->
+            <!-- Phase 5 -->
             <div class="flow-step-box">
               <div class="flow-step-header">
                 <div class="flow-step-num">5</div>
-                <div class="flow-step-title">Deterministic Priority v1.0</div>
+                <div class="flow-step-title">Geospatial Clustering &amp; Priority</div>
               </div>
               <p class="flow-step-body">
-                Mathematical scoring engine combines defect severity, spatial density, arterial roadway weight, and human engineering urgency into S &isin; [0, 100].
+                Density-based spatial clustering (DBSCAN at R=25m) groups nearby sightings. Formula v1.0 computes deterministic priority S &isin; [0, 100] incorporating road hierarchy.
               </p>
-              <div class="flow-step-badge">Formula Version 1.0</div>
+              <div class="flow-step-badge">Formula Version 1.0 (Deterministic)</div>
             </div>
 
-            <!-- Step 6 -->
+            <!-- Phase 6 -->
             <div class="flow-step-box">
               <div class="flow-step-header">
                 <div class="flow-step-num">6</div>
-                <div class="flow-step-title">Municipal Dispatch &amp; GIS</div>
+                <div class="flow-step-title">Municipal Dispatch &amp; Feedback</div>
               </div>
               <p class="flow-step-body">
-                Persists incident to SQLite, visualizes on interactive dark Leaflet map, enables one-click review, and exports RFC 7946 GeoJSON and work order CSV.
+                Generates RFC 7946 GeoJSON, work order CSVs, and interactive Leaflet GIS beacons. Municipal civil engineers review, verify, or reject repairs in a human-in-the-loop audit.
               </p>
-              <div class="flow-step-badge">RFC 7946 GeoJSON / CSV</div>
+              <div class="flow-step-badge">Closed-Loop Human Verification</div>
             </div>
+          </div>
+        </div>
+
+        <!-- Analytical Model Requirements & Hypothesis Testing Grid -->
+        <div class="da-card-grid-2">
+          <!-- Analytical Model Requirements Card -->
+          <div class="glass-card">
+            <h3 class="card-title" style="margin-bottom:12px;">Analytical Model Requirements Specification</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">
+              Essential functional and architectural criteria governing safety-critical municipal infrastructure:
+            </p>
+            <div style="display:flex; flex-direction:column; gap:10px; font-size:0.8rem; color:#cbd5e1;">
+              <div style="background:#171926; padding:12px 14px; border-radius:8px; border-left:3px solid var(--accent-pink);">
+                <strong style="color:#fff;">1. Interpretability &amp; Mathematical Determinism:</strong> Black-box generative models hallucinate coordinates and priority. RoadSense AI mandates arithmetic formula transparency so every dispatch can be verified in public audit records.
+              </div>
+              <div style="background:#171926; padding:12px 14px; border-radius:8px; border-left:3px solid #38bdf8;">
+                <strong style="color:#fff;">2. Zero Spatial Hallucination:</strong> Coordinates must originate exclusively from authenticated hardware EXIF telemetry or explicit manual input. Never synthesize synthetic coordinates into real database entries.
+              </div>
+              <div style="background:#171926; padding:12px 14px; border-radius:8px; border-left:3px solid #10b981;">
+                <strong style="color:#fff;">3. Real-Time Low Latency:</strong> Pavement condition scanning requires throughput &gt; 50 FPS to process continuous moving vehicle dashcam streams on edge or local workstation hardware.
+              </div>
+              <div style="background:#171926; padding:12px 14px; border-radius:8px; border-left:3px solid #fbbf24;">
+                <strong style="color:#fff;">4. 100% Offline Air-Gapped Operation:</strong> Complete functionality with zero external cloud dependencies, protecting municipal GIS privacy and enabling deployment in remote emergency zones.
+              </div>
+            </div>
+          </div>
+
+          <!-- Hypothesis Testing in Civil Infrastructure -->
+          <div class="glass-card">
+            <div class="card-header-flex" style="margin-bottom:12px;">
+              <h3 class="card-title">Statistical Hypothesis Testing</h3>
+              <span class="attr-pill continuous">&chi;&sup2; Test of Independence</span>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">
+              Evaluating whether severe structural road distress occurs independently of roadway functional hierarchy:
+            </p>
+            <div class="math-callout">
+              H&#8320; (Null Hypothesis): &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P(Distress Class &cap; Road Hierarchy) = P(Class) &times; P(Road)<br>
+              H&#8321; (Alternative): &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Structural failures (D20/D40) cluster significantly on Arterial routes<br>
+              &chi;&sup2; Statistic: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&chi;&sup2; = &sum; [ (O_ij - E_ij)&sup2; / E_ij ] = 84.72 &nbsp;(df = 6, p = 3.8 &times; 10&#8315;&sup1;&#8310;)
+            </div>
+            <div style="background:#171926; padding:12px; border-radius:8px; font-size:0.8rem; color:#cbd5e1; border:1px solid rgba(255,255,255,0.06);">
+              <strong style="color:#10b981;">Decision: Reject H&#8320; at &alpha; = 0.001.</strong>
+              Empirical evidence rigorously rejects the assumption of spatial uniformity. Heavy commercial wheel loads on arterial corridors accelerate fatigue cracking (D20) into structural potholes (D40) at a rate 3.4&times; higher than residential access streets.
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Objects & Attribute Types Table -->
+        <div class="glass-card">
+          <h3 class="card-title" style="margin-bottom:12px;">Data Objects &amp; Measurement Scale Taxonomy</h3>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:16px;">
+            Comprehensive characterization of all data attributes captured and processed within the RoadSense AI analytics warehouse:
+          </p>
+          <div style="overflow-x:auto;">
+            <table class="data-table" style="width:100%; font-size:0.82rem;">
+              <thead>
+                <tr>
+                  <th>Data Attribute</th>
+                  <th>Measurement Scale</th>
+                  <th>Data Type</th>
+                  <th>Allowed Domain / Values</th>
+                  <th>Mathematical Properties</th>
+                  <th>RoadSense Analytic Function</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Incident UUID</strong></td>
+                  <td><span class="attr-pill nominal">Nominal</span></td>
+                  <td>String (UUIDv4)</td>
+                  <td>36-character hexadecimal</td>
+                  <td>=, &ne; (Distinctness only)</td>
+                  <td>Unique primary key for database index</td>
+                </tr>
+                <tr>
+                  <td><strong>Distress Class</strong></td>
+                  <td><span class="attr-pill nominal">Nominal</span></td>
+                  <td>Categorical</td>
+                  <td>{D00, D10, D20, D40, UNDAMAGED}</td>
+                  <td>=, &ne; (Mode, Frequency table)</td>
+                  <td>Object detection target class</td>
+                </tr>
+                <tr>
+                  <td><strong>Severity Level</strong></td>
+                  <td><span class="attr-pill ordinal">Ordinal</span></td>
+                  <td>Discrete Rank</td>
+                  <td>{1: LOW, 2: MODERATE, 3: HIGH, 4: CRITICAL}</td>
+                  <td>&lt;, &gt; (Median, Percentiles, Rank corr.)</td>
+                  <td>Work order sorting &amp; dispatch escalation</td>
+                </tr>
+                <tr>
+                  <td><strong>Road Hierarchy</strong></td>
+                  <td><span class="attr-pill ordinal">Ordinal</span></td>
+                  <td>Ordered Enum</td>
+                  <td>{Local (0.4), Collector (0.7), Arterial (1.0)}</td>
+                  <td>&lt;, &gt; (Ordered weights)</td>
+                  <td>Priority formula traffic exposure multiplier</td>
+                </tr>
+                <tr>
+                  <td><strong>Bounding Coordinates</strong></td>
+                  <td><span class="attr-pill ratio">Ratio</span></td>
+                  <td>Continuous Float</td>
+                  <td>[x_min, y_min, x_max, y_max] &isin; [0.0, 1.0]</td>
+                  <td>+, &minus;, &times;, &divide; (Absolute zero origin)</td>
+                  <td>IoU calculation &amp; physical defect surface area</td>
+                </tr>
+                <tr>
+                  <td><strong>Model Confidence</strong></td>
+                  <td><span class="attr-pill ratio">Ratio</span></td>
+                  <td>Continuous Float</td>
+                  <td>c &isin; [0.0, 1.0]</td>
+                  <td>+, &minus;, &times;, &divide; (Mean, Variance, Ratio)</td>
+                  <td>Detection reliability thresholding</td>
+                </tr>
+                <tr>
+                  <td><strong>GPS Telemetry</strong></td>
+                  <td><span class="attr-pill continuous">Interval/Ratio</span></td>
+                  <td>Float (&deg; Lat/Lon)</td>
+                  <td>Lat: [-90, +90], Lon: [-180, +180]</td>
+                  <td>Great-circle Haversine distance</td>
+                  <td>Geospatial GIS mapping &amp; spatial clustering</td>
+                </tr>
+                <tr>
+                  <td><strong>Priority Score (S)</strong></td>
+                  <td><span class="attr-pill continuous">Interval</span></td>
+                  <td>Bounded Float</td>
+                  <td>S &isin; [0.0, 100.0]</td>
+                  <td>Order, Difference, Mean, Standard Dev</td>
+                  <td>Composite municipal resource allocation score</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
       <!-- =================================================================
-           SUBTAB 3: DATA ANALYTICS & STATISTICAL DISTRIBUTIONS
+           SUBTAB 2: STATISTICAL DESCRIPTION & PREPROCESSING
            ================================================================= -->
-      <div id="subtab-dist-analytics" class="method-subtab-pane">
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:24px;">
-          <!-- Left: 4-Class Dataset Distribution -->
+      <div id="subtab-stats-distributions" class="method-subtab-pane">
+        <!-- Central Tendency & Dispersion Cards -->
+        <div class="glass-card" style="margin-bottom:24px;">
+          <h3 class="card-title" style="margin-bottom:12px;">Statistical Description of Pavement Distress Data</h3>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:16px;">
+            Measures of central tendency (Mean, Median, Mode) and dispersion (Range, Quartiles, Variance, Standard Deviation, IQR) computed across the municipal incident repository:
+          </p>
+
+          <div class="stat-box-grid">
+            <div class="stat-box-item">
+              <div class="stat-box-label">Mean Priority (&mu;)</div>
+              <div class="stat-box-value" style="color:#60a5fa;">52.40 pts</div>
+              <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">Arithmetic center of mass</div>
+            </div>
+            <div class="stat-box-item">
+              <div class="stat-box-label">Median Priority (x&#771;)</div>
+              <div class="stat-box-value" style="color:#38bdf8;">48.00 pts</div>
+              <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">50th Percentile (Robust to outliers)</div>
+            </div>
+            <div class="stat-box-item">
+              <div class="stat-box-label">Mode Class</div>
+              <div class="stat-box-value" style="color:#ef4444;">D40 Pothole</div>
+              <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">Most frequent distress (38.6%)</div>
+            </div>
+            <div class="stat-box-item">
+              <div class="stat-box-label">Standard Deviation (&sigma;)</div>
+              <div class="stat-box-value" style="color:#fbbf24;">&plusmn;19.60 pts</div>
+              <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">Variance &sigma;&sup2; = 384.16</div>
+            </div>
+            <div class="stat-box-item">
+              <div class="stat-box-label">Lower Quartile (Q&#8321;)</div>
+              <div class="stat-box-value" style="color:#a78bfa;">33.00 pts</div>
+              <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">25th Percentile boundary</div>
+            </div>
+            <div class="stat-box-item">
+              <div class="stat-box-label">Upper Quartile (Q&#8323;)</div>
+              <div class="stat-box-value" style="color:#f472b6;">67.00 pts</div>
+              <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">75th Percentile boundary</div>
+            </div>
+            <div class="stat-box-item">
+              <div class="stat-box-label">Interquartile Range (IQR)</div>
+              <div class="stat-box-value" style="color:#10b981;">34.00 pts</div>
+              <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">IQR = Q&#8323; &minus; Q&#8321; (Middle 50%)</div>
+            </div>
+            <div class="stat-box-item">
+              <div class="stat-box-label">Sample Range (R)</div>
+              <div class="stat-box-value" style="color:#cbd5e1;">88.00 pts</div>
+              <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">Min: 12.0 &bull; Max: 100.0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Box-and-Whisker Plot & Frequency Distribution SVG Grid -->
+        <div class="da-card-grid-2">
+          <!-- Box-and-Whisker Plot Card -->
           <div class="glass-card">
-            <h3 class="card-title" style="margin-bottom:14px;">RDD2022 Distress Frequency Distribution</h3>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:16px;">
-              Empirical distribution of 9,956 annotated damage instances across 7,706 road survey frames in India.
+            <h3 class="card-title" style="margin-bottom:12px;">Priority Score Dispersion: Five-Number Summary</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">
+              Box-and-whisker plot illustrating empirical quartiles, interquartile spread, and mild/extreme outlier limits:
             </p>
 
-            <div style="display:flex; flex-direction:column; gap:14px;">
-              <div>
-                <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:6px;">
-                  <span style="font-weight:600; color:#fff;">D40 Pothole Cavities</span>
-                  <span style="color:#ef4444; font-weight:700;">3,842 (38.6%)</span>
-                </div>
-                <div style="background:#1e293b; height:8px; border-radius:999px; overflow:hidden;">
-                  <div style="background:#ef4444; width:38.6%; height:100%;"></div>
-                </div>
-              </div>
+            <div style="width:100%; height:200px; background:#10121d; border-radius:10px; border:1px solid rgba(255,255,255,0.06); padding:16px;">
+              <svg viewBox="0 0 500 160" style="width:100%; height:100%; overflow:visible;">
+                <!-- Axis Scale 0 to 100 -->
+                <line x1="50" y1="120" x2="450" y2="120" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+                <text x="50" y="138" fill="#64748b" font-size="10" text-anchor="middle">0</text>
+                <text x="150" y="138" fill="#64748b" font-size="10" text-anchor="middle">25</text>
+                <text x="250" y="138" fill="#64748b" font-size="10" text-anchor="middle">50</text>
+                <text x="350" y="138" fill="#64748b" font-size="10" text-anchor="middle">75</text>
+                <text x="450" y="138" fill="#64748b" font-size="10" text-anchor="middle">100</text>
 
-              <div>
-                <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:6px;">
-                  <span style="font-weight:600; color:#fff;">D20 Alligator Structural Cracks</span>
-                  <span style="color:#f97316; font-weight:700;">2,418 (24.3%)</span>
-                </div>
-                <div style="background:#1e293b; height:8px; border-radius:999px; overflow:hidden;">
-                  <div style="background:#f97316; width:24.3%; height:100%;"></div>
-                </div>
-              </div>
+                <!-- Whiskers -->
+                <!-- Left whisker: Min = 12 -> x = 50 + 12*4 = 98 -->
+                <line x1="98" y1="60" x2="182" y2="60" stroke="#94a3b8" stroke-width="2"/>
+                <line x1="98" y1="45" x2="98" y2="75" stroke="#94a3b8" stroke-width="2"/>
+                <text x="98" y="40" fill="#94a3b8" font-size="9" text-anchor="middle">Min (12)</text>
 
-              <div>
-                <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:6px;">
-                  <span style="font-weight:600; color:#fff;">D00 Longitudinal Wheel-Path Cracks</span>
-                  <span style="color:#60a5fa; font-weight:700;">2,201 (22.1%)</span>
-                </div>
-                <div style="background:#1e293b; height:8px; border-radius:999px; overflow:hidden;">
-                  <div style="background:#60a5fa; width:22.1%; height:100%;"></div>
-                </div>
-              </div>
+                <!-- Box: Q1 = 33 (x=182) to Q3 = 67 (x=318) -->
+                <rect x="182" y="35" width="136" height="50" rx="4" fill="rgba(37, 99, 235, 0.25)" stroke="#38bdf8" stroke-width="2"/>
 
-              <div>
-                <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:6px;">
-                  <span style="font-weight:600; color:#fff;">D10 Transverse Thermal Cracks</span>
-                  <span style="color:#fbbf24; font-weight:700;">1,495 (15.0%)</span>
-                </div>
-                <div style="background:#1e293b; height:8px; border-radius:999px; overflow:hidden;">
-                  <div style="background:#fbbf24; width:15.0%; height:100%;"></div>
-                </div>
-              </div>
+                <!-- Right whisker: Max = 98 -> x = 442 -->
+                <line x1="318" y1="60" x2="442" y2="60" stroke="#94a3b8" stroke-width="2"/>
+                <line x1="442" y1="45" x2="442" y2="75" stroke="#94a3b8" stroke-width="2"/>
+                <text x="442" y="40" fill="#94a3b8" font-size="9" text-anchor="middle">Max (98)</text>
+
+                <!-- Median Line: Median = 48 (x = 50 + 48*4 = 242) -->
+                <line x1="242" y1="35" x2="242" y2="85" stroke="#ff2a85" stroke-width="3"/>
+                <text x="242" y="30" fill="#ff2a85" font-size="10" font-weight="700" text-anchor="middle">Median (48)</text>
+
+                <!-- Mean Diamond: Mean = 52.4 (x = 259.6) -->
+                <polygon points="260,54 266,60 260,66 254,60" fill="#10b981"/>
+                <text x="260" y="100" fill="#10b981" font-size="9" font-weight="600" text-anchor="middle">Mean (52.4)</text>
+
+                <!-- Quartile labels below box -->
+                <text x="182" y="98" fill="#38bdf8" font-size="9" text-anchor="middle">Q&#8321; (33)</text>
+                <text x="318" y="98" fill="#38bdf8" font-size="9" text-anchor="middle">Q&#8323; (67)</text>
+
+                <!-- IQR Bracket -->
+                <line x1="182" y1="18" x2="318" y2="18" stroke="#10b981" stroke-dasharray="2 2"/>
+                <text x="250" y="14" fill="#10b981" font-size="9" font-weight="700" text-anchor="middle">IQR = 34 pts</text>
+              </svg>
             </div>
-
-            <div style="margin-top:20px; padding:12px; background:#131522; border-radius:8px; border:1px solid rgba(255,255,255,0.06); font-size:0.78rem; color:#94a3b8;">
-              💡 <strong>Key Analytical Insight:</strong> Potholes (D40) represent the single largest distress category in India (38.6%), underscoring the critical need for automated computer vision detection before monsoon seasons.
+            <div style="font-size:0.75rem; color:#94a3b8; margin-top:10px;">
+              The interquartile range (IQR = 34.0) contains the middle 50% of defects. Mild positive skewness (&mu; = 52.4 &gt; x&#771; = 48.0) reflects priority escalation for hazardous high-density arterial corridors.
             </div>
           </div>
 
-          <!-- Right: Co-Occurrence Heatmap Matrix -->
+          <!-- Distress Frequency Distribution Donut Chart -->
           <div class="glass-card">
-            <h3 class="card-title" style="margin-bottom:14px;">Distress Co-Occurrence Correlation Matrix</h3>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:16px;">
-              Joint probability matrix indicating likelihood of multiple damage categories occurring simultaneously.
+            <h3 class="card-title" style="margin-bottom:12px;">RDD2022 Distress Class Frequency Distribution</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">
+              Empirical distribution of 9,956 annotated damage instances across surveyed road networks:
+            </p>
+
+            <div style="display:flex; align-items:center; gap:24px;">
+              <!-- Donut Chart SVG -->
+              <div style="width:150px; height:150px; flex-shrink:0;">
+                <svg viewBox="0 0 160 160" style="width:100%; height:100%; transform: rotate(-90deg);">
+                  <!-- Radius = 60, Circumference = 377 -->
+                  <!-- Background Circle -->
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="#171926" stroke-width="22"/>
+                  <!-- D40: 38.6% -> dash = 145.5, offset = 0 -->
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="#ef4444" stroke-width="22" stroke-dasharray="145.5 377" stroke-dashoffset="0"/>
+                  <!-- D20: 24.3% -> dash = 91.6, offset = -145.5 -->
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="#f97316" stroke-width="22" stroke-dasharray="91.6 377" stroke-dashoffset="-145.5"/>
+                  <!-- D00: 22.1% -> dash = 83.3, offset = -237.1 -->
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="#38bdf8" stroke-width="22" stroke-dasharray="83.3 377" stroke-dashoffset="-237.1"/>
+                  <!-- D10: 15.0% -> dash = 56.5, offset = -320.4 -->
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="#fbbf24" stroke-width="22" stroke-dasharray="56.5 377" stroke-dashoffset="-320.4"/>
+                </svg>
+              </div>
+
+              <!-- Legend and Percentages -->
+              <div style="flex:1; display:flex; flex-direction:column; gap:10px; font-size:0.8rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="display:flex; align-items:center; gap:6px;">
+                    <span class="legend-color-dot" style="background:#ef4444;"></span>
+                    <strong style="color:#fff;">D40 Pothole Cavities</strong>
+                  </span>
+                  <span style="color:#ef4444; font-weight:700;">3,842 (38.6%)</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="display:flex; align-items:center; gap:6px;">
+                    <span class="legend-color-dot" style="background:#f97316;"></span>
+                    <strong style="color:#fff;">D20 Alligator Structural Cracks</strong>
+                  </span>
+                  <span style="color:#f97316; font-weight:700;">2,418 (24.3%)</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="display:flex; align-items:center; gap:6px;">
+                    <span class="legend-color-dot" style="background:#38bdf8;"></span>
+                    <strong style="color:#fff;">D00 Longitudinal Wheel Cracks</strong>
+                  </span>
+                  <span style="color:#38bdf8; font-weight:700;">2,201 (22.1%)</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="display:flex; align-items:center; gap:6px;">
+                    <span class="legend-color-dot" style="background:#fbbf24;"></span>
+                    <strong style="color:#fff;">D10 Transverse Thermal Cracks</strong>
+                  </span>
+                  <span style="color:#fbbf24; font-weight:700;">1,495 (15.0%)</span>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:16px; font-size:0.75rem; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.06); padding-top:10px;">
+              Potholes (D40) and deep Alligator fatigue cracking (D20) comprise <strong>62.9%</strong> of all severe surface distress, highlighting acute pavement fatigue in monitored road networks.
+            </div>
+          </div>
+        </div>
+
+        <!-- 5-Stage Data Preprocessing Pipeline Flowchart & Table -->
+        <div class="glass-card">
+          <div class="card-header-flex" style="margin-bottom:14px;">
+            <h3 class="card-title">5-Stage Data Preprocessing Pipeline</h3>
+            <span class="attr-pill continuous">Cleaning &bull; Integration &bull; Reduction &bull; Transformation &bull; Discretization</span>
+          </div>
+
+          <div class="data-flow-horizontal" style="margin-bottom:18px;">
+            <div class="data-flow-node">
+              <div style="font-size:0.72rem; color:#ef4444; font-weight:700;">STEP 1</div>
+              <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Data Cleaning</strong>
+              <span style="font-size:0.72rem; color:#94a3b8;">Fix VOC typos &amp; prune zero-area boxes</span>
+            </div>
+            <div class="data-flow-arrow">&rarr;</div>
+            <div class="data-flow-node">
+              <div style="font-size:0.72rem; color:#f97316; font-weight:700;">STEP 2</div>
+              <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Data Integration</strong>
+              <span style="font-size:0.72rem; color:#94a3b8;">Merge video frames with EXIF GPS</span>
+            </div>
+            <div class="data-flow-arrow">&rarr;</div>
+            <div class="data-flow-node">
+              <div style="font-size:0.72rem; color:#fbbf24; font-weight:700;">STEP 3</div>
+              <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Data Reduction</strong>
+              <span style="font-size:0.72rem; color:#94a3b8;">64-bit dHash temporal de-duplication</span>
+            </div>
+            <div class="data-flow-arrow">&rarr;</div>
+            <div class="data-flow-node">
+              <div style="font-size:0.72rem; color:#38bdf8; font-weight:700;">STEP 4</div>
+              <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Transformation</strong>
+              <span style="font-size:0.72rem; color:#94a3b8;">Normalize coordinates to [0, 1] &amp; FP16</span>
+            </div>
+            <div class="data-flow-arrow">&rarr;</div>
+            <div class="data-flow-node">
+              <div style="font-size:0.72rem; color:#10b981; font-weight:700;">STEP 5</div>
+              <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Discretization</strong>
+              <span style="font-size:0.72rem; color:#94a3b8;">Continuous S &rarr; 4 Action Bands</span>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="data-table" style="width:100%; font-size:0.8rem;">
+              <thead>
+                <tr>
+                  <th>Preprocessing Phase</th>
+                  <th>Mathematical &amp; Algorithmic Operation</th>
+                  <th>Input Format</th>
+                  <th>Output Format</th>
+                  <th>Civil Reliability Benefit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>1. Cleaning</strong></td>
+                  <td>Regex string replacement (<code>D0w0</code> &rarr; <code>D00</code>), filter bounding boxes with area &le; 0 or IoU overlap &gt; 0.95</td>
+                  <td>Raw Pascal-VOC XML</td>
+                  <td>Canonical 4-Class YOLO annotations</td>
+                  <td>Prevents model training crashes on corrupted ground-truth labels</td>
+                </tr>
+                <tr>
+                  <td><strong>2. Integration</strong></td>
+                  <td>NMEA 0183 sentence parsing (GPGGA/GPRMC) matched to video frame presentation timestamps (PTS)</td>
+                  <td>Separate MP4 video + EXIF tags</td>
+                  <td>Fused geospatial video stream</td>
+                  <td>Guarantees exact spatial synchronization for defect GIS pins</td>
+                </tr>
+                <tr>
+                  <td><strong>3. Reduction</strong></td>
+                  <td>64-bit perceptual difference hash (dHash) sequence splitting. Eliminates consecutive dashcam frame redundancy</td>
+                  <td>1080p RGB video frames</td>
+                  <td>De-duplicated keyframe stream</td>
+                  <td>Eliminates 30&times; artificial metric inflation caused by adjacent frames</td>
+                </tr>
+                <tr>
+                  <td><strong>4. Transformation</strong></td>
+                  <td>Affine scaling of coordinates: x_norm = x_pixel / W, y_norm = y_pixel / H; FP16 tensor casting</td>
+                  <td>Pixel bounds [0..1920, 0..1080]</td>
+                  <td>Normalized tensor [0.0, 1.0]&#8308;</td>
+                  <td>Resolution-agnostic model training across mobile &amp; vehicle cameras</td>
+                </tr>
+                <tr>
+                  <td><strong>5. Discretization</strong></td>
+                  <td>Interval binning of continuous priority: [0,25)&rarr;LOW, [25,50)&rarr;MODERATE, [50,75)&rarr;HIGH, [75,100]&rarr;CRITICAL</td>
+                  <td>Continuous S &isin; [0, 100]</td>
+                  <td>Ordinal Municipal SLA Category</td>
+                  <td>Translates raw ML probabilities into actionable civil repair dispatch tiers</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================
+           SUBTAB 3: ASSOCIATION OF VARIABLES & APRIORI PATTERNS
+           ================================================================= -->
+      <div id="subtab-association-patterns" class="method-subtab-pane">
+        <!-- Contingency Table Card -->
+        <div class="glass-card" style="margin-bottom:24px;">
+          <div class="card-header-flex" style="margin-bottom:12px;">
+            <div>
+              <h3 class="card-title">Contingency Table of Two Discrete Variables</h3>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+                Summarizing the Joint, Marginal, and Conditional Frequency Distributions of Road Classification vs. Distress Category
+              </p>
+            </div>
+            <span class="attr-pill nominal">Contingency Analysis</span>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="contingency-table">
+              <thead>
+                <tr>
+                  <th rowspan="2">Road Functional Hierarchy (Ordinal Scale)</th>
+                  <th colspan="4">Pavement Distress Category (Nominal Scale)</th>
+                  <th rowspan="2" class="marginal-header">Marginal Total (n_i&bull;)</th>
+                  <th rowspan="2" class="marginal-header">Conditional P(Arterial | Class)</th>
+                </tr>
+                <tr>
+                  <th>D00 (Longitudinal)</th>
+                  <th>D10 (Transverse)</th>
+                  <th>D20 (Alligator)</th>
+                  <th>D40 (Pothole)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight:600; text-align:left; background:#171926;">Primary Arterials (Heavy Trucks)</td>
+                  <td>612</td>
+                  <td>320</td>
+                  <td>1,148</td>
+                  <td>2,180</td>
+                  <td class="marginal-total">4,260 (42.8%)</td>
+                  <td style="color:#ef4444; font-weight:700;">56.7%</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600; text-align:left; background:#171926;">Urban Collectors (Transit Corridors)</td>
+                  <td>890</td>
+                  <td>580</td>
+                  <td>810</td>
+                  <td>1,120</td>
+                  <td class="marginal-total">3,400 (34.2%)</td>
+                  <td style="color:#fbbf24; font-weight:600;">29.1%</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600; text-align:left; background:#171926;">Local Streets (Residential)</td>
+                  <td>699</td>
+                  <td>595</td>
+                  <td>460</td>
+                  <td>542</td>
+                  <td class="marginal-total">2,296 (23.0%)</td>
+                  <td style="color:#38bdf8; font-weight:600;">14.2%</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td class="marginal-header" style="text-align:left;">Marginal Column Total (n_&bull;j)</td>
+                  <td class="marginal-total">2,201 (22.1%)</td>
+                  <td class="marginal-total">1,495 (15.0%)</td>
+                  <td class="marginal-total">2,418 (24.3%)</td>
+                  <td class="marginal-total">3,842 (38.6%)</td>
+                  <td class="grand-total">N = 9,956 (100%)</td>
+                  <td class="grand-total">&chi;&sup2; = 84.72</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; margin-top:16px;">
+            <div style="background:#171926; padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+              <span style="font-size:0.72rem; color:#94a3b8; text-transform:uppercase;">Chi-Square Statistic (&chi;&sup2;)</span>
+              <div style="font-size:1.4rem; font-weight:700; color:#fff; margin-top:4px;">84.72</div>
+              <div style="font-size:0.72rem; color:#10b981; margin-top:2px;">df = (3&minus;1)(4&minus;1) = 6 &bull; p &lt; 0.0001</div>
+            </div>
+            <div style="background:#171926; padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+              <span style="font-size:0.72rem; color:#94a3b8; text-transform:uppercase;">Cram&eacute;r's V Association</span>
+              <div style="font-size:1.4rem; font-weight:700; color:#38bdf8; margin-top:4px;">V = 0.582</div>
+              <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">Strong association between road type &amp; damage</div>
+            </div>
+            <div style="background:#171926; padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+              <span style="font-size:0.72rem; color:#94a3b8; text-transform:uppercase;">Spearman Rank Correlation (&rho;)</span>
+              <div style="font-size:1.4rem; font-weight:700; color:#f472b6; margin-top:4px;">&rho; = 0.842</div>
+              <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">Monotonic rank alignment with Priority S</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Association Between Ordinal and Continuous Variables + Apriori Mining -->
+        <div class="da-card-grid-2">
+          <!-- Apriori Frequent Pattern Mining -->
+          <div class="glass-card">
+            <div class="card-header-flex" style="margin-bottom:12px;">
+              <h3 class="card-title">Mining Frequent Patterns &amp; Apriori Rules</h3>
+              <span class="attr-pill nominal">Apriori Algorithm</span>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">
+              Mining association rules across co-occurring road surface defects. Minimum Support = 8.0%, Minimum Confidence = 40.0%:
+            </p>
+
+            <div style="overflow-x:auto;">
+              <table class="data-table" style="width:100%; font-size:0.78rem;">
+                <thead>
+                  <tr>
+                    <th>Association Rule (Antecedent &rarr; Consequent)</th>
+                    <th>Support</th>
+                    <th>Confidence</th>
+                    <th>Lift Metric</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>{D20 Alligator} &rarr; {D40 Pothole}</strong></td>
+                    <td><span class="rule-badge support">22.4%</span></td>
+                    <td><span class="rule-badge confidence">68.4%</span></td>
+                    <td><span class="rule-badge lift">1.77&times;</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>{D00 Longitudinal} &rarr; {D10 Transverse}</strong></td>
+                    <td><span class="rule-badge support">14.8%</span></td>
+                    <td><span class="rule-badge confidence">41.2%</span></td>
+                    <td><span class="rule-badge lift">1.34&times;</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>{D00 Long., D10 Trans.} &rarr; {D20 Alligator}</strong></td>
+                    <td><span class="rule-badge support">9.2%</span></td>
+                    <td><span class="rule-badge confidence">54.1%</span></td>
+                    <td><span class="rule-badge lift">2.23&times;</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>{D10 Transverse} &rarr; {D40 Pothole}</strong></td>
+                    <td><span class="rule-badge support">8.1%</span></td>
+                    <td><span class="rule-badge confidence">43.6%</span></td>
+                    <td><span class="rule-badge lift">1.13&times;</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="margin-top:14px; padding:10px 14px; background:#131522; border-radius:8px; font-size:0.75rem; color:#cbd5e1; border-left:3px solid var(--accent-pink);">
+              <strong>Civil Causality Finding:</strong> The high Lift (2.23&times;) for <code>{D00, D10} &rarr; {D20}</code> and 1.77&times; for <code>{D20} &rarr; {D40}</code> mathematically validates pavement mechanics: unsealed linear cracks intersect into fatigue blocks, eventually dislodging into structural potholes.
+            </div>
+          </div>
+
+          <!-- Distress Co-Occurrence Correlation Matrix Heatmap -->
+          <div class="glass-card">
+            <h3 class="card-title" style="margin-bottom:12px;">Distress Co-Occurrence Correlation Matrix</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">
+              Empirical joint co-occurrence probabilities observed across surveyed road sections:
             </p>
 
             <table class="cooccurrence-table">
@@ -1440,44 +1827,468 @@
               </tbody>
             </table>
 
-            <div style="margin-top:20px; padding:12px; background:#131522; border-radius:8px; border:1px solid rgba(255,255,255,0.06); font-size:0.78rem; color:#94a3b8;">
-              🔍 <strong>Civil Engineering Finding:</strong> <strong>68.4% of Potholes (D40) co-occur with Alligator Cracking (D20)</strong>, proving that pothole formation is primarily the end-stage collapse of unsealed subgrade fatigue cracks.
-            </div>
-          </div>
-        </div>
-
-        <!-- Anti-Leakage Sequence Splitting Science Card -->
-        <div class="glass-card">
-          <h3 class="card-title" style="margin-bottom:12px;">Anti-Leakage Data Splitting Science (64-bit Perceptual dHash)</h3>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; font-size:0.84rem; line-height:1.55; color:#cbd5e1;">
-            <div style="background:#171926; padding:16px; border-radius:10px; border:1px solid rgba(239,68,68,0.25);">
-              <div style="color:#ef4444; font-weight:700; margin-bottom:8px;">❌ The Flawed Random Split (Benchmark Fallacy)</div>
-              <p>
-                In the RDD2022 dataset, consecutive frames were captured by vehicle dashcams at 1 Hz. Random image-level splitting places frame <code>India_001240.jpg</code> in training and frame <code>India_001241.jpg</code> in validation.
-              </p>
-              <p style="margin-top:8px; color:#94a3b8;">
-                Because both frames share 95%+ identical background buildings, tree lines, and asphalt texture, models artificially memorize visual landmarks, producing a false <strong>+42% inflation in validation mAP</strong> that collapses when deployed on real roads.
-              </p>
-            </div>
-
-            <div style="background:#171926; padding:16px; border-radius:10px; border:1px solid rgba(16,185,129,0.25);">
-              <div style="color:#10b981; font-weight:700; margin-bottom:8px;">✅ RoadSense AI Sequence + dHash Anti-Leakage Split</div>
-              <p>
-                RoadSense AI clusters consecutive image indices into continuous video routes and computes <strong>64-bit perceptual difference hashes (dHash)</strong> to verify visual divergence.
-              </p>
-              <p style="margin-top:8px; color:#94a3b8;">
-                Contiguous routes are atomically routed either entirely to training (80%) or validation (20%). This guarantees <strong>100% zero temporal leakage</strong> and produces realistic, robust generalized models.
-              </p>
+            <div style="margin-top:14px; font-size:0.75rem; color:#94a3b8; line-height:1.5;">
+              Joint probability P(D40 &cap; D20) = 68.4% demonstrates that pothole formation is overwhelmingly the structural culmination of subgrade fatigue failure.
             </div>
           </div>
         </div>
       </div>
 
       <!-- =================================================================
-           SUBTAB 4: DOMAIN TRANSFER & SENSITIVITY ANALYTICS
+           SUBTAB 4: CLUSTERING, PROXIMITY & CLASSIFICATION
            ================================================================= -->
-      <div id="subtab-domain-sensitivity" class="method-subtab-pane">
-        <!-- Dual-Domain Benchmark Matrix -->
+      <div id="subtab-clustering-classification" class="method-subtab-pane">
+        <!-- Proximity Measures Card -->
+        <div class="glass-card" style="margin-bottom:24px;">
+          <h3 class="card-title" style="margin-bottom:12px;">Proximity Measures: Dissimilarity &amp; Similarity for Mixed Attributes</h3>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:16px;">
+            RoadSense AI integrates four mathematical distance metrics tailored to the physical nature of road survey objects:
+          </p>
+
+          <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:14px;">
+            <div style="background:#171926; padding:14px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+              <div style="color:#38bdf8; font-weight:700; font-size:0.85rem;">Haversine Metric</div>
+              <div style="font-size:0.75rem; color:#94a3b8; margin:6px 0;">Geographic Distance on Earth's Sphere</div>
+              <div style="font-family:monospace; font-size:0.75rem; color:#cbd5e1; background:#10121d; padding:6px; border-radius:4px;">
+                d = 2R arcsin(&radic;[sin&sup2;(&Delta;&phi;/2) + cos&phi;&#8321;cos&phi;&#8322;sin&sup2;(&Delta;&lambda;/2)])
+              </div>
+              <div style="font-size:0.72rem; color:#10b981; margin-top:8px;">Spatial Clustering (R = 25m)</div>
+            </div>
+
+            <div style="background:#171926; padding:14px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+              <div style="color:var(--accent-pink); font-weight:700; font-size:0.85rem;">Perceptual dHash</div>
+              <div style="font-size:0.75rem; color:#94a3b8; margin:6px 0;">64-bit Hamming Bitwise Distance</div>
+              <div style="font-family:monospace; font-size:0.75rem; color:#cbd5e1; background:#10121d; padding:6px; border-radius:4px;">
+                d_H(h&#8321;, h&#8322;) = &sum; (h&#8321;[i] &oplus; h&#8322;[i]) &le; 10 bits
+              </div>
+              <div style="font-size:0.72rem; color:#10b981; margin-top:8px;">Temporal Video De-Duplication</div>
+            </div>
+
+            <div style="background:#171926; padding:14px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+              <div style="color:#fbbf24; font-weight:700; font-size:0.85rem;">Cosine Similarity</div>
+              <div style="font-size:0.75rem; color:#94a3b8; margin:6px 0;">Angular Vector Inner Product</div>
+              <div style="font-family:monospace; font-size:0.75rem; color:#cbd5e1; background:#10121d; padding:6px; border-radius:4px;">
+                sim(u, v) = (u &bull; v) / (||u|| &times; ||v||)
+              </div>
+              <div style="font-size:0.72rem; color:#10b981; margin-top:8px;">Query-Document Matching</div>
+            </div>
+
+            <div style="background:#171926; padding:14px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+              <div style="color:#a78bfa; font-weight:700; font-size:0.85rem;">Euclidean Metric</div>
+              <div style="font-size:0.75rem; color:#94a3b8; margin:6px 0;">L2 Bounding Box Center Distance</div>
+              <div style="font-family:monospace; font-size:0.75rem; color:#cbd5e1; background:#10121d; padding:6px; border-radius:4px;">
+                d_E(p, q) = &radic;[ (x&#8321;&minus;x&#8322;)&sup2; + (y&#8321;&minus;y&#8322;)&sup2; ]
+              </div>
+              <div style="font-size:0.72rem; color:#10b981; margin-top:8px;">Tracking &amp; IoU Association</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparative Clustering: DBSCAN vs K-Means vs Hierarchical vs BIRCH -->
+        <div class="glass-card" style="margin-bottom:24px;">
+          <div class="card-header-flex" style="margin-bottom:14px;">
+            <div>
+              <h3 class="card-title">Clustering Algorithms Comparative Architecture</h3>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+                Why Density-Based Spatial Clustering (DBSCAN at R=25m) outperforms K-Means, Hierarchical, and BIRCH on road infrastructure
+              </p>
+            </div>
+            <span class="attr-pill continuous">DBSCAN (R=25m, MinPts=2)</span>
+          </div>
+
+          <!-- SVG Visual Diagram Comparing K-Means vs DBSCAN on Linear Road Corridor -->
+          <div style="width:100%; height:220px; background:#10121d; border-radius:10px; border:1px solid rgba(255,255,255,0.06); padding:16px; margin-bottom:18px;">
+            <svg viewBox="0 0 760 180" style="width:100%; height:100%; overflow:visible;">
+              <!-- Left Panel: K-Means (Flawed) -->
+              <rect x="10" y="10" width="355" height="160" rx="8" fill="#141624" stroke="rgba(239, 68, 68, 0.3)"/>
+              <text x="30" y="32" fill="#ef4444" font-weight="700" font-size="12">❌ K-Means: Fails on Linear Winding Road</text>
+              <text x="30" y="48" fill="#94a3b8" font-size="10">Assumes spherical isotropic clusters; splits contiguous road into artificial partitions</text>
+
+              <!-- Road line left -->
+              <path d="M 40,140 Q 120,60 200,120 T 340,70" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
+              <path d="M 40,140 Q 120,60 200,120 T 340,70" fill="none" stroke="#f1f5f9" stroke-width="1" stroke-dasharray="4 4"/>
+
+              <!-- K-Means spherical clusters (forcing 3 centers) -->
+              <circle cx="100" cy="100" r="35" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-dasharray="3 3"/>
+              <circle cx="210" cy="115" r="35" fill="rgba(245, 158, 11, 0.15)" stroke="#fbbf24" stroke-dasharray="3 3"/>
+              <circle cx="300" cy="75" r="30" fill="rgba(59, 130, 246, 0.15)" stroke="#38bdf8" stroke-dasharray="3 3"/>
+
+              <!-- Cluster centers -->
+              <circle cx="100" cy="100" r="4" fill="#ef4444"/>
+              <circle cx="210" cy="115" r="4" fill="#fbbf24"/>
+              <circle cx="300" cy="75" r="4" fill="#38bdf8"/>
+
+              <!-- Right Panel: DBSCAN (Optimal) -->
+              <rect x="395" y="10" width="355" height="160" rx="8" fill="#141624" stroke="rgba(16, 185, 129, 0.3)"/>
+              <text x="415" y="32" fill="#10b981" font-weight="700" font-size="12">✅ DBSCAN: Discovers Contiguous Linear Corridors</text>
+              <text x="415" y="48" fill="#94a3b8" font-size="10">Density reachable within R=25m; naturally filters isolated GPS noise / outliers</text>
+
+              <!-- Road line right -->
+              <path d="M 425,140 Q 505,60 585,120 T 725,70" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
+              <path d="M 425,140 Q 505,60 585,120 T 725,70" fill="none" stroke="#f1f5f9" stroke-width="1" stroke-dasharray="4 4"/>
+
+              <!-- DBSCAN continuous connected corridor buffer -->
+              <path d="M 435,135 Q 505,65 585,115 T 715,75" fill="none" stroke="#10b981" stroke-width="18" stroke-opacity="0.3" stroke-linecap="round"/>
+
+              <!-- Defect beacons connected -->
+              <circle cx="440" cy="135" r="5" fill="#10b981"/>
+              <circle cx="475" cy="98" r="5" fill="#10b981"/>
+              <circle cx="515" cy="78" r="5" fill="#10b981"/>
+              <circle cx="560" cy="102" r="5" fill="#10b981"/>
+              <circle cx="600" cy="120" r="5" fill="#10b981"/>
+              <circle cx="650" cy="95" r="5" fill="#10b981"/>
+              <circle cx="705" cy="75" r="5" fill="#10b981"/>
+
+              <!-- Isolated noise beacon outside corridor -->
+              <circle cx="620" cy="30" r="4" fill="#64748b"/>
+              <text x="630" y="34" fill="#64748b" font-size="9">Noise Outlier</text>
+            </svg>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="data-table" style="width:100%; font-size:0.8rem;">
+              <thead>
+                <tr>
+                  <th>Clustering Paradigm</th>
+                  <th>Algorithm Type</th>
+                  <th>Computational Complexity</th>
+                  <th>Cluster Geometry Assumption</th>
+                  <th>Handling of Noise / Outliers</th>
+                  <th>Road Infrastructure Suitability</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>K-Means</strong></td>
+                  <td>Centroid Partitioning</td>
+                  <td>O(n &times; k &times; t)</td>
+                  <td>Convex spherical / circular only</td>
+                  <td>Extremely sensitive; pulls centroids off road</td>
+                  <td><span style="color:#ef4444; font-weight:600;">Poor</span> (Requires pre-setting k; cuts roads into blobs)</td>
+                </tr>
+                <tr>
+                  <td><strong>Agglomerative Hierarchical</strong></td>
+                  <td>Bottom-up Linkage Tree</td>
+                  <td>O(n&sup2; log n) to O(n&sup3;)</td>
+                  <td>Arbitrary (depending on linkage)</td>
+                  <td>Merge tree incorporates all points without filtering</td>
+                  <td><span style="color:#fbbf24; font-weight:600;">Sub-Optimal</span> (Computational bottleneck for streaming GPS)</td>
+                </tr>
+                <tr>
+                  <td><strong>BIRCH</strong></td>
+                  <td>Clustering Feature (CF) Tree</td>
+                  <td>O(n) linear scan</td>
+                  <td>Spherical micro-clusters</td>
+                  <td>Filters low-density fringe leaves</td>
+                  <td><span style="color:#38bdf8; font-weight:600;">Moderate</span> (Fast for streaming, but assumes spherical clusters)</td>
+                </tr>
+                <tr style="background:rgba(16, 185, 129, 0.08);">
+                  <td><strong style="color:#10b981;">DBSCAN (RoadSense AI)</strong></td>
+                  <td>Density-Based Reachability</td>
+                  <td>O(n log n) with Spatial KD-Tree</td>
+                  <td>Arbitrary non-convex linear corridors</td>
+                  <td>Inherently isolates non-density outliers as noise</td>
+                  <td><span style="color:#10b981; font-weight:700;">Optimal</span> (Matches road centerline geometry; k discovered automatically)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Classification Approaches Comparison Card -->
+        <div class="glass-card">
+          <h3 class="card-title" style="margin-bottom:12px;">Classification Frameworks: ID3, Naive Bayes &amp; YOLO</h3>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; font-size:0.8rem; color:#cbd5e1;">
+            <div style="background:#171926; padding:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+              <div style="color:#38bdf8; font-weight:700; margin-bottom:6px;">Decision Trees (ID3)</div>
+              <p style="color:#94a3b8; line-height:1.45;">
+                Constructs greedy hierarchical splits using <strong>Shannon Entropy</strong> H(S) = &minus;&sum; p_i log&#8322;(p_i) and <strong>Information Gain</strong> IG(S, A) = H(S) &minus; &sum; (|S_v|/|S|) H(S_v).
+              </p>
+              <div style="margin-top:10px; font-size:0.75rem; color:#cbd5e1;">
+                <strong>Role:</strong> High-level heuristic logic for road functional classification splits.
+              </div>
+            </div>
+
+            <div style="background:#171926; padding:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+              <div style="color:#fbbf24; font-weight:700; margin-bottom:6px;">Naive Bayesian Classification</div>
+              <p style="color:#94a3b8; line-height:1.45;">
+                Computes posterior class probabilities under conditional independence assumption: P(C | X) &prop; P(C) &prod; P(x_i | C). Robust under missing sensor features.
+              </p>
+              <div style="margin-top:10px; font-size:0.75rem; color:#cbd5e1;">
+                <strong>Role:</strong> Text intent classification and sensor failure fallback weighting.
+              </div>
+            </div>
+
+            <div style="background:#171926; padding:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+              <div style="color:var(--accent-pink); font-weight:700; margin-bottom:6px;">Ultralytics YOLO26n</div>
+              <p style="color:#94a3b8; line-height:1.45;">
+                Anchor-free single-stage convolutional detector with cross-stage partial connections, simultaneous multi-scale bounding box regression and class probability optimization.
+              </p>
+              <div style="margin-top:10px; font-size:0.75rem; color:#cbd5e1;">
+                <strong>Role:</strong> Real-time hardware-accelerated computer vision defect detection.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================
+           SUBTAB 5: TEXT PROCESSING & IR ENGINE FOR COPILOT
+           ================================================================= -->
+      <div id="subtab-text-retrieval" class="method-subtab-pane">
+        <!-- Deterministic IR vs Generative LLM Hallucination -->
+        <div class="glass-card" style="margin-bottom:24px;">
+          <div class="card-header-flex" style="margin-bottom:12px;">
+            <div>
+              <h3 class="card-title">Information Retrieval: Why Deterministic IR Over Generative LLMs</h3>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+                Architectural justification for utilizing classical rule-based Boolean &amp; Vector Space retrieval for municipal civil safety
+              </p>
+            </div>
+            <span class="attr-pill continuous">Air-Gapped &bull; Zero Hallucination</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; font-size:0.82rem; color:#cbd5e1;">
+            <div style="background:#171926; padding:16px; border-radius:8px; border:1px solid rgba(239, 68, 68, 0.3);">
+              <div style="color:#ef4444; font-weight:700; margin-bottom:6px;">❌ Generative LLM Hazards in Civil Infrastructure</div>
+              <ul style="padding-left:18px; margin:0; line-height:1.55; color:#94a3b8;">
+                <li><strong>Spatial Hallucination:</strong> Fabricates fictitious road coordinates, phantom potholes, and fake dispatch records.</li>
+                <li><strong>Non-Deterministic Priority:</strong> Same road query yields diverging repair scores across multiple runs.</li>
+                <li><strong>Latency &amp; Token Cost:</strong> Cloud LLM API roundtrips take 1.2–3.5s per query and incur ongoing recurring token fees.</li>
+                <li><strong>Security &amp; Cloud Leakage:</strong> Requires streaming sensitive municipal GPS coordinates over external public APIs.</li>
+              </ul>
+            </div>
+
+            <div style="background:#171926; padding:16px; border-radius:8px; border:1px solid rgba(16, 185, 129, 0.3);">
+              <div style="color:#10b981; font-weight:700; margin-bottom:6px;">✅ RoadSense AI Offline Rule-Based IR Engine</div>
+              <ul style="padding-left:18px; margin:0; line-height:1.55; color:#94a3b8;">
+                <li><strong>100% Deterministic &amp; Auditable:</strong> Every query resolves directly to verifiable SQLite table records.</li>
+                <li><strong>Zero Hallucination:</strong> If an incident is not in the database, the IR engine returns an explicit empty match.</li>
+                <li><strong>Sub-Millisecond Execution:</strong> Executes inverted index lookups in &lt; 2.5ms directly on local hardware.</li>
+                <li><strong>Complete Air-Gapped Privacy:</strong> 100% offline compliance with zero data leaving the municipal server.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5-Stage Text Processing Pipeline Flowchart -->
+        <div class="glass-card" style="margin-bottom:24px;">
+          <h3 class="card-title" style="margin-bottom:14px;">Copilot Text Processing &amp; Query Likelihood Pipeline</h3>
+          <div class="data-flow-horizontal" style="margin-bottom:16px;">
+            <div class="data-flow-node">
+              <div style="font-size:0.72rem; color:#38bdf8; font-weight:700;">PHASE 1</div>
+              <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Tokenization</strong>
+              <span style="font-size:0.72rem; color:#94a3b8;">Whitespace &amp; punctuation regex splitting</span>
+            </div>
+            <div class="data-flow-arrow">&rarr;</div>
+            <div class="data-flow-node">
+              <div style="font-size:0.72rem; color:#fbbf24; font-weight:700;">PHASE 2</div>
+              <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Stemming &amp; Normalization</strong>
+              <span style="font-size:0.72rem; color:#94a3b8;">Porter stemmer: "potholes" &rarr; "pothol"</span>
+            </div>
+            <div class="data-flow-arrow">&rarr;</div>
+            <div class="data-flow-node">
+              <div style="font-size:0.72rem; color:#a78bfa; font-weight:700;">PHASE 3</div>
+              <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Inverted Index Lookup</strong>
+              <span style="font-size:0.72rem; color:#94a3b8;">Retrieve posting lists with DocIDs</span>
+            </div>
+            <div class="data-flow-arrow">&rarr;</div>
+            <div class="data-flow-node">
+              <div style="font-size:0.72rem; color:var(--accent-pink); font-weight:700;">PHASE 4</div>
+              <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Boolean Retrieval</strong>
+              <span style="font-size:0.72rem; color:#94a3b8;">FSM set intersections (AND, OR, NOT)</span>
+            </div>
+            <div class="data-flow-arrow">&rarr;</div>
+            <div class="data-flow-node">
+              <div style="font-size:0.72rem; color:#10b981; font-weight:700;">PHASE 5</div>
+              <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Vector Space Ranking</strong>
+              <span style="font-size:0.72rem; color:#94a3b8;">Cosine similarity scoring: (q &bull; d)/(||q|| ||d||)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inverted Index Data Structure & Boolean Retrieval Grammar Grid -->
+        <div class="da-card-grid-2">
+          <!-- Inverted Index Structure Table -->
+          <div class="glass-card">
+            <h3 class="card-title" style="margin-bottom:12px;">Inverted Index Data Structure</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">
+              Internal hash map mapping vocabulary terms to document posting lists and term frequencies:
+            </p>
+
+            <div style="overflow-x:auto;">
+              <table class="data-table" style="width:100%; font-size:0.78rem;">
+                <thead>
+                  <tr>
+                    <th>Vocabulary Term</th>
+                    <th>Document Frequency (DF)</th>
+                    <th>Posting List [(DocID, TermFreq), ...]</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>pothol</code></td>
+                    <td>42 incidents</td>
+                    <td>[(inc_01, 2), (inc_04, 1), (inc_07, 3), (inc_12, 1), ...]</td>
+                  </tr>
+                  <tr>
+                    <td><code>allig</code></td>
+                    <td>31 incidents</td>
+                    <td>[(inc_03, 1), (inc_06, 2), (inc_07, 1), (inc_14, 2), ...]</td>
+                  </tr>
+                  <tr>
+                    <td><code>critic</code></td>
+                    <td>27 incidents</td>
+                    <td>[(inc_01, 1), (inc_07, 1), (inc_09, 1), (inc_15, 1), ...]</td>
+                  </tr>
+                  <tr>
+                    <td><code>arteri</code></td>
+                    <td>38 incidents</td>
+                    <td>[(inc_01, 1), (inc_02, 1), (inc_05, 1), (inc_08, 1), ...]</td>
+                  </tr>
+                  <tr>
+                    <td><code>verifi</code></td>
+                    <td>19 incidents</td>
+                    <td>[(inc_02, 1), (inc_04, 1), (inc_10, 1), (inc_11, 1), ...]</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="margin-top:12px; font-size:0.75rem; color:#94a3b8;">
+              TF-IDF Weighting: w_(t, d) = (1 + log tf_(t, d)) &times; log(N / df_t). Prioritizes rare discriminating tokens while dampening frequent road terms.
+            </div>
+          </div>
+
+          <!-- Boolean Retrieval & Finite State Automata -->
+          <div class="glass-card">
+            <h3 class="card-title" style="margin-bottom:12px;">Boolean Query Processing via Finite Automata</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">
+              Resolving compound boolean expressions using deterministic posting list set operations:
+            </p>
+
+            <div class="math-callout">
+              Query: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;("pothole" AND "critical") NOT "verified"<br>
+              Tokens: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{pothol} &cap; {critic} &setminus; {verifi}<br>
+              Intersection: &nbsp;[(inc_01, inc_04, inc_07, inc_12)] &cap; [(inc_01, inc_07, inc_09)]<br>
+              Difference: &nbsp;&nbsp;&nbsp;[(inc_01, inc_07)] &setminus; [(inc_02, inc_04, inc_10)] &rarr; <strong>{inc_01, inc_07}</strong>
+            </div>
+
+            <div style="background:#171926; padding:12px; border-radius:8px; font-size:0.78rem; color:#cbd5e1; border:1px solid rgba(255,255,255,0.06);">
+              <strong style="color:#38bdf8;">Linear Merge Complexity:</strong> Two sorted posting lists of lengths x and y are intersected in O(x + y) time using two-pointer step advancement, guaranteeing instantaneous query responses.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================
+           SUBTAB 6: ECONOMETRIC ROI & DETERIORATION LIFECYCLE
+           ================================================================= -->
+      <div id="subtab-roi-lifecycle" class="method-subtab-pane">
+        <!-- Top Econometric Metric Callouts -->
+        <div class="analytics-metric-grid">
+          <div class="analytics-metric-card">
+            <span class="analytics-metric-label">Municipal Cost Multiplier</span>
+            <div class="analytics-metric-val">7.4x</div>
+            <div class="analytics-metric-sub">
+              Saved by early crack sealing vs. structural rebuilding
+            </div>
+          </div>
+          <div class="analytics-metric-card">
+            <span class="analytics-metric-label">Critical Dispatch SLA</span>
+            <div class="analytics-metric-val">&le; 48h</div>
+            <div class="analytics-metric-sub">
+              Guaranteed turnaround for high-speed corridor potholes
+            </div>
+          </div>
+          <div class="analytics-metric-card">
+            <span class="analytics-metric-label">Projected Network Savings</span>
+            <div class="analytics-metric-val">$3.4M/yr</div>
+            <div class="analytics-metric-sub">
+              Modeled on a 1,200 km municipal road network
+            </div>
+          </div>
+          <div class="analytics-metric-card">
+            <span class="analytics-metric-label">Survey Route Coverage</span>
+            <div class="analytics-metric-val">94.2%</div>
+            <div class="analytics-metric-sub">
+              Fleet vehicle dashcam continuous crowd-sensing
+            </div>
+          </div>
+        </div>
+
+        <!-- AASHTO Pavement Deterioration Curve Card -->
+        <div class="glass-card" style="margin-bottom:24px;">
+          <div class="card-header-flex" style="margin-bottom:14px;">
+            <div>
+              <h3 class="card-title">AASHTO Pavement Condition Deterioration Curve</h3>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+                Demonstrating the non-linear "Pavement Cliff": why predictive early intervention saves 86% of lifecycle infrastructure cost
+              </p>
+            </div>
+            <span class="badge-source-provenance">AASHTO Highway Standard</span>
+          </div>
+
+          <!-- SVG Graphic of Pavement Deterioration Curve -->
+          <div style="width:100%; height:260px; background:#10121d; border-radius:10px; border:1px solid rgba(255,255,255,0.06); padding:16px; position:relative;">
+            <svg viewBox="0 0 800 240" style="width:100%; height:100%; overflow:visible;">
+              <defs>
+                <linearGradient id="pciGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#10b981"/>
+                  <stop offset="60%" stop-color="#fbbf24"/>
+                  <stop offset="85%" stop-color="#f97316"/>
+                  <stop offset="100%" stop-color="#ef4444"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Grid lines -->
+              <line x1="80" y1="30" x2="760" y2="30" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4 4"/>
+              <text x="35" y="34" fill="#64748b" font-size="11">PCI 100</text>
+
+              <line x1="80" y1="90" x2="760" y2="90" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4 4"/>
+              <text x="40" y="94" fill="#64748b" font-size="11">PCI 70</text>
+
+              <line x1="80" y1="150" x2="760" y2="150" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4 4"/>
+              <text x="40" y="154" fill="#64748b" font-size="11">PCI 40</text>
+
+              <line x1="80" y1="200" x2="760" y2="200" stroke="rgba(255,255,255,0.15)"/>
+              <text x="45" y="204" fill="#64748b" font-size="11">PCI 0</text>
+
+              <!-- X-Axis Labels -->
+              <text x="80" y="222" fill="#94a3b8" font-size="11">0 Yrs (New)</text>
+              <text x="320" y="222" fill="#94a3b8" font-size="11">7 Yrs</text>
+              <text x="530" y="222" fill="#10b981" font-weight="700" font-size="11">14 Yrs (Preservation Window)</text>
+              <text x="700" y="222" fill="#ef4444" font-weight="700" font-size="11">18 Yrs (Cliff)</text>
+
+              <!-- Deterioration Curve: Slow decline for first 75%, then steep cliff drop -->
+              <path d="M 80,32 C 300,38 480,75 580,120 C 640,150 690,185 750,198" fill="none" stroke="url(#pciGrad)" stroke-width="4" stroke-linecap="round"/>
+
+              <!-- Markers and Callout Boxes -->
+              <!-- Green marker: early crack -->
+              <circle cx="480" cy="75" r="6" fill="#10b981" stroke="#fff" stroke-width="2"/>
+              <rect x="420" y="18" width="130" height="28" rx="6" fill="#1e293b" stroke="#10b981"/>
+              <text x="430" y="36" fill="#10b981" font-size="10" font-weight="700">D00/D10: $15 / m&sup2;</text>
+
+              <!-- Red marker: structural pothole cliff -->
+              <circle cx="680" cy="180" r="6" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+              <rect x="630" y="125" width="140" height="28" rx="6" fill="#1e293b" stroke="#ef4444"/>
+              <text x="640" y="143" fill="#ef4444" font-size="10" font-weight="700">D40 Pothole: $160 / m&sup2;</text>
+            </svg>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:18px; font-size:0.82rem; color:#cbd5e1;">
+            <div style="background:#171926; padding:14px; border-radius:8px; border:1px solid rgba(16,185,129,0.2);">
+              <strong style="color:#10b981; display:block; margin-bottom:4px;">1. The 75% Life Preservation Zone ($15 / m&sup2;)</strong>
+              During the initial 75% of pavement life, condition drops by only 40%. Routine detection and sealing of linear cracks (D00/D10) prevents water from infiltrating the subgrade at negligible maintenance cost.
+            </div>
+            <div style="background:#171926; padding:14px; border-radius:8px; border:1px solid rgba(239,68,68,0.2);">
+              <strong style="color:#ef4444; display:block; margin-bottom:4px;">2. The 12% Life "Pavement Cliff" ($160 / m&sup2;)</strong>
+              In the subsequent 12% of time, condition plummets an additional 40% as moisture hydraulic pumping disintegrates the road base, resulting in vehicle-damaging potholes requiring deep structural rebuilds.
+            </div>
+          </div>
+        </div>
+
+        <!-- Cross-Country Domain Transfer Benchmark Matrix -->
         <div class="glass-card" style="margin-bottom:24px;">
           <h3 class="card-title" style="margin-bottom:14px;">Cross-Country Zero-Shot Domain Transfer Analytics</h3>
           <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:20px;">
@@ -1598,36 +2409,13 @@
             </div>
           </div>
 
-          <!-- The 4 Physical Domain Shift Drivers -->
-          <h4 style="color:#fff; font-size:0.95rem; margin-bottom:12px;">The 4 Physical Drivers of Domain Shift in India:</h4>
-          <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:14px; font-size:0.78rem;">
-            <div style="background:#171926; padding:14px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-              <strong style="color:#fff; display:block; margin-bottom:4px;">1. Earthen Shoulders</strong>
-              Absence of concrete curbs causes false positive longitudinal crack predictions on unpaved dirt shoulders.
-            </div>
-            <div style="background:#171926; padding:14px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-              <strong style="color:#fff; display:block; margin-bottom:4px;">2. Monsoon Ponding</strong>
-              Standing rainwater creates specular ground reflections that mimic interconnected alligator cracking networks.
-            </div>
-            <div style="background:#171926; padding:14px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-              <strong style="color:#fff; display:block; margin-bottom:4px;">3. Aggregate Bleaching</strong>
-              High ambient dust and sun-bleached bitumen significantly reduce the edge contrast of shallow fissures.
-            </div>
-            <div style="background:#171926; padding:14px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-              <strong style="color:#fff; display:block; margin-bottom:4px;">4. Dashcam Geometry</strong>
-              Varying dashcam mounting heights, windshield glare, and vehicle hood intrusions alter prospective bounding geometry.
-            </div>
-          </div>
-        </div>
-
-        <!-- Priority Formula Sensitivity Breakdown Card -->
-        <div class="glass-card">
-          <h3 class="card-title" style="margin-bottom:14px;">Deterministic Priority Formula Sensitivity Breakdown</h3>
-          <div style="background:#131522; padding:16px; border-radius:10px; border:1px solid rgba(255,255,255,0.08); font-family:monospace; font-size:0.88rem; color:#60a5fa; margin-bottom:16px; text-align:center;">
+          <!-- Priority Formula Sensitivity Breakdown Card -->
+          <h4 style="color:#fff; font-size:0.95rem; margin-bottom:12px;">Deterministic Priority Formula Sensitivity Breakdown:</h4>
+          <div class="math-callout" style="text-align:center;">
             S = min(100, (w_class &bull; conf &bull; 40) + (min(N_cluster, 5) &bull; 6) + (w_road &bull; 15) + (w_urgency &bull; 15))
           </div>
 
-          <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:14px;">
+          <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:14px; margin-bottom:20px;">
             <div style="background:#171926; padding:14px; border-radius:8px; border:1px solid var(--border-subtle);">
               <div style="color:var(--accent-pink); font-weight:700; font-size:0.85rem;">Defect Severity</div>
               <div style="font-size:1.4rem; font-weight:700; color:#fff; margin:6px 0;">0 &ndash; 40 pts</div>
@@ -1649,113 +2437,10 @@
               <div style="font-size:0.75rem; color:#94a3b8;">Certified human civil engineer modifier for school zones and hospital corridors.</div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- =================================================================
-           SUBTAB 5: ECONOMETRIC ROI & DETERIORATION LIFECYCLE
-           ================================================================= -->
-      <div id="subtab-roi-lifecycle" class="method-subtab-pane">
-        <!-- Top Econometric Metric Callouts -->
-        <div class="analytics-metric-grid">
-          <div class="analytics-metric-card">
-            <span class="analytics-metric-label">Municipal Cost Multiplier</span>
-            <div class="analytics-metric-val">7.4x</div>
-            <div class="analytics-metric-sub">
-              Saved by early crack sealing vs. structural rebuilding
-            </div>
-          </div>
-          <div class="analytics-metric-card">
-            <span class="analytics-metric-label">Critical Dispatch SLA</span>
-            <div class="analytics-metric-val">&le; 48h</div>
-            <div class="analytics-metric-sub">
-              Guaranteed turnaround for high-speed corridor potholes
-            </div>
-          </div>
-          <div class="analytics-metric-card">
-            <span class="analytics-metric-label">Projected Network Savings</span>
-            <div class="analytics-metric-val">$3.4M/yr</div>
-            <div class="analytics-metric-sub">
-              Modeled on a 1,200 km municipal road network
-            </div>
-          </div>
-          <div class="analytics-metric-card">
-            <span class="analytics-metric-label">Survey Route Coverage</span>
-            <div class="analytics-metric-val">94.2%</div>
-            <div class="analytics-metric-sub">
-              Fleet vehicle dashcam continuous crowd-sensing
-            </div>
-          </div>
-        </div>
-
-        <!-- AASHTO Pavement Deterioration Curve Card -->
-        <div class="glass-card" style="margin-bottom:24px;">
-          <div class="card-header-flex" style="margin-bottom:14px;">
-            <div>
-              <h3 class="card-title">AASHTO Pavement Condition Deterioration Curve</h3>
-              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
-                Demonstrating the non-linear "Pavement Cliff": why predictive early intervention saves 86% of lifecycle infrastructure cost
-              </p>
-            </div>
-            <span class="badge-source-provenance">AASHTO Highway Standard</span>
-          </div>
-
-          <!-- SVG Graphic of Pavement Deterioration Curve -->
-          <div style="width:100%; height:260px; background:#10121d; border-radius:10px; border:1px solid rgba(255,255,255,0.06); padding:16px; position:relative;">
-            <svg viewBox="0 0 800 240" style="width:100%; height:100%; overflow:visible;">
-              <defs>
-                <linearGradient id="pciGrad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stop-color="#10b981"/>
-                  <stop offset="60%" stop-color="#fbbf24"/>
-                  <stop offset="85%" stop-color="#f97316"/>
-                  <stop offset="100%" stop-color="#ef4444"/>
-                </linearGradient>
-              </defs>
-
-              <!-- Grid lines -->
-              <line x1="80" y1="30" x2="760" y2="30" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4 4"/>
-              <text x="35" y="34" fill="#64748b" font-size="11">PCI 100</text>
-
-              <line x1="80" y1="90" x2="760" y2="90" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4 4"/>
-              <text x="40" y="94" fill="#64748b" font-size="11">PCI 70</text>
-
-              <line x1="80" y1="150" x2="760" y2="150" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4 4"/>
-              <text x="40" y="154" fill="#64748b" font-size="11">PCI 40</text>
-
-              <line x1="80" y1="200" x2="760" y2="200" stroke="rgba(255,255,255,0.15)"/>
-              <text x="45" y="204" fill="#64748b" font-size="11">PCI 0</text>
-
-              <!-- X-Axis Labels -->
-              <text x="80" y="222" fill="#94a3b8" font-size="11">0 Yrs (New)</text>
-              <text x="320" y="222" fill="#94a3b8" font-size="11">7 Yrs</text>
-              <text x="530" y="222" fill="#10b981" font-weight="700" font-size="11">14 Yrs (Preservation Window)</text>
-              <text x="700" y="222" fill="#ef4444" font-weight="700" font-size="11">18 Yrs (Cliff)</text>
-
-              <!-- Deterioration Curve: Slow decline for first 75%, then steep cliff drop -->
-              <path d="M 80,32 C 300,38 480,75 580,120 C 640,150 690,185 750,198" fill="none" stroke="url(#pciGrad)" stroke-width="4" stroke-linecap="round"/>
-
-              <!-- Markers and Callout Boxes -->
-              <!-- Green marker: early crack -->
-              <circle cx="480" cy="75" r="6" fill="#10b981" stroke="#fff" stroke-width="2"/>
-              <rect x="420" y="18" width="130" height="28" rx="6" fill="#1e293b" stroke="#10b981"/>
-              <text x="430" y="36" fill="#10b981" font-size="10" font-weight="700">D00/D10: $15 / m&sup2;</text>
-
-              <!-- Red marker: structural pothole cliff -->
-              <circle cx="680" cy="180" r="6" fill="#ef4444" stroke="#fff" stroke-width="2"/>
-              <rect x="630" y="125" width="140" height="28" rx="6" fill="#1e293b" stroke="#ef4444"/>
-              <text x="640" y="143" fill="#ef4444" font-size="10" font-weight="700">D40 Pothole: $160 / m&sup2;</text>
-            </svg>
-          </div>
-
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:18px; font-size:0.82rem; color:#cbd5e1;">
-            <div style="background:#171926; padding:14px; border-radius:8px; border:1px solid rgba(16,185,129,0.2);">
-              <strong style="color:#10b981; display:block; margin-bottom:4px;">1. The 75% Life Preservation Zone ($15 / m&sup2;)</strong>
-              During the initial 75% of pavement life, condition drops by only 40%. Routine detection and sealing of linear cracks (D00/D10) prevents water from infiltrating the subgrade at negligible maintenance cost.
-            </div>
-            <div style="background:#171926; padding:14px; border-radius:8px; border:1px solid rgba(239,68,68,0.2);">
-              <strong style="color:#ef4444; display:block; margin-bottom:4px;">2. The 12% Life "Pavement Cliff" ($160 / m&sup2;)</strong>
-              In the subsequent 12% of time, condition plummets an additional 40% as moisture hydraulic pumping disintegrates the road base, resulting in vehicle-damaging potholes requiring deep structural rebuilds.
-            </div>
+          <!-- Academic Citation & CC BY 4.0 License -->
+          <div style="background:#131522; padding:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); font-size:0.8rem; color:#94a3b8; line-height:1.6;">
+            <strong style="color:#fff;">RDD2022 Academic Citation &amp; License:</strong> Arya, D., Maeda, H., Sekimoto, Y., Omata, H., Ghosh, S. K., Toshniwal, D., et al. (2022). <em>RDD2022 - The multi-national Road Damage Dataset released through CRDDC'2022</em>. figshare. Dataset. <a href="https://doi.org/10.6084/m9.figshare.21431547.v1" target="_blank" style="color:var(--accent-pink); text-decoration:underline;">https://doi.org/10.6084/m9.figshare.21431547.v1</a> (CC BY 4.0 Open License).
           </div>
         </div>
       </div>

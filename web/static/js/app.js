@@ -1829,16 +1829,27 @@ function openEvidenceDrawer(inc) {
   const drawer = document.getElementById('mapEvidenceDrawer');
   if (!drawer) return;
 
+  const rawPath = inc.image_path || '';
+  const baseName = rawPath ? rawPath.split('/').pop() : 'demo_pothole_critical.jpg';
+  const primaryUrl = inc.image_url ? `${API_BASE}${inc.image_url}` : `${API_BASE}/evidence/${baseName}`;
+  const fallbackUrl = `${API_BASE}/demo-assets/${baseName}`;
+  const classesDisplay = (inc.detected_classes && inc.detected_classes.length > 0)
+    ? inc.detected_classes.join(', ')
+    : '<span style="color:#94a3b8; font-style:italic;">None (Undamaged)</span>';
+
   drawer.innerHTML = `
     <h3 style="font-family: var(--font-heading); font-size:1.15rem; color:#fff; margin-bottom: 12px;">
       Defect Evidence
     </h3>
-    <img src="${API_BASE}${inc.image_url}" style="width:100%; height:180px; object-fit:cover; border-radius:12px; margin-bottom:14px;" />
+    <img src="${primaryUrl}"
+         onerror="if(!this.dataset.tried){this.dataset.tried='1'; this.src='${fallbackUrl}';}else if(this.dataset.tried==='1'){this.dataset.tried='2'; this.src='${API_BASE}/demo-assets/demo_pothole_critical.jpg';}"
+         alt="Defect Evidence"
+         style="width:100%; height:180px; object-fit:cover; border-radius:12px; margin-bottom:14px; background:#171925; border:1px solid rgba(255,255,255,0.08);" />
     <div style="font-size:0.85rem; line-height:1.6; color:#cbd5e1;">
       <div><strong>Road:</strong> ${inc.road_name || 'Highway Corridor'}</div>
-      <div><strong>Classes:</strong> ${inc.detected_classes.join(', ')}</div>
+      <div><strong>Classes:</strong> ${classesDisplay}</div>
       <div><strong>Priority:</strong> <span class="prio-badge ${inc.priority_level}">${inc.priority_level} (${inc.priority_score})</span></div>
-      <div><strong>Coordinates:</strong> <code>${inc.latitude}, ${inc.longitude}</code></div>
+      <div><strong>Coordinates:</strong> <code>${inc.latitude != null ? Number(inc.latitude).toFixed(5) : 'N/A'}, ${inc.longitude != null ? Number(inc.longitude).toFixed(5) : 'N/A'}</code></div>
       <div><strong>Provenance:</strong> ${inc.location_provenance === 'EXPLICIT_SYNTHETIC_DEMO'
         ? '<span style="font-size:0.75rem; background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:2px 8px; border-radius:6px; font-weight:600;">⚠️ real image &mdash; synthetic location</span>'
         : (inc.location_provenance === 'EXIF_GPS'
