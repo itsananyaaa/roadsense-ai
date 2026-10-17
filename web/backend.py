@@ -377,11 +377,20 @@ def api_overview(user: str = Depends(require_authenticated_user)):
     rejected_count = review_counts.get("REJECTED", 0)
 
     # Calculate percentages for class distribution
-    class_total = sum(class_counts.values()) or 1
-    pothole_pct = round((class_counts.get("D40", 0) / class_total) * 100)
-    alligator_pct = round((class_counts.get("D20", 0) / class_total) * 100)
-    longitudinal_pct = round((class_counts.get("D00", 0) / class_total) * 100)
-    transverse_pct = round((class_counts.get("D10", 0) / class_total) * 100)
+    # Unique corridors surveyed in the ledger
+    unique_routes = len(set(inc.get("road_name") for inc in all_incidents if inc.get("road_name")))
+
+    # Real class percentages from database (0% when no incidents)
+    if total_count > 0:
+        pothole_pct = round((class_counts.get("D40", 0) / total_count) * 100)
+        alligator_pct = round((class_counts.get("D20", 0) / total_count) * 100)
+        longitudinal_pct = round((class_counts.get("D00", 0) / total_count) * 100)
+        transverse_pct = round((class_counts.get("D10", 0) / total_count) * 100)
+    else:
+        pothole_pct = 0
+        alligator_pct = 0
+        longitudinal_pct = 0
+        transverse_pct = 0
 
     # Format the high-risk highlight incident
     sorted_incidents = sorted(all_incidents, key=lambda x: x.get("priority_score", 0), reverse=True)
@@ -390,15 +399,17 @@ def api_overview(user: str = Depends(require_authenticated_user)):
     # Trendline data from real SQLite database aggregation
     freq_data = get_incident_frequency("30d")
 
-    # Active incidents list (top 4 recent or pending)
-    active_cards = []
+    # Offline-safe SVG avatar for municipal highway lead
+    lead_avatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><circle cx='80' cy='80' r='80' fill='%231e293b'/><text x='80' y='96' font-size='42' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23ff2a85'>AI</text></svg>"
     inspector_profiles = [
-        {"name": "Chief Inspector Ananya", "email": "ananya.civic@gov.in", "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80"},
-        {"name": "Tommy White", "email": "tommywh@civic.gov", "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80"},
-        {"name": "Elizabeth Belle", "email": "eliebelle@roadsense.ai", "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"},
-        {"name": "Marcus Vance", "email": "m.vance@highways.gov", "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80"},
+        {"name": "Chief Inspector Ananya", "email": "ananya.civic@gov.in", "avatar": lead_avatar},
+        {"name": "Municipal Officer T. White", "email": "t.white@civic.gov.in", "avatar": lead_avatar},
+        {"name": "Field Engineer E. Belle", "email": "e.belle@civic.gov.in", "avatar": lead_avatar},
+        {"name": "Highway Specialist M. Vance", "email": "m.vance@civic.gov.in", "avatar": lead_avatar},
     ]
 
+    # Active incidents list (top 4 recent or pending)
+    active_cards = []
     for i, inc in enumerate(sorted_incidents[:4]):
         prof = inspector_profiles[i % len(inspector_profiles)]
         status_label = "Investigating" if inc.get("review_status") == "PENDING" else ("Fixing" if inc.get("review_status") == "VERIFIED" else "Closed")
@@ -411,52 +422,68 @@ def api_overview(user: str = Depends(require_authenticated_user)):
             "priority_score": inc.get("priority_score"),
             "status_label": status_label,
             "status_color": "hot-pink" if inc.get("priority_level") == "CRITICAL" else ("blue" if inc.get("priority_level") == "HIGH" else "amber"),
-            "elapsed": "2h 15m",
+            "elapsed": "Active",
             "inspector_name": prof["name"],
             "inspector_email": prof["email"],
             "inspector_avatar": prof["avatar"],
             "image_url": f"/evidence/{Path(inc.get('image_path', '')).name}" if inc.get("image_path") else "",
         })
 
+    # Top hazard details
+    if top_hazard:
+        hazard_subtitle = f"Cluster detected on {top_hazard.get('road_name', 'Surveyed Corridor')} requiring structural asphalt patching."
+        hazard_prio = top_hazard.get("priority_level", "CRITICAL")
+        hazard_score = top_hazard.get("priority_score", 0.0)
+        hazard_road = top_hazard.get("road_name", "Surveyed Corridor")
+        hazard_uuid = top_hazard.get("incident_uuid", "")
+        hazard_cluster = top_hazard.get("cluster_count", 1)
+    else:
+        hazard_subtitle = "No active high-risk defect clusters currently logged in the municipal ledger."
+        hazard_prio = "LOW"
+        hazard_score = 0.0
+        hazard_road = "No Active Hotspots"
+        hazard_uuid = ""
+        hazard_cluster = 0
+
     return {
         "inspector": {
             "name": "Chief Inspector Ananya",
             "role": "Municipal Highway Lead",
-            "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=160&auto=format&fit=crop&q=80",
+            "avatar": lead_avatar,
         },
         "kpis": {
-            "critical_issues": {"value": critical_count or 38, "delta": "+12%", "is_positive": True},
-            "routes_surveyed": {"value": 26, "delta": "+24%", "is_positive": True},
-            "total_defects": {"value": total_count or 103, "delta": "-64%", "is_positive": False},
+            "critical_issues": {"value": critical_count, "delta": "+12%", "is_positive": True},
+            "routes_surveyed": {"value": unique_routes, "delta": "+24%", "is_positive": True},
+            "total_defects": {"value": total_count, "delta": "-64%", "is_positive": False},
         },
         "progress_pills": [
-            {"label": "Potholes Fixed", "percent": 20, "theme": "pink"},
-            {"label": "Routes Surveyed", "percent": 25, "theme": "white"},
-            {"label": "Critical Triage", "percent": 40, "theme": "glass"},
-            {"label": "Exported Orders", "percent": 15, "theme": "striped"},
+            {"label": "Potholes Logged", "percent": pothole_pct, "theme": "pink"},
+            {"label": "Corridors Surveyed", "percent": min(unique_routes * 10, 100), "theme": "white"},
+            {"label": "Critical Triage", "percent": round((critical_count / total_count * 100)) if total_count > 0 else 0, "theme": "glass"},
+            {"label": "Verified Orders", "percent": round((verified_count / total_count * 100)) if total_count > 0 else 0, "theme": "striped"},
         ],
         "summary": {
-            "triage": triage_count or 1234,
-            "fixing": verified_count or 0,
-            "investigating": critical_count + high_count or 24,
-            "footnote": "Incident frequency spiked in recent survey routes, showing higher pavement stress.",
+            "triage": triage_count,
+            "fixing": verified_count,
+            "investigating": critical_count + high_count,
+            "footnote": f"Live database summary: {total_count} logged defects across {unique_routes} surveyed corridors.",
         },
         "trendline": freq_data,
         "hazard_highlight": {
-            "title": "High-Risk Hazard Hotspot",
-            "subtitle": f"Cluster detected on {top_hazard.get('road_name') if top_hazard else 'High-Speed Corridor NH-44'} requiring immediate structural asphalt patching.",
-            "priority": top_hazard.get("priority_level", "CRITICAL") if top_hazard else "CRITICAL",
-            "priority_score": top_hazard.get("priority_score", 86.4) if top_hazard else 86.4,
-            "cluster_count": 4,
-            "road_name": top_hazard.get("road_name", "NH-44 Highway") if top_hazard else "NH-44 Highway",
-            "uuid": top_hazard.get("incident_uuid", "") if top_hazard else "",
+            "title": "Critical Distress Hotspot",
+            "subtitle": hazard_subtitle,
+            "priority": hazard_prio,
+            "priority_score": hazard_score,
+            "cluster_count": hazard_cluster,
+            "road_name": hazard_road,
+            "uuid": hazard_uuid,
         },
         "active_incidents": active_cards,
         "statistics": {
-            "potholes": {"pct": max(pothole_pct, 64), "label": "Potholes (D40)", "color": "#ff2a85"},
-            "longitudinal": {"pct": max(longitudinal_pct, 26), "label": "Longitudinal (D00)", "color": "#2563eb"},
-            "alligator": {"pct": max(alligator_pct, 15), "label": "Alligator (D20)", "color": "#6366f1"},
-            "transverse": {"pct": max(transverse_pct, 10), "label": "Transverse (D10)", "color": "#f59e0b"},
+            "potholes": {"pct": pothole_pct, "label": "Potholes (D40)", "color": "#ff2a85"},
+            "longitudinal": {"pct": longitudinal_pct, "label": "Longitudinal (D00)", "color": "#2563eb"},
+            "alligator": {"pct": alligator_pct, "label": "Alligator (D20)", "color": "#6366f1"},
+            "transverse": {"pct": transverse_pct, "label": "Transverse (D10)", "color": "#f59e0b"},
         },
     }
 
@@ -657,8 +684,10 @@ def api_detect_image(
         with open(temp_image_path, "wb") as f:
             f.write(file_bytes)
     elif demo_filename:
-        # Use existing demo file from data/demo
+        # Use existing demo file from data/demo or data/demo_media/images
         src = config.DATA_DIR / "demo" / demo_filename
+        if not src.exists():
+            src = config.DATA_DIR / "demo_media" / "images" / demo_filename
         if not src.exists():
             raise HTTPException(status_code=404, detail=f"Demo file {demo_filename} not found")
         unique_name = f"demo_copy_{uuid.uuid4().hex[:8]}_{src.name}"
@@ -1357,6 +1386,13 @@ def api_stream_video(
 # -------------------------------------------------------------------------
 # API Endpoints: Database Management & Seed
 # -------------------------------------------------------------------------
+@app.get("/api/demo/samples")
+def api_get_demo_samples():
+    """Return available demo media samples from manifest with truthful provenance and ground truth."""
+    from core.demo import get_demo_tiles
+    return {"samples": get_demo_tiles()}
+
+
 @app.post("/api/demo/seed")
 def api_seed_demo(user: str = Depends(require_authenticated_user)):
     """Seed curated demo dataset into SQLite database."""
@@ -1407,13 +1443,19 @@ def api_copilot(payload: CopilotQuery, user: str = Depends(require_authenticated
             "metrics": {"formula_version": config.PRIORITY_FORMULA_VERSION},
             "suggested_action": "Tune Municipal Policy Weights in Priority Center",
         }
-    elif "nh-44" in q or "corridor" in q or "route" in q:
-        nh44_incidents = [x for x in incidents if "nh-44" in (x.get("road_name") or "").lower()]
-        count_nh = len(nh44_incidents) or 3
+    elif "nh-44" in q or "corridor" in q or "route" in q or "highway" in q:
+        corridor_incidents = [x for x in incidents if any(k in (x.get("road_name") or "").lower() for k in ["nh-44", "corridor", "route", "highway", "avenue", "road"])]
+        count_corridor = len(corridor_incidents)
+        if count_corridor > 0:
+            avg_prio = sum(x.get("priority_score", 0.0) for x in corridor_incidents) / count_corridor
+            prio_tier = "Critical" if avg_prio >= 75 else ("High" if avg_prio >= 55 else ("Moderate" if avg_prio >= 35 else "Low"))
+            ans = f"Identified **{count_corridor} distress incidents** along monitored corridors in the ledger, with a live average priority score of **{avg_prio:.1f} ({prio_tier})**."
+        else:
+            ans = "No distress incidents currently matching that corridor query in the live SQLite database."
         return {
-            "answer": f"Identified **{count_nh} distress incidents** along Corridor NH-44. High traffic volume elevates the road classification multiplier, yielding an average priority rating of **78.2 (Critical)**.",
-            "metrics": {"corridor_incidents": count_nh},
-            "suggested_action": "View NH-44 on Geospatial Incident Map",
+            "answer": ans,
+            "metrics": {"corridor_incidents": count_corridor},
+            "suggested_action": "View Corridor Incidents on Geospatial Map",
         }
     else:
         return {

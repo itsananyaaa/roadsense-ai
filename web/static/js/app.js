@@ -103,6 +103,7 @@ function initDashboard() {
   setupDetectDamageStudio();
   setupVideoIntelligenceStudio();
   setupPriorityCenter();
+  setupMethodologyPdfExport();
   loadReportsInventory();
 }
 
@@ -951,7 +952,7 @@ function renderOverviewDashboard(data) {
     document.getElementById('kpiTotalVal').textContent = data.kpis.total_defects.value;
   }
 
-  // 2. Render Summary Card
+  // 2. Render Summary Card & Metric Pills
   if (data.summary) {
     document.getElementById('summaryTriageCount').textContent = data.summary.triage;
     document.getElementById('summaryFixingCount').textContent = data.summary.fixing;
@@ -959,6 +960,14 @@ function renderOverviewDashboard(data) {
     if (data.summary.footnote) {
       document.getElementById('summaryFootnoteText').textContent = data.summary.footnote;
     }
+    const pPotholes = document.getElementById('pillPotholes');
+    const pRoutes = document.getElementById('pillRoutes');
+    const pCritical = document.getElementById('pillCritical');
+    const pOrders = document.getElementById('pillOrders');
+    if (pPotholes) pPotholes.textContent = data.summary.potholes_count ?? data.summary.triage ?? 0;
+    if (pRoutes) pRoutes.textContent = data.summary.corridors_surveyed ?? (data.kpis ? data.kpis.routes_surveyed.value : 0);
+    if (pCritical) pCritical.textContent = data.summary.critical_count ?? (data.kpis ? data.kpis.critical_issues.value : 0);
+    if (pOrders) pOrders.textContent = data.summary.verified_orders ?? data.summary.fixing ?? 0;
   }
 
   // 3. Render High-Risk Hazard Card
@@ -970,8 +979,8 @@ function renderOverviewDashboard(data) {
     const scoreBadge = document.getElementById('hazardScoreBadge');
     if (titleEl) titleEl.textContent = h.title || 'High-Risk Hazard Hotspot';
     if (descEl) descEl.textContent = h.subtitle || '';
-    if (prioBadge) prioBadge.textContent = h.priority === 'CRITICAL' ? '3' : (h.priority === 'HIGH' ? '2' : '1');
-    if (scoreBadge) scoreBadge.textContent = h.cluster_count || '1';
+    if (prioBadge) prioBadge.textContent = h.priority || 'CRITICAL';
+    if (scoreBadge) scoreBadge.textContent = h.score ? `Score ${h.score}` : `${h.cluster_count || 1} clusters`;
   }
 
   // 4. Render Active Incidents Cards
@@ -1248,13 +1257,126 @@ function buildSmoothPath(points) {
 // -------------------------------------------------------------------------
 // 2. Detect Damage (Interactive Vision Studio)
 // -------------------------------------------------------------------------
+let currentDemoSample = null;
+
+function clearGtCanvas() {
+  const canvas = document.getElementById('detectionOverlayCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  canvas.style.display = 'none';
+}
+
+function drawGtBoxes() {
+  const canvas = document.getElementById('detectionOverlayCanvas');
+  const img = document.getElementById('previewImg');
+  if (!canvas || !img || !currentDemoSample || !currentDemoSample.ground_truth_boxes) {
+    clearGtCanvas();
+    return;
+  }
+
+  if (!img.complete || img.naturalWidth === 0) {
+    img.onload = () => drawGtBoxes();
+    return;
+  }
+
+  canvas.width = img.clientWidth || img.naturalWidth;
+  canvas.height = img.clientHeight || img.naturalHeight;
+  canvas.style.display = 'block';
+
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const scaleX = canvas.width / img.naturalWidth;
+  const scaleY = canvas.height / img.naturalHeight;
+
+  currentDemoSample.ground_truth_boxes.forEach(gt => {
+    const [x1, y1, x2, y2] = gt.bbox;
+    const sx = x1 * scaleX;
+    const sy = y1 * scaleY;
+    const sw = (x2 - x1) * scaleX;
+    const sh = (y2 - y1) * scaleY;
+
+    // Cyan dashed box for ground truth
+    ctx.strokeStyle = '#06b6d4';
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([6, 4]);
+    ctx.strokeRect(sx, sy, sw, sh);
+
+    // Pill badge for GT label
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#06b6d4';
+    const label = `GT: ${gt.class_code}`;
+    ctx.font = 'bold 12px Inter, sans-serif';
+    const textWidth = ctx.measureText(label).width;
+    ctx.fillRect(sx, Math.max(0, sy - 20), textWidth + 8, 20);
+    ctx.fillStyle = '#000000';
+    ctx.fillText(label, sx + 4, Math.max(14, sy - 5));
+  });
+}
+
+function selectDemoSample(sample) {
+  selectedFile = null;
+  selectedDemoName = sample.filename;
+  currentDemoSample = sample;
+
+  const previewImg = document.getElementById('previewImg');
+  const placeholder = document.getElementById('viewportPlaceholder');
+  const metaBar = document.getElementById('previewMetaBar');
+  const previewBadge = document.getElementById('previewBadge');
+  const gtToggleLabel = document.getElementById('gtToggleLabel');
+  const gtCheckbox = document.getElementById('toggleGtBoxes');
+  const roadInput = document.getElementById('detectRoadName');
+
+  previewImg.src = `${API_BASE}/demo-assets/${sample.filename}`;
+  if (placeholder) placeholder.style.display = 'none';
+  previewImg.style.display = 'block';
+
+  if (roadInput && sample.caption) {
+    roadInput.value = sample.caption;
+  }
+
+  if (metaBar) metaBar.style.display = 'flex';
+  if (previewBadge) {
+    previewBadge.textContent = sample.badge || 'real image — synthetic location';
+    if (sample.origin === 'user_field_capture' && sample.has_gps) {
+      previewBadge.style.background = 'rgba(16,185,129,0.15)';
+      previewBadge.style.color = '#34d399';
+      previewBadge.style.borderColor = 'rgba(16,185,129,0.3)';
+    } else if (sample.origin === 'illustrative_sample') {
+      previewBadge.style.background = 'rgba(239,68,68,0.15)';
+      previewBadge.style.color = '#f87171';
+      previewBadge.style.borderColor = 'rgba(239,68,68,0.3)';
+    } else {
+      previewBadge.style.background = 'rgba(245,158,11,0.15)';
+      previewBadge.style.color = '#fbbf24';
+      previewBadge.style.borderColor = 'rgba(245,158,11,0.3)';
+    }
+  }
+
+  if (gtToggleLabel) {
+    if (sample.has_ground_truth && sample.ground_truth_boxes && sample.ground_truth_boxes.length > 0) {
+      gtToggleLabel.style.display = 'inline-flex';
+      if (gtCheckbox && gtCheckbox.checked) {
+        drawGtBoxes();
+      } else {
+        clearGtCanvas();
+      }
+    } else {
+      gtToggleLabel.style.display = 'none';
+      clearGtCanvas();
+    }
+  }
+}
+
+let selectedFile = null;
+let selectedDemoName = null;
+
 function setupDetectDamageStudio() {
   const dropzone = document.getElementById('imageDropzone');
   const fileInput = document.getElementById('imageFileInput');
   const runBtn = document.getElementById('runImageInferenceBtn');
-
-  let selectedFile = null;
-  let selectedDemoName = null;
+  const gtCheckbox = document.getElementById('toggleGtBoxes');
 
   if (dropzone && fileInput) {
     dropzone.addEventListener('click', () => fileInput.click());
@@ -1278,21 +1400,32 @@ function setupDetectDamageStudio() {
     });
   }
 
-  // Demo chips
-  document.querySelectorAll('.demo-chip-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const demoName = btn.getAttribute('data-demo');
-      selectedFile = null;
-      selectedDemoName = demoName;
-      document.getElementById('previewImg').src = `${API_BASE}/demo-assets/${demoName}`;
-      document.getElementById('viewportPlaceholder').style.display = 'none';
-      document.getElementById('previewImg').style.display = 'block';
+  if (gtCheckbox) {
+    gtCheckbox.addEventListener('change', () => {
+      if (gtCheckbox.checked) {
+        drawGtBoxes();
+      } else {
+        clearGtCanvas();
+      }
     });
+  }
+
+  window.addEventListener('resize', () => {
+    if (gtCheckbox && gtCheckbox.checked) {
+      drawGtBoxes();
+    }
   });
+
+  // Load dynamic demo chips from manifest via API
+  loadDemoChips();
 
   function handleImageSelection(file) {
     selectedFile = file;
     selectedDemoName = null;
+    currentDemoSample = null;
+    clearGtCanvas();
+    const metaBar = document.getElementById('previewMetaBar');
+    if (metaBar) metaBar.style.display = 'none';
     const reader = new FileReader();
     reader.onload = (e) => {
       document.getElementById('previewImg').src = e.target.result;
@@ -1318,7 +1451,7 @@ function setupDetectDamageStudio() {
       } else {
         formData.append('demo_filename', selectedDemoName);
       }
-      formData.append('road_name', document.getElementById('detectRoadName').value || 'Highway NH-44');
+      formData.append('road_name', document.getElementById('detectRoadName').value || 'Surveyed Corridor Alpha (Synthetic Location)');
       formData.append('road_classification', document.getElementById('detectRoadClass').value || 'PRIMARY_ARTERIAL');
       formData.append('save_to_db', 'true');
 
@@ -1340,12 +1473,60 @@ function setupDetectDamageStudio() {
   }
 }
 
+async function loadDemoChips() {
+  const container = document.getElementById('demoSelectorList');
+  if (!container) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/demo/samples`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const samples = data.samples || [];
+    if (samples.length === 0) return;
+
+    container.innerHTML = '';
+    samples.forEach(s => {
+      const btn = document.createElement('button');
+      btn.className = 'demo-chip-btn';
+      btn.setAttribute('data-demo', s.filename);
+      btn.textContent = s.title || s.filename;
+      btn.title = s.caption || '';
+      btn.addEventListener('click', () => selectDemoSample(s));
+      container.appendChild(btn);
+    });
+  } catch (err) {
+    console.warn('Failed to load dynamic demo chips, using fallback:', err);
+    // Wire existing fallback chips if present
+    document.querySelectorAll('.demo-chip-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const demoName = btn.getAttribute('data-demo');
+        selectedFile = null;
+        selectedDemoName = demoName;
+        currentDemoSample = null;
+        clearGtCanvas();
+        document.getElementById('previewImg').src = `${API_BASE}/demo-assets/${demoName}`;
+        document.getElementById('viewportPlaceholder').style.display = 'none';
+        document.getElementById('previewImg').style.display = 'block';
+      });
+    });
+  }
+}
+
 function renderDetectionResults(data) {
   state.activeDetectionResult = data;
 
   // Show annotated image in viewer
   if (data.annotated_image_url) {
-    document.getElementById('previewImg').src = `${API_BASE}${data.annotated_image_url}`;
+    const previewImg = document.getElementById('previewImg');
+    previewImg.src = `${API_BASE}${data.annotated_image_url}`;
+    const gtCheckbox = document.getElementById('toggleGtBoxes');
+    if (gtCheckbox && gtCheckbox.checked) {
+      if (previewImg.complete) {
+        drawGtBoxes();
+      } else {
+        previewImg.onload = () => drawGtBoxes();
+      }
+    }
   }
 
   // Populate Telemetry Cards
@@ -1525,6 +1706,15 @@ async function initOrRefreshMap() {
       maxZoom: 16,
     }).addTo(state.map);
 
+    esriDark.on('tileerror', () => {
+      const notice = document.getElementById('mapOfflineNotice');
+      if (notice) notice.style.display = 'block';
+    });
+    esriDark.on('tileload', () => {
+      const notice = document.getElementById('mapOfflineNotice');
+      if (notice) notice.style.display = 'none';
+    });
+
     // 2. Reference label overlay for road names and municipal boundaries
     const esriRef = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
       attribution: '',
@@ -1613,7 +1803,11 @@ function openEvidenceDrawer(inc) {
       <div><strong>Classes:</strong> ${inc.detected_classes.join(', ')}</div>
       <div><strong>Priority:</strong> <span class="prio-badge ${inc.priority_level}">${inc.priority_level} (${inc.priority_score})</span></div>
       <div><strong>Coordinates:</strong> <code>${inc.latitude}, ${inc.longitude}</code></div>
-      <div><strong>Provenance:</strong> <span style="font-size:0.75rem; background:#1e293b; padding:2px 8px; border-radius:12px;">${inc.location_provenance}</span></div>
+      <div><strong>Provenance:</strong> ${inc.location_provenance === 'EXPLICIT_SYNTHETIC_DEMO'
+        ? '<span style="font-size:0.75rem; background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:2px 8px; border-radius:6px; font-weight:600;">⚠️ real image &mdash; synthetic location</span>'
+        : (inc.location_provenance === 'EXIF_GPS'
+          ? '<span style="font-size:0.75rem; background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); padding:2px 8px; border-radius:6px; font-weight:600;">✓ EXIF GPS</span>'
+          : `<span style="font-size:0.75rem; background:#1e293b; color:#94a3b8; padding:2px 8px; border-radius:6px;">${inc.location_provenance || 'UNKNOWN'}</span>`)}</div>
       <div><strong>Status:</strong> ${inc.review_status}</div>
     </div>
     <div style="display:flex; gap:10px; margin-top:20px;">
@@ -1670,6 +1864,67 @@ function setupPriorityCenter() {
       window.location.href = `${API_BASE}/api/export/csv`;
     });
   }
+}
+
+// -------------------------------------------------------------------------
+// Methodology Report PDF Client-Side Controller
+// -------------------------------------------------------------------------
+function setupMethodologyPdfExport() {
+  const btn = document.getElementById('btn-export-methodology-pdf');
+  if (!btn) return;
+  btn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = `<span class="spinner" style="display:inline-block; width:14px; height:14px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite; margin-right:6px;"></span> Generating PDF...`;
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.7';
+
+    try {
+      const res = await fetch(`${API_BASE}/api/export/methodology/pdf`, {
+        credentials: 'include'
+      });
+      if (!res.ok) {
+        let errMsg = `Server returned HTTP ${res.status}`;
+        try {
+          const errData = await res.json();
+          if (errData && errData.detail) errMsg = errData.detail;
+        } catch (_) {}
+        alert(`Failed to export Methodology Report PDF: ${errMsg}`);
+        return;
+      }
+
+      let filename = 'roadsense_methodology_report.pdf';
+      const disposition = res.headers.get('Content-Disposition');
+      if (disposition && disposition.includes('filename=')) {
+        const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+          filename = match[1].replace(/['"]/g, '');
+        }
+      } else {
+        const now = new Date();
+        const yyyymmdd = now.toISOString().slice(0, 10).replace(/-/g, '');
+        const hhmmss = now.toTimeString().slice(0, 8).replace(/:/g, '');
+        filename = `roadsense_methodology_${yyyymmdd}_${hhmmss}.pdf`;
+      }
+
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error('Methodology PDF export error:', err);
+      alert(`Network error generating Methodology PDF: ${err.message}`);
+    } finally {
+      btn.innerHTML = origHtml;
+      btn.style.pointerEvents = 'auto';
+      btn.style.opacity = '1';
+    }
+  });
 }
 
 async function loadPriorityQueue() {
@@ -1749,6 +2004,12 @@ async function loadReportsInventory() {
     tbody.innerHTML = '';
 
     list.forEach(inc => {
+      const provBadge = inc.location_provenance === 'EXPLICIT_SYNTHETIC_DEMO'
+        ? '<span style="display:inline-flex; align-items:center; gap:4px; font-size:0.75rem; background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:2px 8px; border-radius:6px; font-weight:600;">⚠️ real image &mdash; synthetic location</span>'
+        : (inc.location_provenance === 'EXIF_GPS'
+          ? '<span style="display:inline-flex; align-items:center; gap:4px; font-size:0.75rem; background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); padding:2px 8px; border-radius:6px; font-weight:600;">✓ EXIF GPS</span>'
+          : `<span style="font-size:0.75rem; background:#1e293b; color:#94a3b8; padding:2px 8px; border-radius:6px;">${inc.location_provenance || 'UNKNOWN'}</span>`);
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${inc.timestamp || '2026-10-15'}</td>
@@ -1757,7 +2018,7 @@ async function loadReportsInventory() {
         <td>${inc.road_classification}</td>
         <td>${inc.detected_classes.join(', ')}</td>
         <td><span class="prio-badge ${inc.priority_level}">${inc.priority_level}</span></td>
-        <td>${inc.location_provenance}</td>
+        <td>${provBadge}</td>
         <td>${inc.review_status}</td>
       `;
       tbody.appendChild(tr);

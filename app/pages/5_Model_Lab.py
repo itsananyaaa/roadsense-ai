@@ -94,10 +94,10 @@ st.subheader("⚡ Hardware Latency & On-Device Throughput")
 hw_col1, hw_col2, hw_col3, hw_col4 = st.columns(4)
 
 lat_bench = bench_data.get("latency_benchmark", {})
-mps_lat = lat_bench.get("mps", {}).get("mean_latency_ms", 18.0)
-mps_fps = lat_bench.get("mps", {}).get("fps", 55.5)
-cpu_lat = lat_bench.get("cpu", {}).get("mean_latency_ms", 37.8)
-cpu_fps = lat_bench.get("cpu", {}).get("fps", 26.5)
+mps_lat = lat_bench.get("mps", {}).get("mean_latency_ms", 10.93)
+mps_fps = lat_bench.get("mps", {}).get("fps", 91.5)
+cpu_lat = lat_bench.get("cpu", {}).get("mean_latency_ms", 36.05)
+cpu_fps = lat_bench.get("cpu", {}).get("fps", 27.7)
 
 with hw_col1:
     st.metric("Apple Silicon MPS Latency", f"{mps_lat:.1f} ms", f"{mps_fps:.1f} FPS (Target >30)")
