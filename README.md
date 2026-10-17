@@ -64,6 +64,7 @@ roadsense-ai/
 │   └── video.py                # Video processor, sampling rate control & de-duplication
 ├── ml/                         # ML Pipeline Layer
 │   ├── audit.py                # Pascal-VOC XML statistical auditor
+│   ├── build_demo_media.py     # Deterministic demo media builder & provenance registrar
 │   ├── colab_train.ipynb       # Self-contained Google Colab GPU training notebook
 │   ├── convert.py              # VOC XML to YOLO converter with round-trip checks
 │   ├── evaluate.py             # Dual-domain evaluator (India vs Czech) & benchmark
@@ -76,8 +77,11 @@ roadsense-ai/
 │   ├── pr_curve.png            # Multi-class Precision-Recall curves
 │   ├── eval_india.json         # In-domain held-out evaluation report
 │   ├── eval_czech.json         # Unseen-country zero-shot transfer report
-│   └── eval_benchmark.json     # Hardware latency and parameter summary
+│   ├── eval_benchmark.json     # Hardware latency and parameter summary
+│   └── demo_media_check.json   # Live checkpoint verification on demo media suite
 ├── docs/                       # Project Documentation & Expo Suite
+│   ├── MEDIA_AUDIT.md          # Complete audit of all shipped and generated media assets
+│   ├── MEDIA_PROVENANCE.md     # Verified media origin, licensing, and field capture rules
 │   ├── OFFLINE_CHECKLIST.md    # 100% offline demonstration protocol
 │   ├── PITCH.md                # 3-Minute project pitch script
 │   └── VIVA_GUIDE.md           # Comprehensive viva examination preparation guide
@@ -177,7 +181,7 @@ pytest tests/ -v
 ```
 *Verified Output:*
 ```text
-======================= 82 passed, 3 warnings in 11.01s ========================
+======================= 91 passed, 3 warnings in 11.75s ========================
 ```
 
 ---
@@ -235,7 +239,8 @@ Empirically measured at batch size 1 on 640x640 resolution (macOS 26.5.2, Apple 
 - **Authors:** Arya, D., Maeda, H., Ghosh, S. K., Toshniwal, D., Mraz, A., Kashiyama, T., & Sekimoto, Y.
 - **Reference:** *Big Data Mining and Analytics*, IEEE / Tsinghua University Press
 - **Dataset DOI:** [10.6084/m9.figshare.21431547.v1](https://doi.org/10.6084/m9.figshare.21431547.v1)
-- **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
+- **Dataset License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
+- **Image Credits & Provenance:** See [docs/MEDIA_PROVENANCE.md](file:///Users/ananyabiju/Desktop/roadsense-ai/docs/MEDIA_PROVENANCE.md) and [docs/MEDIA_AUDIT.md](file:///Users/ananyabiju/Desktop/roadsense-ai/docs/MEDIA_AUDIT.md) for complete provenance records. Any test fixture that is not real field imagery is visibly labelled "Illustrative sample (not real field imagery)". Coordinates without verified EXIF GPS are strictly labelled "real image — synthetic location" or "UNKNOWN".
 
 > **Civil Engineering Advisory Notice:**  
 > *Model detection confidence is an empirical perceptual score, not an in-situ structural load-bearing assessment. RoadSense AI assists municipal road maintenance prioritization and does not replace certified geotechnical road safety audits.*

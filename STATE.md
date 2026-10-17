@@ -1,10 +1,10 @@
 # RoadSense AI — System State
 
-**Last Updated:** 2026-10-16T23:50:00+04:00  
-**Current Phase:** Phase 13 (Complete Codebase & ML Pipeline Audit, Hardening & Verification) COMPLETED  
-**Next Action:** System audited, hardened, and verified with zero known defects across all test checks.  
+**Last Updated:** 2026-10-17T12:50:00+04:00  
+**Current Phase:** Phase 14 (Three Essential Rectifications: Media Audit & Provenance, Methodology PDF Export, Honesty Checks & Real Metrics) COMPLETED  
+**Next Action:** All three essential rectifications completed and verified with zero known defects across 91 automated tests.  
 **Open Blockers:** None.  
-**Test Suite Status:** 82 of 82 Automated Tests Passing (100% Pass Rate in 11.01s)
+**Test Suite Status:** 91 of 91 Automated Tests Passing (100% Pass Rate in 11.75s)
 
 ---
 
@@ -92,4 +92,10 @@
   - [x] **Priority 3 (Methodology Structured Analytics):** Added `@app.get("/api/analytics/methodology")` reading physical artifacts (`eval_india.json`, `eval_czech.json`, `eval_benchmark.json`); dynamic dual-domain comparison charts; MPS vs CPU latency benchmarks; live SQLite operational statistics; and dedicated PDF download button.
   - [x] **Priority 4 (Static Analysis, Offline Compliance & Clean-Up):** Converted blocking CPU/inference endpoints to synchronous `def` running on FastAPI threadpools; eliminated external runtime CDN dependencies (bundled Leaflet CSS/JS locally in `web/static/assets/leaflet/`, removed remote font `@import`, replaced remote images with CSS avatar badges); comprehensive stress/negative matrix (16/16 scenarios passing); full test suite expanded to 82/82 passing tests.
   - [x] **User Customization:** Dashboard greeting updated to "Welcome back, Ananya" across top bar and assistant greetings.
+- [x] **Phase 14: Three Essential Rectifications (Media Audit & Provenance, Methodology PDF, Honesty Checks)** (Completed)
+  - [x] **Task 1 (Real Media & Provenance):** Authored `docs/MEDIA_AUDIT.md` (complete audit of shipped and generated media; recorded local absence of Figshare 13.26 GB dataset and verified checkpoint ownership). Authored `ml/build_demo_media.py` (deterministic fixed seed, held-out split selection, user field photos with EXIF orientation and GPS, clear HEIC rejection with conversion guidance, and evaluation check in `reports/demo_media_check.json`). Neutralized road names in captions (`core/demo.py`, Detect Damage tiles). Added prominent `"Illustrative sample (not real field imagery)"` labels to all synthetic fixtures and dashcam video. Enforced `"real image — synthetic location"` badges on seeded demo incidents. Added `docs/MEDIA_PROVENANCE.md` and About/Methodology image credits.
+  - [x] **Task 2 (Methodology PDF Report Overhaul):** Diagnosed root cause (outdated server process PID 27581 without endpoint, missing JS event handler on button). Overhauled `core/reports_pdf.py:build_methodology_report_pdf()` into a comprehensive 4-page A4 document covering all 8 required sections: title block with active checkpoint status disclosure, RDD2022 dataset split table & bar chart, model architecture & parameters table with "not recorded" fallbacks, dual-domain validation & transfer degradation tables, embedded confusion matrix and PR curves, priority formula v1.0 specification with class-weight and band-threshold tables and live worked example, live operational triage statistics with synthetic demo records separated, demo-media provenance summary, and civil engineering limitations & reproducibility instructions. Added client-side loading spinner, blob download, and error toast in `web/static/js/app.js`. Verified Streamlit download button.
+  - [x] **Task 3 (Honesty Checks & Live Metrics Grounding):** Eliminated fake fallbacks (`or 38`, `or 103`, `or 1234`, `routes_surveyed: 26`, `max(pothole_pct, 64)`) in `web/backend.py:api_overview`. Replaced hardcoded values in `web/backend.py:api_copilot` (`or 3`, `78.2`) with real empirical counts and average priority score from matching records. Labeled AI Copilot as an "Offline Rule-Based Database Assistant". Verified Methodology and Model Lab numbers strictly equal `reports/*.json`. Added Leaflet `tileerror` listener to display offline map notice.
+  - [x] **Test Suite & Verification:** 91 of 91 automated tests passing cleanly (`tests/test_rectifications.py`, `tests/test_audit_hardening.py`, etc.). Updated `README.md`, `MANUAL_STEPS.md`, `EVIDENCE_LOG.md`, `VERIFICATION_REPORT.md`.
+
 

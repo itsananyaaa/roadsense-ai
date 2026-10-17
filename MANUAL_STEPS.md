@@ -104,3 +104,57 @@ To test that the application runs completely offline (crucial for university pro
    - Incident records load from local SQLite.
    - Leaflet/Folium map displays graceful offline fallback tile graphics if tile servers are unreachable.
    - Priority calculations, incident filters, and report exports (CSV/JSON) execute instantaneously.
+
+---
+
+## 6. Adding Real User-Captured Field Photos
+
+Operators can capture real road distress photographs with smartphones or handheld cameras and register them into RoadSense AI:
+
+### Step 6.1: Image Format & EXIF Preparation
+1. **Supported Formats:** JPEG (`.jpg`, `.jpeg`) or PNG (`.png`).
+2. **HEIC Notice:** iOS devices capture `.heic` by default. Convert HEIC to JPEG before adding:
+   ```bash
+   # macOS built-in sips tool:
+   sips -s format jpeg input.heic --out data/field_samples/my_pothole.jpg
+   ```
+3. **EXIF GPS Geotagging:** Ensure Location Services are enabled on the camera so standard EXIF GPS tags are embedded. RoadSense AI's `core/geo.py` automatically reads latitude/longitude and assigns `EXIF_GPS` provenance. If GPS is missing or privacy-stripped, the system truthfully assigns `UNKNOWN` provenance without fabricating coordinates.
+4. **Orientation:** EXIF orientation tags are automatically handled upright via `PIL.ImageOps.exif_transpose`.
+
+### Step 6.2: Copy and Register
+Place your photos in `data/field_samples/` and run the media builder:
+```bash
+cp /path/to/my_photo.jpg data/field_samples/
+/opt/miniconda3/envs/ml/bin/python ml/build_demo_media.py
+```
+- **Result:**
+  - Registers the asset into `data/demo_media/manifest.json` with `origin = "user_field_capture"`.
+  - Computes SHA-256 checksum for immutable traceability.
+  - Automatically loads the field photo as a sample tile in the web console (`Detect Damage` tab) with live model inference.
+
+---
+
+## 7. Recording and Adding a Real Dashcam Video
+
+The video intelligence pipeline analyzes phone/dashcam road survey recordings with temporal de-duplication:
+
+### Step 7.1: Recording Guidelines
+1. **Mounting:** Secure phone or dashcam to windshield or dashboard facing directly forward along traffic direction.
+2. **Resolution & Duration:** Recommended 1080p (`1920x1080`) at 30 FPS, duration between 10 and 60 seconds (max file size: ~100 MB).
+3. **Lighting:** Record in daylight; avoid direct head-on sun glare or heavy downpours.
+
+### Step 7.2: Codec & Transcoding
+Browsers require standard H.264 video with AAC audio for web playback. If recorded in HEVC (`.mov`), transcode with `ffmpeg`:
+```bash
+ffmpeg -i input.mov -c:v libx264 -preset fast -crf 23 -c:a aac -b:a 128k data/field_samples/video/dashcam_survey_real.mp4
+```
+
+### Step 7.3: Register Video in Manifest
+Run the media builder:
+```bash
+/opt/miniconda3/envs/ml/bin/python ml/build_demo_media.py
+```
+- **Result:**
+  - The video is registered in `data/demo_media/manifest.json` under `videos` with `origin = "user_field_capture"`, resolution, duration, and privacy disclaimer.
+  - The video is processed through `core/video.py` for live frame extraction and de-duplication.
+  - *Note on GPS:* RoadSense AI does **not** infer or hallucinate GPS coordinates from video streams. Video incidents receive `UNKNOWN` location provenance unless explicit external spatial telemetry is supplied.
