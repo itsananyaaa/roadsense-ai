@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/static/assets/leaflet/leaflet.css">
   
   <!-- Custom Modern Obsidian Stylesheet -->
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/style.css?v=20261017c">
 </head>
 <body class="auth-required">
 
@@ -510,12 +510,25 @@
 
           <div class="hazard-layered-pills">
             <div class="layered-pill">
-              <span>Priority Level</span>
-              <span class="layered-badge prio-critical" id="hazardPriorityBadge">CRITICAL</span>
+              <div class="pill-label-group">
+                <span class="pill-main-label">Priority Level</span>
+                <span class="pill-sub-label">Municipal Triage Rank</span>
+              </div>
+              <span class="hazard-prio-pill prio-critical" id="hazardPriorityBadge">
+                <span class="prio-level-prefix">Level 1</span>
+                <span class="prio-level-dot">·</span>
+                <span class="prio-level-name">CRITICAL</span>
+              </span>
             </div>
             <div class="layered-pill">
-              <span>Deterministic Score</span>
-              <span class="layered-badge score-badge" id="hazardScoreBadge">86.4 pts</span>
+              <div class="pill-label-group">
+                <span class="pill-main-label">Deterministic Score</span>
+                <span class="pill-sub-label">Formula v1.0 [0–100]</span>
+              </div>
+              <div class="hazard-score-pill" id="hazardScoreBadge">
+                <span class="score-val-large" id="hazardScoreVal">78.2</span>
+                <span class="score-val-denom">/ 100</span>
+              </div>
             </div>
           </div>
         </div>
@@ -614,67 +627,42 @@
             </div>
           </div>
 
-          <!-- Dynamic Info & Analytics Below Bubbles -->
-          <div class="stats-dynamic-container">
-            <!-- Live Distress Class Distribution Stacked Bar -->
-            <div>
-              <div class="stats-section-label-row">
-                <span class="stats-micro-label">Class Distribution</span>
-                <span class="stats-micro-val" id="statsTotalDefectsLabel">18 logged</span>
+          <!-- Statistics Telemetry Panel (Lower Half) -->
+          <div class="stats-telemetry-panel">
+            <!-- Dynamic Corridor Resolution Velocity -->
+            <div class="telemetry-glass-card">
+              <div class="telemetry-card-top">
+                <div class="telemetry-label-wrap">
+                  <span class="telemetry-pulse-dot"></span>
+                  <span class="telemetry-label">Triage Resolution</span>
+                </div>
+                <span class="telemetry-badge" id="statConsensusBadge">94% Target</span>
               </div>
-              <div class="stat-stacked-bar" style="margin-top:6px;">
-                <div id="statBarD40" class="stacked-bar-segment" style="width: 38%; background: var(--accent-pink);" title="D40 Pothole"></div>
-                <div id="statBarD20" class="stacked-bar-segment" style="width: 25%; background: #8b5cf6;" title="D20 Alligator"></div>
-                <div id="statBarD00" class="stacked-bar-segment" style="width: 22%; background: #38bdf8;" title="D00 Longitudinal"></div>
-                <div id="statBarD10" class="stacked-bar-segment" style="width: 15%; background: #fbbf24;" title="D10 Transverse"></div>
+              <div class="telemetry-progress-track">
+                <div class="telemetry-progress-fill" id="statConsensusFill" style="width: 88%;"></div>
+              </div>
+              <div class="telemetry-card-footer">
+                <span class="telemetry-sub" id="statResolutionSub">88% verified consensus</span>
+                <span class="telemetry-highlight" id="statSlaHighlight">≤ 48h SLA</span>
               </div>
             </div>
 
-            <div class="stat-class-legend-grid">
-              <div class="stat-class-legend-item">
-                <span class="legend-dot" style="background:var(--accent-pink);"></span>
-                <span>D40:</span> <strong id="statD40Text">38%</strong>
+            <!-- Real-time Municipal Fleet Activity -->
+            <div class="telemetry-metrics-row">
+              <div class="telemetry-mini-stat">
+                <span class="mini-stat-label">Total Logged</span>
+                <span class="mini-stat-val" id="statTotalLoggedVal">18</span>
               </div>
-              <div class="stat-class-legend-item">
-                <span class="legend-dot" style="background:#8b5cf6;"></span>
-                <span>D20:</span> <strong id="statD20Text">25%</strong>
+              <div class="telemetry-stat-divider"></div>
+              <div class="telemetry-mini-stat">
+                <span class="mini-stat-label">Corridors</span>
+                <span class="mini-stat-val" id="statCorridorsVal">10</span>
               </div>
-              <div class="stat-class-legend-item">
-                <span class="legend-dot" style="background:#38bdf8;"></span>
-                <span>D00:</span> <strong id="statD00Text">22%</strong>
+              <div class="telemetry-stat-divider"></div>
+              <div class="telemetry-mini-stat">
+                <span class="mini-stat-label">Active Crews</span>
+                <span class="mini-stat-val active-green" id="statCrewsVal">3</span>
               </div>
-              <div class="stat-class-legend-item">
-                <span class="legend-dot" style="background:#fbbf24;"></span>
-                <span>D10:</span> <strong id="statD10Text">15%</strong>
-              </div>
-            </div>
-
-            <!-- SLA Resolution & Turnaround Velocity -->
-            <div class="stats-metrics-duo">
-              <div class="stats-duo-item">
-                <div class="stats-duo-header">
-                  <span class="stats-duo-title">Audit Consensus</span>
-                  <span class="stats-duo-val" id="statAuditConsensus">88%</span>
-                </div>
-                <div class="stats-mini-track">
-                  <div class="stats-mini-fill" id="statAuditFill" style="width: 88%;"></div>
-                </div>
-              </div>
-              <div class="stats-duo-item">
-                <div class="stats-duo-header">
-                  <span class="stats-duo-title">Dispatch SLA</span>
-                  <span class="sla-status-pill" id="statSlaStatus">&le; 48h SLA</span>
-                </div>
-                <div class="stats-duo-sub" id="statAvgTurnaround">
-                  3.4h avg response
-                </div>
-              </div>
-            </div>
-
-            <!-- Dynamic Smart Insight Banner -->
-            <div class="stats-smart-insight" id="statsDynamicInsight">
-              <span class="insight-icon">⚡</span>
-              <span class="insight-text" id="statsDynamicInsightText">Live fleet telemetry active across municipal sectors</span>
             </div>
           </div>
         </div>
@@ -2556,7 +2544,7 @@
   <!-- Leaflet JS -->
   <script src="/static/assets/leaflet/leaflet.js"></script>
   <!-- Client Application Logic -->
-  <script src="/static/js/app.js"></script>
+  <script src="/static/js/app.js?v=20261017c"></script>
 
 </body>
 </html>

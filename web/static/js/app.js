@@ -976,24 +976,33 @@ function renderOverviewDashboard(data) {
     const titleEl = document.getElementById('hazardTitle');
     const descEl = document.getElementById('hazardDesc');
     const prioBadge = document.getElementById('hazardPriorityBadge');
-    const scoreBadge = document.getElementById('hazardScoreBadge');
-    if (titleEl) titleEl.textContent = h.title || 'High-Risk Hazard Hotspot';
+    const scoreVal = document.getElementById('hazardScoreVal');
+    if (titleEl) titleEl.textContent = h.title || 'Critical Distress Hotspot';
     if (descEl) descEl.textContent = h.subtitle || '';
     if (prioBadge) {
       const prio = (h.priority || 'CRITICAL').toUpperCase();
-      prioBadge.textContent = prio;
-      prioBadge.className = `layered-badge prio-${prio.toLowerCase()}`;
+      let levelNum = 'Level 1';
+      if (prio === 'HIGH') levelNum = 'Level 2';
+      else if (prio === 'MODERATE') levelNum = 'Level 3';
+      else if (prio === 'LOW') levelNum = 'Level 4';
+      else if (prio === 'INSUFFICIENT_INFO') levelNum = 'Level 5';
+
+      prioBadge.innerHTML = `
+        <span class="prio-level-prefix">${levelNum}</span>
+        <span class="prio-level-dot">·</span>
+        <span class="prio-level-name">${prio}</span>
+      `;
+      prioBadge.className = `hazard-prio-pill prio-${prio.toLowerCase()}`;
     }
-    if (scoreBadge) {
+    if (scoreVal) {
       const scoreNum = h.priority_score ?? h.score;
       if (scoreNum != null) {
-        scoreBadge.textContent = `${Number(scoreNum).toFixed(1)} pts`;
+        scoreVal.textContent = Number(scoreNum).toFixed(1);
       } else if (h.cluster_count) {
-        scoreBadge.textContent = `${h.cluster_count} clusters`;
+        scoreVal.textContent = `${h.cluster_count}`;
       } else {
-        scoreBadge.textContent = '86.4 pts';
+        scoreVal.textContent = '78.2';
       }
-      scoreBadge.className = 'layered-badge score-badge';
     }
   }
 
@@ -1029,13 +1038,12 @@ function renderOverviewDashboard(data) {
     });
   }
 
-  // 5. Render Statistics Bubbles & Dynamic Info
+  // 5. Render Statistics Bubbles & Telemetry Panel
   if (data.statistics) {
     const s = data.statistics;
-    const pD40 = s.potholes ? s.potholes.pct : 38;
-    const pD00 = s.longitudinal ? s.longitudinal.pct : 22;
-    const pD20 = s.alligator ? s.alligator.pct : 25;
-    const pD10 = s.transverse ? s.transverse.pct : 15;
+    const pD40 = s.potholes ? s.potholes.pct : 22;
+    const pD00 = s.longitudinal ? s.longitudinal.pct : 11;
+    const pD20 = s.alligator ? s.alligator.pct : 33;
 
     const elPothole = document.getElementById('statPotholePct');
     const elLong = document.getElementById('statLongitudinalPct');
@@ -1044,50 +1052,23 @@ function renderOverviewDashboard(data) {
     if (elLong) elLong.textContent = `${pD00}%`;
     if (elAllig) elAllig.textContent = `${pD20}%`;
 
-    // Dynamic Micro-Bar Segments
-    const bD40 = document.getElementById('statBarD40');
-    const bD20 = document.getElementById('statBarD20');
-    const bD00 = document.getElementById('statBarD00');
-    const bD10 = document.getElementById('statBarD10');
-    if (bD40) bD40.style.width = `${pD40}%`;
-    if (bD20) bD20.style.width = `${pD20}%`;
-    if (bD00) bD00.style.width = `${pD00}%`;
-    if (bD10) bD10.style.width = `${pD10}%`;
-
-    // Legend Texts
-    const tD40 = document.getElementById('statD40Text');
-    const tD20 = document.getElementById('statD20Text');
-    const tD00 = document.getElementById('statD00Text');
-    const tD10 = document.getElementById('statD10Text');
-    if (tD40) tD40.textContent = `${pD40}%`;
-    if (tD20) tD20.textContent = `${pD20}%`;
-    if (tD00) tD00.textContent = `${pD00}%`;
-    if (tD10) tD10.textContent = `${pD10}%`;
-
-    // Total defects label
-    const totalEl = document.getElementById('statsTotalDefectsLabel');
-    const totalCount = data.kpis ? data.kpis.total_defects.value : 0;
-    if (totalEl) totalEl.textContent = `${totalCount} logged`;
-
-    // Dynamic Audit Consensus from real SQLite verified vs total
+    // Dynamic Telemetry Metrics
+    const totalCount = data.kpis ? (data.kpis.total_defects ? data.kpis.total_defects.value : 18) : 18;
+    const routesCount = data.kpis ? (data.kpis.routes_surveyed ? data.kpis.routes_surveyed.value : 10) : 10;
     const verifiedCount = data.summary ? (data.summary.fixing || 0) : 0;
     const consensusPct = totalCount > 0 ? Math.min(100, Math.round((verifiedCount / totalCount) * 100)) : 88;
-    const consensusEl = document.getElementById('statAuditConsensus');
-    const fillEl = document.getElementById('statAuditFill');
-    if (consensusEl) consensusEl.textContent = `${consensusPct}%`;
-    if (fillEl) fillEl.style.width = `${consensusPct}%`;
 
-    // Dynamic Smart Insight Banner based on real database state
-    const insightText = document.getElementById('statsDynamicInsightText');
-    if (insightText) {
-      const crit = data.kpis ? (data.kpis.critical_issues.value || 0) : 0;
-      const routes = data.kpis ? (data.kpis.routes_surveyed.value || 0) : 0;
-      if (crit > 0) {
-        insightText.textContent = `🚨 ${crit} critical hazard${crit > 1 ? 's' : ''} flagged across ${routes} surveyed corridors. Priority dispatch active.`;
-      } else {
-        insightText.textContent = `✅ All ${routes} monitored arterial corridors operating within normal structural tolerance limits.`;
-      }
-    }
+    const elConsensusFill = document.getElementById('statConsensusFill');
+    const elConsensusBadge = document.getElementById('statConsensusBadge');
+    const elResolutionSub = document.getElementById('statResolutionSub');
+    const elTotalLogged = document.getElementById('statTotalLoggedVal');
+    const elCorridors = document.getElementById('statCorridorsVal');
+
+    if (elConsensusFill) elConsensusFill.style.width = `${Math.max(consensusPct, 30)}%`;
+    if (elConsensusBadge) elConsensusBadge.textContent = `${Math.max(consensusPct, 85)}% Target`;
+    if (elResolutionSub) elResolutionSub.textContent = `${consensusPct}% verified consensus`;
+    if (elTotalLogged) elTotalLogged.textContent = totalCount;
+    if (elCorridors) elCorridors.textContent = routesCount;
   }
 
   // 6. Render Glowing Spline Frequency Chart
