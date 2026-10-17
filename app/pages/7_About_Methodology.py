@@ -44,6 +44,7 @@ RoadSense AI is trained and benchmarked using the **Road Damage Dataset 2022 (RD
 - **Dataset DOI:** [10.6084/m9.figshare.21431547.v1](https://doi.org/10.6084/m9.figshare.21431547.v1)
 - **License:** **Creative Commons Attribution 4.0 International (CC BY 4.0)**
   - *You are free to share and adapt the material for any purpose, with appropriate credit and indication of modifications made.*
+- **Image Credits & Provenance:** Road imagery sourced from RDD2022 (Arya et al., CC BY 4.0) and user field captures cataloged in `docs/MEDIA_PROVENANCE.md`. All demo fixtures and synthetic locations are visibly designated.
 """)
 theme.render_card_end()
 
