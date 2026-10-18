@@ -953,12 +953,11 @@
             Strict location provenance (EXIF_GPS, USER_ENTERED, EXPLICIT_SYNTHETIC_DEMO) with zero coordinate hallucination
           </p>
         </div>
-        <div style="display:flex; gap:10px; align-items:center;">
-          <button class="demo-chip-btn" onclick="initOrRefreshMap()">🔄 Refresh</button>
-          <a class="btn-primary-neon" id="exportIncidentMapPdfBtn" href="/api/export/incidents/pdf" download style="width:auto; padding:9px 18px; font-size:0.85rem;">
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:nowrap;">
+          <a class="btn-primary-neon" id="exportIncidentMapPdfBtn" href="/api/export/incidents/pdf" download style="padding:9px 16px; font-size:0.85rem; width:auto; white-space:nowrap; text-decoration:none; border-radius:var(--radius-md); display:inline-flex; align-items:center; gap:6px;">
             📄 Export Incident Report (PDF)
           </a>
-          <a class="demo-chip-btn" id="exportIncidentMapGeoJsonBtn" href="/api/export/geojson" download="roadsense_defects.geojson" style="padding:9px 14px; font-size:0.85rem;">
+          <a class="demo-chip-btn" id="exportIncidentMapGeoJsonBtn" href="/api/export/geojson" download="roadsense_defects.geojson" style="padding:9px 16px; font-size:0.85rem; width:auto; white-space:nowrap; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
             🗺️ Export GeoJSON (GIS) (data)
           </a>
         </div>
