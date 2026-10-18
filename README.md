@@ -3,11 +3,11 @@
 [![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch MPS](https://img.shields.io/badge/PyTorch-2.12.1%20(Apple%20MPS)-red.svg)](https://pytorch.org/)
 [![Ultralytics YOLO](https://img.shields.io/badge/Ultralytics-YOLO26n-green.svg)](https://github.com/ultralytics/ultralytics)
-[![Streamlit AppTest](https://img.shields.io/badge/Streamlit-1.58.0-FF4B4B.svg)](https://streamlit.io/)
+[![Test Suite](https://img.shields.io/badge/Automated%20Tests-91%20Passed-brightgreen.svg)](https://pytest.org/)
 [![License: CC BY 4.0](https://img.shields.io/badge/Dataset%20License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
 > **"See the Damage. Understand the Risk. Prioritize the Repair."**  
-> An automated computer vision and geospatial intelligence platform for municipal pavement maintenance, based on the **RDD2022 / IEEE BigData Cup Multi-National Road Damage Benchmark**.
+> An automated computer vision, geospatial intelligence, and deterministic triage platform for municipal pavement maintenance, based on the **RDD2022 / IEEE BigData Cup Multi-National Road Damage Benchmark**.
 
 ---
 
@@ -17,23 +17,27 @@ Municipal road authorities spend millions annually on reactive road maintenance.
 
 **RoadSense AI** transforms pavement management by:
 1. **Automated Vision Inspection:** Real-time detection of the 4 canonical road distress categories (`D00` Longitudinal Crack, `D10` Transverse Crack, `D20` Alligator Crack, `D40` Pothole) with normalized coordinates and confidence scoring.
-2. **Video Stream Intelligence:** Ingesting dashcam streams with user-configurable sampling rates (1 to 5 FPS) and **temporal de-duplication** to eliminate duplicate incident inflation.
-3. **Deterministic Priority Ranking Engine v1.0:** Mathematical scoring formula ($S \in [0, 100]$) combining defect severity, detection confidence, 25-meter spatial repetition density, road classification, and human inspector modifiers.
-4. **Strict Location Provenance:** Enforcing zero coordinate fabrication (`EXIF_GPS`, `USER_ENTERED`, `EXPLICIT_SYNTHETIC_DEMO`, `UNKNOWN`).
-5. **Dual-Domain Benchmark:** Rigorous validation across in-domain held-out splits (India) and unseen-country domain shifts (Czech Republic).
-6. **Next-Gen Obsidian Web Console (`http://localhost:8000`):** Ultra-premium executive dashboard inspired by the modern dark slate design system (`#0c0d14`), glowing hot pink (`#ff2a85`) and electric cobalt (`#3b82f6`) dual splines, pill status metrics, 3D tilted hazard cards, overlapping statistics bubbles, and interactive AI copilot.
-7. **Legacy Streamlit Console (`http://localhost:8501`):** Complete fallback multi-page analytics console for rapid data science iteration.
+2. **Video Stream Intelligence:** Ingests dashcam video at configurable sampling rates (1–5 FPS) with **temporal de-duplication** (2.5s window, IoU $\ge 0.30$ or centroid displacement $\le 0.15$), consolidating multi-frame detections into a single keyframe incident (93.3% deduplication rate) with HTTP 206 byte-range seeking.
+3. **Deterministic Priority Ranking Engine v1.0:** Mathematical scoring formula ($S \in [0, 100]$) combining defect severity, detection confidence, 25-meter spatial repetition density, functional road classification, and human inspector modifiers.
+4. **Strict Location Provenance:** Enforces zero coordinate fabrication via a 4-tier provenance enum (`EXIF_GPS`, `USER_ENTERED`, `EXPLICIT_SYNTHETIC_DEMO`, `UNKNOWN`) and automatic Null Island `(0, 0)` rejection.
+5. **Dual-Domain Benchmark:** Rigorous validation across in-domain held-out splits (India mAP@0.5: `0.584`) and unseen-country domain shifts (Czech Republic mAP@0.5: `0.438`, $\Delta\text{mAP} = -25.0\%$).
+6. **Enterprise Security & Offline Autonomy:** Fail-closed authentication with Argon2id password hashing, constant-time verification, HMAC-SHA256 session cookies, per-IP rate limiting, keyless Esri World Dark Gray Canvas basemaps, and 100% offline operation with zero external CDN dependencies.
+7. **Dual Frontends:**
+   - **Next-Gen Obsidian Web Console (`http://localhost:8000`):** Ultra-premium dark slate interface (`#0c0d14`), glowing neon splines, interactive Catmull-Rom incident frequency chart, 3D tilted hazard cards, animated 4-member SVG character crew, and offline rule-based AI Copilot.
+   - **Legacy Streamlit Analytics Shell (`http://localhost:8501`):** Multi-page scientific data console across 7 modular pages.
 
 ---
 
 ## 2. Pavement Distress Taxonomy (RDD2022 Standard)
 
-| Code | Damage Category | Description & Causative Mechanism | Base Severity Weight ($w_{\text{class}}$) | Prescribed Municipal Maintenance Action |
-|:---:|:---|:---|:---:|:---|
-| **D00** | **Longitudinal Crack** | Linear cracks parallel to traffic direction along wheel paths from load fatigue. | `0.4` | High-pressure routing & hot-pour elastomer sealant |
-| **D10** | **Transverse Crack** | Cracks perpendicular to centerline from thermal diurnal contraction or base reflection. | `0.5` | Bituminous joint sealing to block moisture infiltration |
-| **D20** | **Alligator Crack** | Interconnected polygonal map cracking indicating structural road base or subgrade failure. | `0.8` | Cold asphalt milling and structural binder/wearing overlay |
-| **D40** | **Pothole** | Structural surface cavity exceeding 25 mm depth; immediate vehicular deflection hazard. | `1.0` (Hazard) | Emergency 24–48h cold/hot patch compaction |
+| Code | Damage Category | Description & Causative Mechanism | Base Severity Weight ($w_{\text{class}}$) | Prescribed Municipal Maintenance Action | SLA Response Target |
+|:---:|:---|:---|:---:|:---|:---:|
+| **D00** | **Longitudinal Crack** | Linear cracks parallel to traffic direction along wheel paths from load fatigue. Early moisture entry path. | `0.4` | High-pressure routing & linear hot-pour elastomer sealant | Subsequent survey cycle / 30-day monitor |
+| **D10** | **Transverse Crack** | Cracks perpendicular to centerline from thermal diurnal contraction or base reflection. | `0.5` | Hot-pour bituminous crack sealing to arrest moisture infiltration into base | 30 Days (Routine Backlog) |
+| **D20** | **Alligator Crack** | Interconnected polygonal map cracking indicating structural road base or subgrade failure. | `0.8` | Cold asphalt milling and structural binder/wearing overlay | 7 Days (Scheduled Structural) |
+| **D40** | **Pothole** | Structural surface cavity exceeding 25 mm depth; immediate vehicular deflection hazard. | `1.0` (Hazard) | Emergency cold/hot asphalt patch compaction with mechanical tamping | 24–48 Hours (Emergency Triage) |
+
+*Explicitly Filtered Classes:* `D43` & `D44` (lane/crosswalk paint wear), `D50` (manhole utility fixtures), and `Repair` (completed asphalt patches) are deliberately filtered to background.
 
 ---
 
@@ -54,13 +58,14 @@ roadsense-ai/
 │       └── 7_About_Methodology.py  # Citations, CC BY 4.0 license, priority formula math
 ├── core/                       # Core Services Layer
 │   ├── config.py               # Centralized configuration constants & paths
-│   ├── db.py                   # SQLite persistence, parameterized queries & Haversine clustering
+│   ├── db.py                   # SQLite persistence, WAL mode & Haversine clustering
 │   ├── demo.py                 # Offline demonstration suite & calibrated fixtures
 │   ├── geo.py                  # EXIF GPS extraction & strict provenance taxonomy
 │   ├── health.py               # System health diagnostics & model pedigree tracking
-│   ├── inference.py            # Ultralytics YOLO inference wrapper on Apple MPS
+│   ├── inference.py            # Ultralytics YOLO inference wrapper with MPS lock
 │   ├── logger.py               # Standardized logging service
 │   ├── priority.py             # Deterministic Priority Formula Engine v1.0
+│   ├── reports_pdf.py          # Landscape A4 PDF export engine (ReportLab + DejaVu fonts)
 │   └── video.py                # Video processor, sampling rate control & de-duplication
 ├── ml/                         # ML Pipeline Layer
 │   ├── audit.py                # Pascal-VOC XML statistical auditor
@@ -91,11 +96,12 @@ roadsense-ai/
 │   └── static/
 │       ├── index.html          # Resq.io dark obsidian single-page application shell
 │       ├── css/style.css       # Obsidian glassmorphic design system & glow animations
-│       └── js/app.js           # Reactive SPA controller, Leaflet dark map & AI copilot
-├── tests/                      # Automated Test Suite (82 pytest & AppTest tests)
+│       ├── js/app.js           # Reactive SPA controller, Leaflet dark map & AI copilot
+│       └── assets/leaflet/     # Bundled local Leaflet JS/CSS (100% offline compliance)
+├── tests/                      # Automated Test Suite (91 pytest & AppTest tests)
 │   ├── test_all_pages.py       # Native Streamlit AppTest tests for all 7 console pages
 │   ├── test_app_foundation.py  # Shell initialization and theme tests
-│   ├── test_audit_hardening.py # Audit hardening tests (methodology analytics, PDF/CSV/GeoJSON integrity)
+│   ├── test_audit_hardening.py # Audit hardening tests (methodology analytics, export integrity)
 │   ├── test_auth.py            # Argon2id authentication and session rate limiting tests
 │   ├── test_convert.py         # Format conversion and class remapping tests
 │   ├── test_db.py              # SQLite CRUD, spatial clustering, and frequency aggregation
@@ -108,6 +114,7 @@ roadsense-ai/
 │   ├── test_video_stream.py    # HTTP 206 byte-range seeking and H.264 video streaming
 │   └── test_web_api.py         # FastAPI endpoint tests (health, overview, triage, inference, exports)
 ├── requirements.txt            # Python dependencies
+├── .env.example                # Example environment configuration template
 ├── MANUAL_STEPS.md             # Guide for Colab GPU training & checkpoint copying
 ├── PLAN.md                     # Engineering blueprint & milestone tracker
 ├── STATE.md                    # Live phase status & acceptance criteria tracker
@@ -131,6 +138,9 @@ source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Configure authentication credentials (optional, defaults to admin/roadsense)
+cp .env.example .env
 ```
 
 ### Step 4.2: Verify System Health
@@ -151,37 +161,37 @@ writable_paths: {'data': True, 'evidence': True, 'models': True, 'reports': True
 
 ### Step 4.3: Launch Options
 
-#### Option A: Next-Gen Obsidian Web Console (Recommended)
+#### Option A: Next-Gen Obsidian Web Console (Primary Interface)
 ```bash
 python web/run.py
 ```
-Open your browser to `http://localhost:8000`. Experience the ultra-premium dark slate interface:
-- **Overview Dashboard:** Dynamic dual-spline incident frequency curves, 3D tilted hazard cards, statistics circular bubbles, and AI Copilot assistant.
-- **Detect Damage:** Interactive Vision Studio with drag-and-drop, real-time bounding box annotations, and normalized detection coordinates.
-- **Video Intelligence:** Continuous video stream processing, sampling rate scrubber (1–5 FPS), and temporal de-duplication.
-- **Incident Map:** Geospatial CartoDB Dark Matter map with interactive defect beacons and evidence drawer.
-- **Priority Center:** Deterministic triage queue (Priority Score v1.0 descending) with one-click verify/reject controls.
+Open your browser to `http://localhost:8000`. Login with credentials from `.env` (default: `admin` / `roadsense`):
+- **Overview Dashboard:** Dynamic Catmull-Rom incident frequency curve, 3D tilted hazard cards, statistics circular bubbles, and rule-based AI Copilot.
+- **Detect Damage:** Interactive Vision Studio with real-time bounding box annotations and normalized coordinates.
+- **Video Intelligence:** Continuous video stream processing, sampling rate scrubber (1–5 FPS), temporal de-duplication, and HTTP 206 byte-range seeking.
+- **Incident Map:** Geospatial Leaflet map powered by keyless Esri World Dark Gray Canvas with zero watermarks.
+- **Priority Center:** Deterministic triage queue (Formula v1.0 descending) with one-click verify/reject controls and Landscape A4 PDF work order dispatch.
 - **Model Lab:** Hardware latency analysis on Apple MPS, in-domain vs. cross-domain benchmark matrices.
-- **Reports Ledger:** Searchable database inventory with instant CSV and RFC 7946 GeoJSON exports.
+- **Reports Ledger:** Searchable database inventory with instant Landscape A4 PDF, formula-injection-safe CSV (`utf-8-sig`), and RFC 7946 GeoJSON exports.
 
-#### Option B: Legacy Streamlit Analytics Shell
+#### Option B: Legacy Streamlit Analytics Shell (Secondary Interface)
 ```bash
 streamlit run app/main.py
 ```
-Open your browser to `http://localhost:8501` for the multi-page Streamlit analytical console.
+Open your browser to `http://localhost:8501` for the multi-page analytical console.
 
 ---
 
 ## 5. Running the Automated Test Suite
 
-RoadSense AI includes **82 automated tests** covering database CRUD, priority determinism, format conversion, hardware latency, dual-domain evaluation, FastAPI REST endpoints, Argon2id auth, landscape A4 PDF reports, CSV formula injection defense, stress/negative matrices, and Streamlit `AppTest` page initialization:
+RoadSense AI includes **91 automated tests** covering database CRUD, priority determinism, format conversion, hardware latency, dual-domain evaluation, FastAPI REST endpoints, Argon2id auth, landscape A4 PDF reports, CSV formula injection defense, stress/negative matrices, and Streamlit `AppTest` page initialization:
 
 ```bash
 pytest tests/ -v
 ```
 *Verified Output:*
 ```text
-======================= 91 passed, 3 warnings in 11.75s ========================
+======================= 91 passed, 3 warnings in 10.71s ========================
 ```
 
 ---
@@ -211,13 +221,14 @@ To train the model on Google Colab with a free GPU (T4/V100):
 
 Priority score $S \in [0, 100]$ is computed deterministically:
 
-$$S = \min\left(100, \, \left(w_{\text{class}} \cdot \bar{c} \cdot 40\right) + \left(\min(N_{\text{cluster}}, 5) \cdot 6\right) + \left(w_{\text{road}} \cdot 15\right) + \left(w_{\text{human}} \cdot 15\right)\right)$$
+$$S = \min\left(100.0, \, \max\left(0.0, \, \left(w_{\text{class}} \cdot \bar{c} \cdot 40.0\right) + \left(\min(N_{25\text{m}}, 5) \cdot 6.0\right) + \left(w_{\text{road}} \cdot 15.0\right) + \left(\frac{M_{\text{human}}}{1.5} \cdot 15.0\right)\right)\right)$$
 
-### Priority Bands:
+### Priority Bands & Response SLAs:
 - **Critical (Score $\ge 75$):** Immediate 24–48h emergency response (hazardous potholes).
 - **High (Score $55 - 74$):** Scheduled 7-day structural maintenance (alligator fatigue cracks).
 - **Moderate (Score $35 - 54$):** Routine 30-day backlog (transverse crack sealing).
 - **Low (Score $< 35$):** Monitor on subsequent survey cycle (early longitudinal cracks).
+- **Insufficient Info (Score $= 0$):** Undamaged road segment survey logging.
 
 ---
 
@@ -244,3 +255,4 @@ Empirically measured at batch size 1 on 640x640 resolution (macOS 26.5.2, Apple 
 
 > **Civil Engineering Advisory Notice:**  
 > *Model detection confidence is an empirical perceptual score, not an in-situ structural load-bearing assessment. RoadSense AI assists municipal road maintenance prioritization and does not replace certified geotechnical road safety audits.*
+
