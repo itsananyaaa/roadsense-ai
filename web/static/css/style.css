@@ -456,7 +456,7 @@ body {
 }
 
 .dashboard-grid-row.three-col {
-  grid-template-columns: 250px 1fr 280px;
+  grid-template-columns: 250px 1fr 315px;
 }
 
 .dashboard-grid-row.bottom-row {
@@ -754,7 +754,7 @@ body {
 .hazard-layered-pills {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .layered-pill {
@@ -762,12 +762,14 @@ body {
   color: #e2e8f0;
   border: 1px solid rgba(255, 255, 255, 0.11);
   border-radius: var(--radius-md);
-  padding: 12px 16px;
+  padding: 12px 14px;
+  min-height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   transition: all 0.2s ease;
+  gap: 12px;
 }
 
 .layered-pill:hover {
@@ -780,6 +782,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  flex: 1;
+  min-width: 0;
 }
 
 .pill-main-label {
@@ -795,16 +799,44 @@ body {
   color: #94a3b8;
 }
 
+/* Deterministic Score: Centered lines inside the left-side label group */
+.pill-label-group.score-label-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 0 1 auto;
+}
+
+.score-title-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.score-title-stack .pill-main-label {
+  display: block;
+  text-align: center;
+}
+
+.pill-label-group.score-label-group .pill-sub-label {
+  text-align: center;
+  margin-top: 3px;
+}
+
 .hazard-prio-pill {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 14px;
+  padding: 6px 11px;
   border-radius: 9999px;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .hazard-prio-pill.prio-critical {
@@ -866,6 +898,22 @@ body {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.active-incidents-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.active-incidents-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.active-incidents-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
 }
 
 .active-incident-row {
@@ -1008,26 +1056,48 @@ body {
   justify-content: center !important;
   text-align: center !important;
   position: absolute;
+  left: 0;
+  top: 0;
+  width: 106px;
+  height: 106px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  transition: transform 0.25s ease;
+  transition: transform 1.2s cubic-bezier(0.34, 1.25, 0.64, 1), box-shadow 1.2s ease, filter 0.3s ease;
+  will-change: transform;
   padding: 0 !important;
   box-sizing: border-box !important;
+  cursor: pointer;
 }
 
 .bubble-circle:hover {
-  transform: scale(1.05);
-  z-index: 5 !important;
+  filter: brightness(1.12);
+  z-index: 6 !important;
 }
 
+/* Cyclic 3-position system for rotating stats circles */
+.pos-primary {
+  transform: translate(14px, 34px) scale(1.18);
+  z-index: 4;
+}
+
+.pos-top-right {
+  transform: translate(122px, 8px) scale(0.85);
+  z-index: 2;
+}
+
+.pos-bottom-right {
+  transform: translate(114px, 92px) scale(0.85);
+  z-index: 2;
+}
+
+/* 1. Pink Bubble (Investigating) */
 .bubble-main {
-  width: 118px;
-  height: 118px;
   background: var(--accent-pink);
-  left: 4px;
-  top: 38px;
-  z-index: 3;
-  box-shadow: 0 0 28px rgba(255, 42, 133, 0.5);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 0 18px rgba(255, 42, 133, 0.35);
+}
+
+.bubble-main.pos-primary {
+  box-shadow: 0 0 32px rgba(255, 42, 133, 0.65), 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 .bubble-main .bubble-pct {
@@ -1049,20 +1119,20 @@ body {
   text-align: center;
 }
 
+/* 2. Blue Bubble (Triage) */
 .bubble-secondary {
-  width: 94px;
-  height: 94px;
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  right: 14px;
-  top: 98px;
-  z-index: 2;
-  box-shadow: 0 0 24px rgba(37, 99, 235, 0.45);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 0 16px rgba(37, 99, 235, 0.35);
+}
+
+.bubble-secondary.pos-primary {
+  box-shadow: 0 0 32px rgba(37, 99, 235, 0.65), 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 .bubble-secondary .bubble-pct {
   font-family: var(--font-heading);
-  font-size: 1.55rem;
+  font-size: 1.85rem;
   font-weight: 800;
   color: #ffffff;
   line-height: 1;
@@ -1071,7 +1141,7 @@ body {
 }
 
 .bubble-secondary .bubble-lbl {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.95);
   font-weight: 600;
   margin: 0;
@@ -1079,9 +1149,8 @@ body {
   text-align: center;
 }
 
+/* 3. Striped Hatched Circle (Fixing) */
 .bubble-hatched {
-  width: 88px;
-  height: 88px;
   background: repeating-linear-gradient(
     45deg,
     rgba(148, 163, 184, 0.28),
@@ -1091,14 +1160,15 @@ body {
   );
   border: 1.5px solid rgba(255, 255, 255, 0.25);
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(255, 255, 255, 0.08);
-  right: 8px;
-  top: 6px;
-  z-index: 1;
+}
+
+.bubble-hatched.pos-primary {
+  box-shadow: 0 0 28px rgba(148, 163, 184, 0.4), 0 8px 24px rgba(0, 0, 0, 0.6);
 }
 
 .bubble-hatched .bubble-pct {
   font-family: var(--font-heading);
-  font-size: 1.45rem;
+  font-size: 1.85rem;
   font-weight: 800;
   color: #ffffff;
   line-height: 1;
@@ -1108,7 +1178,7 @@ body {
 }
 
 .bubble-hatched .bubble-lbl {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: #f1f5f9;
   font-weight: 600;
   margin: 0;
@@ -2456,6 +2526,19 @@ body.authenticated .app-container {
 
 .char-mouth {
   transition: d 0.2s ease;
+}
+
+/* Character Eyes Closed State (When Password is Visible & Typing) */
+.crew-closed-eyes {
+  display: none;
+}
+
+.crew-eyes-closed .crew-open-eyes {
+  display: none !important;
+}
+
+.crew-eyes-closed .crew-closed-eyes {
+  display: inline !important;
 }
 
 /* Submitting Scan Line & Success Radar */

@@ -105,6 +105,8 @@ function initDashboard() {
   setupPriorityCenter();
   setupMethodologyPdfExport();
   loadReportsInventory();
+  setupActiveIncidentsFilter();
+  initBubbleRotation();
 }
 
 // -------------------------------------------------------------------------
@@ -187,11 +189,12 @@ function setupLoginExperience() {
   };
 
   // Kinematic state parameters
+  // Kinematic state parameters (Zero body rotation/skew, purely eye tracking)
   const cur = {
-    pylon: { y: prefersReducedMotion ? 0 : -320, rot: prefersReducedMotion ? 0 : -14, skew: 0, gazeX: 0, gazeY: 0 },
-    sensor: { y: prefersReducedMotion ? 0 : -320, rot: prefersReducedMotion ? 0 : 10, gazeX: 0, gazeY: 0 },
-    scanner: { y: prefersReducedMotion ? 0 : -320, rot: prefersReducedMotion ? 0 : -8, scaleY: 1, gazeX: 0, gazeY: 0 },
-    marker: { y: prefersReducedMotion ? 0 : -320, rot: prefersReducedMotion ? 0 : 16, gazeX: 0, gazeY: 0 },
+    pylon: { y: prefersReducedMotion ? 0 : -320, rot: 0, skew: 0, gazeX: 0, gazeY: 0 },
+    sensor: { y: prefersReducedMotion ? 0 : -320, rot: 0, gazeX: 0, gazeY: 0 },
+    scanner: { y: prefersReducedMotion ? 0 : -320, rot: 0, scaleY: 1, gazeX: 0, gazeY: 0 },
+    marker: { y: prefersReducedMotion ? 0 : -320, rot: 0, gazeX: 0, gazeY: 0 },
   };
 
   const target = {
@@ -245,7 +248,6 @@ function setupLoginExperience() {
 
     // Apply state-specific targets
     if (currentState === 'intro') {
-      // Shapes dropping in towards 0 with subtle overshoot
       target.pylon.y = 0;
       target.pylon.rot = 0;
       target.sensor.y = 0;
@@ -264,7 +266,7 @@ function setupLoginExperience() {
       // Subtle breathing on dome
       target.scanner.scaleY = 1 + 0.015 * Math.sin(timestamp * 0.002);
 
-      // Natural gaze following pointer
+      // Natural gaze smoothly tracking mouse pointer
       target.pylon.gazeX = pointerGaze.x;
       target.pylon.gazeY = pointerGaze.y;
       target.sensor.gazeX = pointerGaze.x;
@@ -275,14 +277,16 @@ function setupLoginExperience() {
       target.marker.gazeY = pointerGaze.y;
 
     } else if (currentState === 'username') {
-      const len = usernameInput ? usernameInput.value.length : 0;
-      const progress = Math.min(len / 15, 1);
-      target.pylon.rot = 5 + progress * 6.5; // Bends toward form (right)
-      target.pylon.skew = -1.5 - progress * 2.5; // Curvature via skewX
-      target.pylon.gazeX = 4.5 + progress * 2.5;
-      target.pylon.gazeY = 0.5;
+      // Look at where user is typing username (right stage, slightly upper)
+      target.pylon.rot = 0;
+      target.pylon.skew = 0;
+      target.sensor.rot = 0;
+      target.scanner.rot = 0;
+      target.marker.rot = 0;
 
-      target.sensor.gazeX = 5.0;
+      target.pylon.gazeX = 4.8;
+      target.pylon.gazeY = 0.5;
+      target.sensor.gazeX = 4.8;
       target.sensor.gazeY = 0.5;
       target.scanner.gazeX = 4.0;
       target.scanner.gazeY = 0.5;
@@ -290,47 +294,42 @@ function setupLoginExperience() {
       target.marker.gazeY = 0.5;
 
     } else if (currentState === 'password') {
-      // Polite "not looking" pose: pylon tilts away
-      target.pylon.rot = -4.5;
-      target.pylon.skew = 0.5;
-      target.pylon.gazeX = -4.0;
-      target.pylon.gazeY = 1.0;
-
-      // Sensor and marker look away from field
-      target.sensor.rot = -2.0;
-      target.sensor.gazeX = -5.0;
-      target.sensor.gazeY = 1.5;
-
-      target.scanner.rot = 0;
-      target.scanner.gazeX = -3.5;
-      target.scanner.gazeY = 1.0;
-
-      target.marker.rot = -2.0;
-      target.marker.gazeX = -4.5;
-      target.marker.gazeY = 1.5;
-
-    } else if (currentState === 'peeking') {
-      // Show password toggled on: sensor eyes widen, pylon and dome peek back
-      target.pylon.rot = 3.0;
-      target.pylon.skew = -1.0;
-      target.pylon.gazeX = 5.5;
-      target.pylon.gazeY = 0;
-
+      // Hidden password: look at where user is typing password (right stage, middle)
+      target.pylon.rot = 0;
+      target.pylon.skew = 0;
       target.sensor.rot = 0;
-      target.sensor.gazeX = 6.0;
-      target.sensor.gazeY = 0;
-
       target.scanner.rot = 0;
-      target.scanner.gazeX = 5.0;
-      target.scanner.gazeY = 0;
-
       target.marker.rot = 0;
-      target.marker.gazeX = 5.0;
+
+      target.pylon.gazeX = 4.8;
+      target.pylon.gazeY = 1.3;
+      target.sensor.gazeX = 4.8;
+      target.sensor.gazeY = 1.3;
+      target.scanner.gazeX = 4.0;
+      target.scanner.gazeY = 1.3;
+      target.marker.gazeX = 4.5;
+      target.marker.gazeY = 1.3;
+
+    } else if (currentState === 'password-visible') {
+      // Visible password: eyes closed via .crew-eyes-closed class, no body movement
+      target.pylon.rot = 0;
+      target.pylon.skew = 0;
+      target.sensor.rot = 0;
+      target.scanner.rot = 0;
+      target.marker.rot = 0;
+
+      target.pylon.gazeX = 0;
+      target.pylon.gazeY = 0;
+      target.sensor.gazeX = 0;
+      target.sensor.gazeY = 0;
+      target.scanner.gazeX = 0;
+      target.scanner.gazeY = 0;
+      target.marker.gazeX = 0;
       target.marker.gazeY = 0;
 
     } else if (currentState === 'submitting') {
       // Straighten up and look toward submit button
-      target.pylon.rot = 0.5;
+      target.pylon.rot = 0;
       target.pylon.skew = 0;
       target.pylon.gazeX = 3.5;
       target.pylon.gazeY = 3.5;
@@ -356,13 +355,12 @@ function setupLoginExperience() {
       }
 
     } else if (currentState === 'error') {
-      // Rejection pose: pylon tilts away with frown, dome frowns, marker wavy
-      target.pylon.rot = -5.0;
-      target.pylon.skew = 0.5;
+      target.pylon.rot = 0;
+      target.pylon.skew = 0;
       target.pylon.gazeX = -2.0;
       target.pylon.gazeY = 2.0;
 
-      target.sensor.rot = -2.0;
+      target.sensor.rot = 0;
       target.sensor.gazeX = -2.0;
       target.sensor.gazeY = 2.0;
 
@@ -375,7 +373,6 @@ function setupLoginExperience() {
       target.marker.gazeY = 2.0;
 
     } else if (currentState === 'success') {
-      // Success celebration: upright smiles, soft glow
       target.pylon.rot = 0;
       target.pylon.skew = 0;
       target.pylon.gazeX = 0;
@@ -396,34 +393,34 @@ function setupLoginExperience() {
 
     // Lerp values
     cur.pylon.y = lerp(cur.pylon.y, target.pylon.y, t);
-    cur.pylon.rot = lerp(cur.pylon.rot, target.pylon.rot, t);
-    cur.pylon.skew = lerp(cur.pylon.skew, target.pylon.skew, t);
+    cur.pylon.rot = 0;
+    cur.pylon.skew = 0;
     cur.pylon.gazeX = lerp(cur.pylon.gazeX, target.pylon.gazeX, t);
     cur.pylon.gazeY = lerp(cur.pylon.gazeY, target.pylon.gazeY, t);
 
     cur.sensor.y = lerp(cur.sensor.y, target.sensor.y, t);
-    cur.sensor.rot = lerp(cur.sensor.rot, target.sensor.rot, t);
+    cur.sensor.rot = 0;
     cur.sensor.gazeX = lerp(cur.sensor.gazeX, target.sensor.gazeX, t);
     cur.sensor.gazeY = lerp(cur.sensor.gazeY, target.sensor.gazeY, t);
 
     cur.scanner.y = lerp(cur.scanner.y, target.scanner.y, t);
-    cur.scanner.rot = lerp(cur.scanner.rot, target.scanner.rot, t);
+    cur.scanner.rot = 0;
     cur.scanner.scaleY = lerp(cur.scanner.scaleY, target.scanner.scaleY, t);
     cur.scanner.gazeX = lerp(cur.scanner.gazeX, target.scanner.gazeX, t);
     cur.scanner.gazeY = lerp(cur.scanner.gazeY, target.scanner.gazeY, t);
 
     cur.marker.y = lerp(cur.marker.y, target.marker.y, t);
-    cur.marker.rot = lerp(cur.marker.rot, target.marker.rot, t);
+    cur.marker.rot = 0;
     cur.marker.gazeX = lerp(cur.marker.gazeX, target.marker.gazeX, t);
     cur.marker.gazeY = lerp(cur.marker.gazeY, target.marker.gazeY, t);
 
-    // Render transforms
-    shapePylon.setAttribute('transform', `translate(0, ${cur.pylon.y.toFixed(2)}) rotate(${cur.pylon.rot.toFixed(2)}) skewX(${cur.pylon.skew.toFixed(2)})`);
-    shapeSensor.setAttribute('transform', `translate(0, ${cur.sensor.y.toFixed(2)}) rotate(${cur.sensor.rot.toFixed(2)})`);
-    shapeScanner.setAttribute('transform', `translate(0, ${cur.scanner.y.toFixed(2)}) scale(1, ${cur.scanner.scaleY.toFixed(3)}) rotate(${cur.scanner.rot.toFixed(2)})`);
-    shapeMarker.setAttribute('transform', `translate(0, ${cur.marker.y.toFixed(2)}) rotate(${cur.marker.rot.toFixed(2)})`);
+    // Render transforms (Zero body rotation/skew - bodies remain steady)
+    shapePylon.setAttribute('transform', `translate(0, ${cur.pylon.y.toFixed(2)})`);
+    shapeSensor.setAttribute('transform', `translate(0, ${cur.sensor.y.toFixed(2)})`);
+    shapeScanner.setAttribute('transform', `translate(0, ${cur.scanner.y.toFixed(2)}) scale(1, ${cur.scanner.scaleY.toFixed(3)})`);
+    shapeMarker.setAttribute('transform', `translate(0, ${cur.marker.y.toFixed(2)})`);
 
-    // Render face offsets (Pylon face shifts slightly more)
+    // Render face offsets (Eye/pupil tracking)
     pylonFace.setAttribute('transform', `translate(${(cur.pylon.gazeX * 1.35).toFixed(2)}, ${(cur.pylon.gazeY * 1.2).toFixed(2)})`);
     sensorFace.setAttribute('transform', `translate(${cur.sensor.gazeX.toFixed(2)}, ${cur.sensor.gazeY.toFixed(2)})`);
     scannerFace.setAttribute('transform', `translate(${cur.scanner.gazeX.toFixed(2)}, ${cur.scanner.gazeY.toFixed(2)})`);
@@ -445,8 +442,8 @@ function setupLoginExperience() {
   function setupDesynchronizedBlinking(lids, intervalBase) {
     if (prefersReducedMotion || lids.length === 0) return;
     function triggerBlink() {
-      if (currentState === 'password') {
-        // In password mode, scanner dome eyes stay closed
+      // When characters' eyes are closed (visible password mode), skip regular blinks
+      if (crewStage && crewStage.classList.contains('crew-eyes-closed')) {
         setTimeout(triggerBlink, intervalBase + Math.random() * 2000);
         return;
       }
@@ -468,9 +465,8 @@ function setupLoginExperience() {
   setupDesynchronizedBlinking(scannerLids, 4200);
   setupDesynchronizedBlinking(markerLids, 3600);
 
-  // Pointer move gaze listener (clamped, smoothed)
+  // Pointer move gaze listener (Character eyes smoothly track mouse cursor across screen)
   window.addEventListener('pointermove', (e) => {
-    if (currentState === 'password' || currentState === 'submitting') return;
     const stageRect = crewStage.getBoundingClientRect();
     const centerX = stageRect.left + stageRect.width * 0.5;
     const centerY = stageRect.top + stageRect.height * 0.6;
@@ -490,20 +486,34 @@ function setupLoginExperience() {
     if (markerMouth && mouths.marker[mood]) markerMouth.setAttribute('d', mouths.marker[mood]);
   }
 
+  function updatePasswordCrewState() {
+    if (currentState === 'submitting') return;
+    if (passwordInput && passwordInput.type === 'text') {
+      // User clicked show password and is typing: close all eyes
+      currentState = 'password-visible';
+      if (crewStage) crewStage.classList.add('crew-eyes-closed');
+    } else {
+      // Hidden password: eyes look directly where the user is typing
+      currentState = 'password';
+      if (crewStage) crewStage.classList.remove('crew-eyes-closed');
+    }
+  }
+
   // --- Input Field Listeners ---
   if (usernameInput) {
     usernameInput.addEventListener('focus', () => {
       if (currentState !== 'submitting') {
         currentState = 'username';
+        if (crewStage) crewStage.classList.remove('crew-eyes-closed');
         updateCrewMouths('neutral');
         hideAlert();
       }
     });
 
     usernameInput.addEventListener('input', () => {
-      if (currentState === 'error') {
+      if (currentState !== 'submitting') {
         currentState = 'username';
-        updateCrewMouths('neutral');
+        if (crewStage) crewStage.classList.remove('crew-eyes-closed');
         hideAlert();
       }
     });
@@ -512,6 +522,7 @@ function setupLoginExperience() {
       setTimeout(() => {
         if (document.activeElement !== passwordInput && currentState !== 'submitting' && currentState !== 'error') {
           currentState = 'idle';
+          if (crewStage) crewStage.classList.remove('crew-eyes-closed');
           updateCrewMouths('neutral');
         }
       }, 60);
@@ -521,27 +532,15 @@ function setupLoginExperience() {
   if (passwordInput) {
     passwordInput.addEventListener('focus', () => {
       if (currentState !== 'submitting') {
-        if (passwordInput.type === 'text') {
-          currentState = 'peeking';
-        } else {
-          currentState = 'password';
-          // Scanner dome closes eyes
-          scannerLids.forEach(lid => lid.setAttribute('stroke-width', '18'));
-        }
+        updatePasswordCrewState();
         hideAlert();
       }
     });
 
     passwordInput.addEventListener('input', () => {
-      if (currentState === 'error') {
+      if (currentState !== 'submitting') {
+        updatePasswordCrewState();
         hideAlert();
-      }
-      if (passwordInput.type === 'text') {
-        currentState = 'peeking';
-        scannerLids.forEach(lid => lid.setAttribute('stroke-width', '0'));
-      } else {
-        currentState = 'password';
-        scannerLids.forEach(lid => lid.setAttribute('stroke-width', '18'));
       }
     });
 
@@ -549,7 +548,7 @@ function setupLoginExperience() {
       setTimeout(() => {
         if (document.activeElement !== togglePasswordBtn && currentState !== 'submitting' && currentState !== 'error') {
           currentState = 'idle';
-          scannerLids.forEach(lid => lid.setAttribute('stroke-width', '0'));
+          if (crewStage) crewStage.classList.remove('crew-eyes-closed');
           updateCrewMouths('neutral');
         }
       }, 60);
@@ -567,21 +566,23 @@ function setupLoginExperience() {
       const eyeClosed = togglePasswordBtn.querySelector('.eye-closed-icon');
 
       if (isPassword) {
+        // Password shown
         if (eyeOpen) eyeOpen.style.display = 'none';
         if (eyeClosed) eyeClosed.style.display = 'block';
         togglePasswordBtn.setAttribute('aria-label', 'Hide password');
-        currentState = 'peeking';
-        scannerLids.forEach(lid => lid.setAttribute('stroke-width', '0'));
+        if (document.activeElement === passwordInput || passwordInput.value.length > 0) {
+          updatePasswordCrewState();
+        }
       } else {
+        // Password hidden
         if (eyeOpen) eyeOpen.style.display = 'block';
         if (eyeClosed) eyeClosed.style.display = 'none';
         togglePasswordBtn.setAttribute('aria-label', 'Show password');
         if (document.activeElement === passwordInput) {
-          currentState = 'password';
-          scannerLids.forEach(lid => lid.setAttribute('stroke-width', '18'));
+          updatePasswordCrewState();
         } else {
           currentState = 'idle';
-          scannerLids.forEach(lid => lid.setAttribute('stroke-width', '0'));
+          if (crewStage) crewStage.classList.remove('crew-eyes-closed');
         }
       }
       passwordInput.focus();
@@ -1007,35 +1008,9 @@ function renderOverviewDashboard(data) {
   }
 
   // 4. Render Active Incidents Cards
-  if (data.active_incidents && data.active_incidents.length > 0) {
-    const listEl = document.getElementById('activeIncidentsList');
-    listEl.innerHTML = '';
-    data.active_incidents.slice(0, 3).forEach(inc => {
-      const card = document.createElement('div');
-      card.className = 'active-incident-row';
-      const tagClass = inc.priority_level === 'CRITICAL' ? 'pink' : (inc.priority_level === 'HIGH' ? 'blue' : 'white');
-      card.innerHTML = `
-        <div class="incident-top-meta">
-          <span class="incident-status-tag ${tagClass}">${inc.status_label}</span>
-          <div class="incident-id-time">
-            <span>${inc.display_id}</span>
-            <span>•</span>
-            <span>${inc.elapsed}</span>
-          </div>
-        </div>
-        <div class="incident-summary-text">
-          <strong>${inc.road_name}</strong>: Detected ${inc.detected_classes.join(', ') || 'Road Distress'}
-        </div>
-        <div class="incident-inspector-profile">
-          <img src="${inc.inspector_avatar}" alt="Inspector" />
-          <div class="inspector-text-group">
-            <span class="inspector-name-str">${inc.inspector_name}</span>
-            <span class="inspector-email-str">${inc.inspector_email}</span>
-          </div>
-        </div>
-      `;
-      listEl.appendChild(card);
-    });
+  if (data.active_incidents) {
+    cachedActiveIncidents = data.active_incidents;
+    renderActiveIncidents();
   }
 
   // 5. Render Statistics Bubbles & Telemetry Panel
@@ -1078,6 +1053,133 @@ function renderOverviewDashboard(data) {
     fetchAndRenderFrequencyChart('30d');
   }
 }
+
+// -------------------------------------------------------------------------
+// Active Incidents Filtering & Tab Switching ('Newest' vs 'All')
+// -------------------------------------------------------------------------
+let cachedActiveIncidents = [];
+let activeIncidentsFilter = 'newest';
+
+function setupActiveIncidentsFilter() {
+  const btnNewest = document.getElementById('btnIncidentsNewest');
+  const btnAll = document.getElementById('btnIncidentsAll');
+  if (!btnNewest || !btnAll) return;
+
+  btnNewest.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (activeIncidentsFilter === 'newest') return;
+    activeIncidentsFilter = 'newest';
+    btnNewest.classList.add('active');
+    btnAll.classList.remove('active');
+    renderActiveIncidents();
+  });
+
+  btnAll.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (activeIncidentsFilter === 'all') return;
+    activeIncidentsFilter = 'all';
+    btnAll.classList.add('active');
+    btnNewest.classList.remove('active');
+    renderActiveIncidents();
+  });
+}
+
+function renderActiveIncidents() {
+  const listEl = document.getElementById('activeIncidentsList');
+  if (!listEl) return;
+  listEl.innerHTML = '';
+
+  const items = activeIncidentsFilter === 'all'
+    ? cachedActiveIncidents
+    : cachedActiveIncidents.slice(0, 3);
+
+  if (!items || items.length === 0) {
+    listEl.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-dim); font-size: 0.85rem;">No active incidents recorded</div>';
+    return;
+  }
+
+  items.forEach(inc => {
+    const card = document.createElement('div');
+    card.className = 'active-incident-row';
+    const tagClass = inc.priority_level === 'CRITICAL' ? 'pink' : (inc.priority_level === 'HIGH' ? 'blue' : 'white');
+    card.innerHTML = `
+      <div class="incident-top-meta">
+        <span class="incident-status-tag ${tagClass}">${inc.status_label || 'Active'}</span>
+        <div class="incident-id-time">
+          <span>${inc.display_id || inc.id || 'INC-0000'}</span>
+          <span>•</span>
+          <span>${inc.elapsed || 'Active'}</span>
+        </div>
+      </div>
+      <div class="incident-summary-text">
+        <strong>${inc.road_name || 'Corridor'}</strong>: Detected ${(inc.detected_classes && inc.detected_classes.join(', ')) || 'Road Distress'}
+      </div>
+      <div class="incident-inspector-profile">
+        <img src="${inc.inspector_avatar || '/static/assets/avatar-1.svg'}" alt="Inspector" onerror="this.src='/static/assets/avatar-1.svg'" />
+        <div class="inspector-text-group">
+          <span class="inspector-name-str">${inc.inspector_name || 'Inspector'}</span>
+          <span class="inspector-email-str">${inc.inspector_email || 'inspector@civic.gov.in'}</span>
+        </div>
+      </div>
+    `;
+    listEl.appendChild(card);
+  });
+}
+
+// -------------------------------------------------------------------------
+// Rotating Statistics Circles Animation Controller
+// -------------------------------------------------------------------------
+let bubbleCycleStep = 0;
+let bubbleRotationInterval = null;
+
+function initBubbleRotation() {
+  const bubbleInvestigating = document.getElementById('bubbleInvestigating');
+  const bubbleFixing = document.getElementById('bubbleFixing');
+  const bubbleTriage = document.getElementById('bubbleTriage');
+  const wrapper = document.getElementById('statsBubbleWrapper');
+  if (!bubbleInvestigating || !bubbleFixing || !bubbleTriage) return;
+
+  const bubbles = [
+    { el: bubbleInvestigating, baseClass: 'bubble-circle bubble-main' },
+    { el: bubbleFixing, baseClass: 'bubble-circle bubble-hatched' },
+    { el: bubbleTriage, baseClass: 'bubble-circle bubble-secondary' }
+  ];
+
+  // 3 cyclic positions: Slot 0 = Big (pos-primary), Slot 1 = Small (pos-top-right), Slot 2 = Small (pos-bottom-right)
+  const positions = ['pos-primary', 'pos-top-right', 'pos-bottom-right'];
+
+  function applyPositions() {
+    bubbles.forEach((b, i) => {
+      const posIndex = (i + bubbleCycleStep) % 3;
+      b.el.className = `${b.baseClass} ${positions[posIndex]}`;
+    });
+  }
+
+  function nextBubbleCycle() {
+    bubbleCycleStep = (bubbleCycleStep + 1) % 3;
+    applyPositions();
+  }
+
+  applyPositions();
+
+  function startInterval() {
+    if (bubbleRotationInterval) clearInterval(bubbleRotationInterval);
+    bubbleRotationInterval = setInterval(nextBubbleCycle, 3600);
+  }
+
+  startInterval();
+
+  if (wrapper && !wrapper.dataset.hoverWired) {
+    wrapper.dataset.hoverWired = 'true';
+    wrapper.addEventListener('mouseenter', () => {
+      if (bubbleRotationInterval) clearInterval(bubbleRotationInterval);
+    });
+    wrapper.addEventListener('mouseleave', () => {
+      startInterval();
+    });
+  }
+}
+
 
 // -------------------------------------------------------------------------
 // Incident Frequency Dynamic Spline Chart & Range Controller (Issue B)

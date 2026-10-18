@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/static/assets/leaflet/leaflet.css">
   
   <!-- Custom Modern Obsidian Stylesheet -->
-  <link rel="stylesheet" href="/static/css/style.css?v=20261017c">
+  <link rel="stylesheet" href="/static/css/style.css?v=20261018a">
 </head>
 <body class="auth-required">
 
@@ -131,10 +131,16 @@
             <g id="crewPylon" class="crew-shape shape-pylon" style="transform-origin: 165px 324px; transform-box: fill-box;">
               <rect x="135" y="144" width="60" height="180" rx="8" fill="#2563eb" />
               <g id="pylonFace" class="crew-face" style="opacity: 0; transition: opacity 0.3s ease;">
-                <circle id="pylonEyeLeft" cx="155" cy="188" r="4.5" fill="#0c0d14"/>
-                <circle id="pylonEyeRight" cx="175" cy="188" r="4.5" fill="#0c0d14"/>
-                <path id="pylonLidLeft" d="M 150 188 Q 155 188 160 188" stroke="#2563eb" stroke-width="0" fill="#2563eb"/>
-                <path id="pylonLidRight" d="M 170 188 Q 175 188 180 188" stroke="#2563eb" stroke-width="0" fill="#2563eb"/>
+                <g class="crew-open-eyes">
+                  <circle id="pylonEyeLeft" cx="155" cy="188" r="4.5" fill="#0c0d14"/>
+                  <circle id="pylonEyeRight" cx="175" cy="188" r="4.5" fill="#0c0d14"/>
+                  <path id="pylonLidLeft" d="M 150 188 Q 155 188 160 188" stroke="#2563eb" stroke-width="0" fill="#2563eb"/>
+                  <path id="pylonLidRight" d="M 170 188 Q 175 188 180 188" stroke="#2563eb" stroke-width="0" fill="#2563eb"/>
+                </g>
+                <g class="crew-closed-eyes">
+                  <path d="M 150 188 Q 155 192.5 160 188" stroke="#0c0d14" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+                  <path d="M 170 188 Q 175 192.5 180 188" stroke="#0c0d14" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+                </g>
                 <path id="pylonMouth" d="M 158 208 Q 165 212 172 208" stroke="#0c0d14" stroke-width="2.2" stroke-linecap="round" fill="none"/>
               </g>
             </g>
@@ -143,13 +149,22 @@
             <g id="crewSensor" class="crew-shape shape-sensor" style="transform-origin: 235px 324px; transform-box: fill-box;">
               <rect x="195" y="184" width="80" height="140" rx="10" fill="#161926" stroke="#3b82f6" stroke-width="2" />
               <g id="sensorFace" class="crew-face" style="opacity: 0; transition: opacity 0.3s ease;">
-                <!-- White eye with black pupil -->
-                <circle cx="221" cy="226" r="9" fill="#ffffff"/>
-                <circle id="sensorPupilLeft" cx="221" cy="226" r="4.5" fill="#0c0d14"/>
-                <circle cx="249" cy="226" r="9" fill="#ffffff"/>
-                <circle id="sensorPupilRight" cx="249" cy="226" r="4.5" fill="#0c0d14"/>
-                <path id="sensorLidLeft" d="M 212 226 Q 221 226 230 226" stroke="#161926" stroke-width="0" fill="#161926"/>
-                <path id="sensorLidRight" d="M 240 226 Q 249 226 258 226" stroke="#161926" stroke-width="0" fill="#161926"/>
+                <!-- Open eyes -->
+                <g class="crew-open-eyes">
+                  <circle cx="221" cy="226" r="9" fill="#ffffff"/>
+                  <circle id="sensorPupilLeft" cx="221" cy="226" r="4.5" fill="#0c0d14"/>
+                  <circle cx="249" cy="226" r="9" fill="#ffffff"/>
+                  <circle id="sensorPupilRight" cx="249" cy="226" r="4.5" fill="#0c0d14"/>
+                  <path id="sensorLidLeft" d="M 212 226 Q 221 226 230 226" stroke="#161926" stroke-width="0" fill="#161926"/>
+                  <path id="sensorLidRight" d="M 240 226 Q 249 226 258 226" stroke="#161926" stroke-width="0" fill="#161926"/>
+                </g>
+                <!-- Closed eyes -->
+                <g class="crew-closed-eyes">
+                  <circle cx="221" cy="226" r="9" fill="#161926" stroke="#3b82f6" stroke-width="1.5"/>
+                  <path d="M 214 226 Q 221 231 228 226" stroke="#93c5fd" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+                  <circle cx="249" cy="226" r="9" fill="#161926" stroke="#3b82f6" stroke-width="1.5"/>
+                  <path d="M 242 226 Q 249 231 256 226" stroke="#93c5fd" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+                </g>
                 <path id="sensorMouth" d="M 229 252 L 241 252" stroke="#64748b" stroke-width="2" stroke-linecap="round"/>
               </g>
             </g>
@@ -158,10 +173,16 @@
             <g id="crewScanner" class="crew-shape shape-scanner" style="transform-origin: 315px 324px; transform-box: fill-box;">
               <path d="M 265 324 A 50 50 0 0 1 365 324 Z" fill="#ff2a85" />
               <g id="scannerFace" class="crew-face" style="opacity: 0; transition: opacity 0.3s ease;">
-                <circle id="scannerEyeLeft" cx="304" cy="295" r="4" fill="#0c0d14"/>
-                <circle id="scannerEyeRight" cx="326" cy="295" r="4" fill="#0c0d14"/>
-                <path id="scannerLidLeft" d="M 300 295 Q 304 295 308 295" stroke="#ff2a85" stroke-width="0" fill="#ff2a85"/>
-                <path id="scannerLidRight" d="M 322 295 Q 326 295 330 295" stroke="#ff2a85" stroke-width="0" fill="#ff2a85"/>
+                <g class="crew-open-eyes">
+                  <circle id="scannerEyeLeft" cx="304" cy="295" r="4" fill="#0c0d14"/>
+                  <circle id="scannerEyeRight" cx="326" cy="295" r="4" fill="#0c0d14"/>
+                  <path id="scannerLidLeft" d="M 300 295 Q 304 295 308 295" stroke="#ff2a85" stroke-width="0" fill="#ff2a85"/>
+                  <path id="scannerLidRight" d="M 322 295 Q 326 295 330 295" stroke="#ff2a85" stroke-width="0" fill="#ff2a85"/>
+                </g>
+                <g class="crew-closed-eyes">
+                  <path d="M 299 295 Q 304 299.5 309 295" stroke="#0c0d14" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+                  <path d="M 321 295 Q 326 299.5 331 295" stroke="#0c0d14" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+                </g>
                 <path id="scannerMouth" d="M 309 308 Q 315 313 321 308" stroke="#0c0d14" stroke-width="2" stroke-linecap="round" fill="none"/>
               </g>
             </g>
@@ -170,13 +191,18 @@
             <g id="crewMarker" class="crew-shape shape-marker" style="transform-origin: 395px 324px; transform-box: fill-box;">
               <rect x="370" y="234" width="50" height="90" rx="25" fill="#e2e8f0" />
               <g id="markerFace" class="crew-face" style="opacity: 0; transition: opacity 0.3s ease;">
-                <!-- White eye with black pupil -->
-                <circle cx="386" cy="264" r="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/>
-                <circle id="markerPupilLeft" cx="386" cy="264" r="3" fill="#0c0d14"/>
-                <circle cx="404" cy="264" r="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/>
-                <circle id="markerPupilRight" cx="404" cy="264" r="3" fill="#0c0d14"/>
-                <path id="markerLidLeft" d="M 380 264 Q 386 264 392 264" stroke="#e2e8f0" stroke-width="0" fill="#e2e8f0"/>
-                <path id="markerLidRight" d="M 398 264 Q 404 264 410 264" stroke="#e2e8f0" stroke-width="0" fill="#e2e8f0"/>
+                <g class="crew-open-eyes">
+                  <circle cx="386" cy="264" r="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/>
+                  <circle id="markerPupilLeft" cx="386" cy="264" r="3" fill="#0c0d14"/>
+                  <circle cx="404" cy="264" r="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/>
+                  <circle id="markerPupilRight" cx="404" cy="264" r="3" fill="#0c0d14"/>
+                  <path id="markerLidLeft" d="M 380 264 Q 386 264 392 264" stroke="#e2e8f0" stroke-width="0" fill="#e2e8f0"/>
+                  <path id="markerLidRight" d="M 398 264 Q 404 264 410 264" stroke="#e2e8f0" stroke-width="0" fill="#e2e8f0"/>
+                </g>
+                <g class="crew-closed-eyes">
+                  <path d="M 381 264 Q 386 268 391 264" stroke="#475569" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+                  <path d="M 399 264 Q 404 268 409 264" stroke="#475569" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+                </g>
                 <path id="markerMouth" d="M 391 282 Q 395 285 399 282" stroke="#475569" stroke-width="1.8" stroke-linecap="round" fill="none"/>
               </g>
             </g>
@@ -521,8 +547,11 @@
               </span>
             </div>
             <div class="layered-pill">
-              <div class="pill-label-group">
-                <span class="pill-main-label">Deterministic Score</span>
+              <div class="pill-label-group score-label-group">
+                <div class="score-title-stack">
+                  <span class="pill-main-label">Deterministic</span>
+                  <span class="pill-main-label">Score</span>
+                </div>
                 <span class="pill-sub-label">Formula v1.0 [0–100]</span>
               </div>
               <div class="hazard-score-pill" id="hazardScoreBadge">
@@ -543,8 +572,8 @@
           <div class="card-header-flex">
             <h2 class="card-title">Active incidents</h2>
             <div class="filter-pills-bar">
-              <button class="filter-pill-btn active">Newest ∨</button>
-              <button class="filter-pill-btn">All ∨</button>
+              <button class="filter-pill-btn active" id="btnIncidentsNewest">Newest ∨</button>
+              <button class="filter-pill-btn" id="btnIncidentsAll">All ∨</button>
             </div>
           </div>
 
@@ -606,24 +635,24 @@
             </div>
           </div>
 
-          <!-- Overlapping Radial Bubbles -->
-          <div class="stats-bubble-wrapper">
+          <!-- Overlapping Radial Bubbles with Cyclic Smooth Rotation -->
+          <div class="stats-bubble-wrapper" id="statsBubbleWrapper">
             <!-- Big Pink Bubble (Investigating / Potholes) -->
-            <div class="bubble-circle bubble-main">
+            <div class="bubble-circle bubble-main pos-primary" id="bubbleInvestigating" title="Potholes / Investigating">
               <span class="bubble-pct" id="statPotholePct">22%</span>
               <span class="bubble-lbl">Investigating</span>
             </div>
 
-            <!-- Blue Bubble (Triage / Longitudinal) -->
-            <div class="bubble-circle bubble-secondary">
-              <span class="bubble-pct" id="statLongitudinalPct">11%</span>
-              <span class="bubble-lbl">Triage</span>
-            </div>
-
             <!-- Striped Hatched Circle (Fixing / Alligator) -->
-            <div class="bubble-circle bubble-hatched">
+            <div class="bubble-circle bubble-hatched pos-top-right" id="bubbleFixing" title="Alligator Cracks / Fixing">
               <span class="bubble-pct" id="statAlligatorPct">33%</span>
               <span class="bubble-lbl">Fixing</span>
+            </div>
+
+            <!-- Blue Bubble (Triage / Longitudinal) -->
+            <div class="bubble-circle bubble-secondary pos-bottom-right" id="bubbleTriage" title="Longitudinal Cracks / Triage">
+              <span class="bubble-pct" id="statLongitudinalPct">11%</span>
+              <span class="bubble-lbl">Triage</span>
             </div>
           </div>
 
@@ -2544,7 +2573,7 @@
   <!-- Leaflet JS -->
   <script src="/static/assets/leaflet/leaflet.js"></script>
   <!-- Client Application Logic -->
-  <script src="/static/js/app.js?v=20261017c"></script>
+  <script src="/static/js/app.js?v=20261018a"></script>
 
 </body>
 </html>
