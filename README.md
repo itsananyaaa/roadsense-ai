@@ -122,7 +122,7 @@ roadsense-ai/
 ### Step 4.1: Clone & Configure Environment
 ```bash
 # Clone the repository
-git clone https://github.com/ananyabiju/roadsense-ai.git
+git clone https://github.com/itsananyaaa/roadsense-ai.git
 cd roadsense-ai
 
 # Activate your Python 3.10+ environment (or conda/venv)
