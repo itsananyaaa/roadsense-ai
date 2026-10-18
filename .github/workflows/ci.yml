@@ -61,9 +61,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Pytest Suite
-        env:
-          ROADSENSE_ADMIN_USER: ci_admin
-          ROADSENSE_ADMIN_PASS: ci_test_password_2026!
-          ROADSENSE_SESSION_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
         run: |
+          export ROADSENSE_ADMIN_USER=ci_admin
+          export ROADSENSE_ADMIN_PASS=ci_test_password_2026!
+          export ROADSENSE_SESSION_SECRET=$(python -c "import secrets; print(secrets.token_hex(32))")
           pytest tests/ -v -m "not slow" || pytest tests/ -v
