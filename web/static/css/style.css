@@ -1576,6 +1576,7 @@ body {
   gap: 8px;
   box-shadow: 0 4px 18px rgba(255, 42, 133, 0.4);
   transition: all 0.2s ease;
+  white-space: nowrap;
   width: 100%;
 }
 

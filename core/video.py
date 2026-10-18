@@ -307,14 +307,38 @@ def transcode_to_h264(input_path: Path, output_path: Path) -> bool:
         return False
 
 
-def generate_demo_dashcam_video(output_path: Path, duration_sec: int = 5, fps: int = 15) -> Path:
+def generate_demo_dashcam_video(output_path: Path, duration_sec: Union[int, float] = 6, fps: int = 15) -> Path:
     """
     Generates a realistic animated dashcam demonstration MP4 video for offline expo testing.
+    Uses calibrated real road distress imagery from demo fixtures with smooth vehicle forward
+    approach motion and authentic HUD overlay.
     Produces a browser-playable H.264 (avc1) MP4 with yuv420p and faststart.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     w, h = 640, 480
-    total_frames = duration_sec * fps
+    total_frames = int(duration_sec * fps)
+
+    # Locate calibrated demo distress imagery
+    images_dir = config.DATA_DIR / "demo_media" / "images"
+    pothole1_path = images_dir / "demo_pothole_critical.jpg"
+    pothole2_path = images_dir / "demo_pothole_historical_1.jpg"
+    clean_path = images_dir / "demo_undamaged_clean.jpg"
+
+    pothole1 = cv2.imread(str(pothole1_path)) if pothole1_path.exists() else None
+    pothole2 = cv2.imread(str(pothole2_path)) if pothole2_path.exists() else None
+    clean = cv2.imread(str(clean_path)) if clean_path.exists() else None
+
+    # Fallbacks if assets are missing
+    if pothole1 is None:
+        pothole1 = np.full((h, w, 3), 75, dtype=np.uint8)
+    if clean is None:
+        clean = pothole1.copy()
+    if pothole2 is None:
+        pothole2 = pothole1.copy()
+
+    pothole1_resized = cv2.resize(pothole1, (w, h))
+    pothole2_resized = cv2.resize(pothole2, (w, h))
+    clean_resized = cv2.resize(clean, (w, h))
 
     raw_temp_path = output_path.parent / f"_raw_temp_{output_path.name}"
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
@@ -323,43 +347,51 @@ def generate_demo_dashcam_video(output_path: Path, duration_sec: int = 5, fps: i
     try:
         for frame_idx in range(total_frames):
             t = frame_idx / fps
-            # Create base asphalt texture
-            base_gray = np.random.randint(65, 85, (h, w), dtype=np.uint8)
-            frame = cv2.cvtColor(base_gray, cv2.COLOR_GRAY2BGR)
 
-            # Draw perspective road lanes
-            lane_color = (200, 200, 200)
-            cv2.line(frame, (int(w * 0.45), int(h * 0.35)), (int(w * 0.10), h), lane_color, 4)
-            cv2.line(frame, (int(w * 0.55), int(h * 0.35)), (int(w * 0.90), h), lane_color, 4)
-            cv2.line(frame, (int(w * 0.50), int(h * 0.35)), (int(w * 0.50), h), (40, 180, 220), 2)  # Center dashed
+            # If duration is 10s or longer, include 2 distinct distress zones with a clean corridor in between
+            if duration_sec >= 10:
+                if t < 1.0:
+                    frame = clean_resized.copy()
+                elif 1.0 <= t <= 3.8:
+                    progress = (t - 1.0) / 2.8
+                    scale = 1.0 + progress * 0.22
+                    cw, ch = int(w / scale), int(h / scale)
+                    x1 = (w - cw) // 2
+                    y1 = int((h - ch) * 0.6)
+                    cropped = pothole1_resized[y1:y1+ch, x1:x1+cw]
+                    frame = cv2.resize(cropped, (w, h))
+                elif 3.8 < t < 7.2:
+                    frame = clean_resized.copy()
+                elif 7.2 <= t <= 10.0:
+                    progress = (t - 7.2) / 2.8
+                    scale = 1.0 + progress * 0.22
+                    cw, ch = int(w / scale), int(h / scale)
+                    x1 = (w - cw) // 2
+                    y1 = int((h - ch) * 0.6)
+                    cropped = pothole2_resized[y1:y1+ch, x1:x1+cw]
+                    frame = cv2.resize(cropped, (w, h))
+                else:
+                    frame = clean_resized.copy()
+            else:
+                # 5-8 second stream: 1 prominent defect approaching continuously
+                if t < 1.0:
+                    frame = clean_resized.copy()
+                elif 1.0 <= t <= 3.8:
+                    progress = (t - 1.0) / 2.8
+                    scale = 1.0 + progress * 0.22
+                    cw, ch = int(w / scale), int(h / scale)
+                    x1 = (w - cw) // 2
+                    y1 = int((h - ch) * 0.6)
+                    cropped = pothole1_resized[y1:y1+ch, x1:x1+cw]
+                    frame = cv2.resize(cropped, (w, h))
+                else:
+                    frame = clean_resized.copy()
 
-            # Simulate approaching distresses
-            # Pothole (D40) approaching between t=1.0 and t=3.0
-            if 1.0 <= t <= 3.2:
-                progress = (t - 1.0) / 2.2
-                y = int(h * 0.45 + progress * (h * 0.45))
-                x = int(w * 0.40 - progress * (w * 0.05))
-                radius = int(8 + progress * 32)
-                cv2.circle(frame, (x, y), radius, (25, 25, 30), -1)
-                cv2.ellipse(frame, (x, y), (radius, int(radius * 0.6)), 0, 0, 360, (15, 15, 20), -1)
-                cv2.circle(frame, (x + 2, y + 2), int(radius * 0.8), (40, 40, 45), 2)
-
-            # Alligator crack (D20) approaching between t=2.5 and t=4.8
-            if 2.5 <= t <= 4.8:
-                progress = (t - 2.5) / 2.3
-                y = int(h * 0.40 + progress * (h * 0.48))
-                x = int(w * 0.60 + progress * (w * 0.08))
-                sz = int(12 + progress * 40)
-                cv2.rectangle(frame, (x - sz, y - int(sz * 0.6)), (x + sz, y + int(sz * 0.6)), (35, 35, 40), -1)
-                # Web cracks
-                for dx, dy in [(-sz, 0), (sz, 0), (0, -int(sz*0.6)), (0, int(sz*0.6))]:
-                    cv2.line(frame, (x, y), (x + dx, y + dy), (15, 15, 18), 2)
-
-            # Dashcam HUD Overlay
+            # Authentic Dashcam HUD Overlay
             cv2.putText(frame, f"ROADSENSE AI DASHCAM 01 | {time.strftime('%Y-%m-%d')} {format_timestamp(t)}", (20, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 220, 255), 1, cv2.LINE_AA)
-            cv2.putText(frame, f"SPEED: 42 KM/H | GPS: 19.0760 N, 72.8777 E", (20, h - 20),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1, cv2.LINE_AA)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 220, 255), 1, cv2.LINE_AA)
+            cv2.putText(frame, "SPEED: 48 KM/H | GPS: 12.9716 N, 77.5946 E", (20, h - 20),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.42, (255, 255, 255), 1, cv2.LINE_AA)
 
             out.write(frame)
     finally:
@@ -381,5 +413,14 @@ def generate_demo_dashcam_video(output_path: Path, duration_sec: int = 5, fps: i
         if raw_temp_path.exists():
             raw_temp_path.rename(output_path)
         logger.warning(f"Generated un-transcoded demo video at {output_path}")
+
+    # Synchronize H.264 peer if writing the canonical demo stream
+    if output_path.name == "dashcam_inspection_demo.mp4":
+        h264_peer = output_path.parent / "dashcam_inspection_demo_h264.mp4"
+        try:
+            import shutil
+            shutil.copy2(str(output_path), str(h264_peer))
+        except Exception:
+            pass
 
     return output_path

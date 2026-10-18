@@ -1796,8 +1796,8 @@ function setupVideoIntelligenceStudio() {
   if (loadDemoBtn) {
     loadDemoBtn.addEventListener('click', () => {
       if (videoEl) {
-        // Stream via authenticated/range-supporting endpoint
-        videoEl.src = `${API_BASE}/api/video/stream?file=dashcam_inspection_demo.mp4`;
+        // Stream via authenticated/range-supporting endpoint with cache busting
+        videoEl.src = `${API_BASE}/api/video/stream?file=dashcam_inspection_demo.mp4&t=${Date.now()}`;
         videoEl.load();
         videoEl.play().catch(err => {
           console.warn('Playback notice:', err);
@@ -1870,6 +1870,13 @@ function renderVideoResults(data) {
       `;
       gallery.appendChild(card);
     });
+  } else {
+    gallery.innerHTML = `
+      <div style="text-align:center; color:var(--text-muted); padding:32px; grid-column:1/-1;">
+        <p style="font-size:0.9rem; margin-bottom:4px; color:#cbd5e1;">No distresses met detection thresholds in this sequence.</p>
+        <span style="font-size:0.78rem; color:var(--text-dim);">Try running at a higher sampling rate or using the calibrated demo stream.</span>
+      </div>
+    `;
   }
 }
 
