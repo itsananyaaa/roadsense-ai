@@ -1,7 +1,7 @@
 {
   "artifact_description": "Demo-set live inference audit against ground-truth annotations.",
   "disclaimer": "This report documents demo-set behavior selected for class coverage. It is NOT a measure of overall benchmark accuracy (see reports/eval_india.json for benchmark metrics).",
-  "active_checkpoint_path": "/Users/ananyabiju/Desktop/roadsense-ai/models/smoke_test.pt",
+  "active_checkpoint_path": "models/smoke_test.pt",
   "active_checkpoint_status": "SMOKE_CHECKPOINT",
   "is_smoke_model": true,
   "smoke_model_warning": "Active checkpoint is a smoke-test model (1-2 epochs on miniature sample). Lower precision or false detections on diverse field images are expected.",

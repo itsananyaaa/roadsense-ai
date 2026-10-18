@@ -165,7 +165,7 @@ writable_paths: {'data': True, 'evidence': True, 'models': True, 'reports': True
 ```bash
 python web/run.py
 ```
-Open your browser to `http://localhost:8000`. Login with credentials from `.env` (default: `admin` / `roadsense`):
+Open your browser to `http://localhost:8000`. Login with the operator credentials configured in your `.env` file (see `.env.example`):
 - **Overview Dashboard:** Dynamic Catmull-Rom incident frequency curve, 3D tilted hazard cards, statistics circular bubbles, and rule-based AI Copilot.
 - **Detect Damage:** Interactive Vision Studio with real-time bounding box annotations and normalized coordinates.
 - **Video Intelligence:** Continuous video stream processing, sampling rate scrubber (1–5 FPS), temporal de-duplication, and HTTP 206 byte-range seeking.
@@ -251,8 +251,43 @@ Empirically measured at batch size 1 on 640x640 resolution (macOS 26.5.2, Apple 
 - **Reference:** *Big Data Mining and Analytics*, IEEE / Tsinghua University Press
 - **Dataset DOI:** [10.6084/m9.figshare.21431547.v1](https://doi.org/10.6084/m9.figshare.21431547.v1)
 - **Dataset License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
-- **Image Credits & Provenance:** See [docs/MEDIA_PROVENANCE.md](file:///Users/ananyabiju/Desktop/roadsense-ai/docs/MEDIA_PROVENANCE.md) and [docs/MEDIA_AUDIT.md](file:///Users/ananyabiju/Desktop/roadsense-ai/docs/MEDIA_AUDIT.md) for complete provenance records. Any test fixture that is not real field imagery is visibly labelled "Illustrative sample (not real field imagery)". Coordinates without verified EXIF GPS are strictly labelled "real image — synthetic location" or "UNKNOWN".
+- **Image Credits & Provenance:** See [docs/MEDIA_PROVENANCE.md](docs/MEDIA_PROVENANCE.md) and [docs/MEDIA_AUDIT.md](docs/MEDIA_AUDIT.md) for complete provenance records. Any test fixture that is not real field imagery is visibly labelled "Illustrative sample (not real field imagery)". Coordinates without verified EXIF GPS are strictly labelled "real image — synthetic location" or "UNKNOWN".
 
 > **Civil Engineering Advisory Notice:**  
 > *Model detection confidence is an empirical perceptual score, not an in-situ structural load-bearing assessment. RoadSense AI assists municipal road maintenance prioritization and does not replace certified geotechnical road safety audits.*
+
+---
+
+## 10. Security & Fail-Closed Credentials
+
+RoadSense AI enforces a fail-closed security architecture:
+- Copy `.env.example` to `.env` and configure your own secure credentials (`ROADSENSE_ADMIN_USER`, `ROADSENSE_ADMIN_PASS`, and a 32-byte hex `ROADSENSE_SESSION_SECRET` generated via `openssl rand -hex 32`).
+- **Never commit `.env` to version control.** It is excluded via `.gitignore`.
+- If credentials are unset, all authenticated endpoints immediately reject requests with `HTTP 401 Unauthorized`.
+- Passwords are encrypted with memory-hard `Argon2id` and verified using constant-time evaluation to prevent timing side-channel attacks.
+- For vulnerability reporting, see [SECURITY.md](SECURITY.md).
+
+---
+
+## 11. Repository Contents & Excluded Artifacts
+
+To guarantee clean, reproducible execution while strictly protecting private data, large binary blobs and mutable local state are kept out of git:
+- **Included:** Source code, web frontend, core algorithms, 91 automated tests, documentation, ReportLab TrueType fonts (`DejaVuSans`), offline Leaflet GIS assets, and curated RDD2022 demo media (`data/demo_media/`).
+- **Excluded:** Local SQLite runtime databases (`data/roadsense.db`), runtime uploaded evidence (`data/evidence/`), unredacted private field media (`data/field_samples/`), multi-gigabyte raw datasets, and temporary test scratchpads.
+- For the full ledger of excluded artifacts and reproduction steps, see [EXCLUDED_FROM_GIT.md](EXCLUDED_FROM_GIT.md).
+
+---
+
+## 12. In-Depth Project Architecture
+
+For a comprehensive deep-dive into both the technical (YOLO26n architecture, anti-leakage dHash splitting, temporal de-duplication, Haversine clustering) and non-technical (AASHTO PCI deterioration economics, stakeholder workflows, municipal triage governance) dimensions of RoadSense AI, see [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md).
+
+---
+
+## 13. License & Legal Notices
+
+RoadSense AI is open-source software licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. See the [LICENSE](LICENSE) file for the complete terms.
+
+Third-party software licenses and dataset attributions (including Ultralytics AGPL-3.0 and RDD2022 CC BY 4.0) are itemized in [NOTICE](NOTICE).
+
 

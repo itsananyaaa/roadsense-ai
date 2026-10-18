@@ -1,0 +1,74 @@
+RoadSense AI
+Copyright (c) 2026 RoadSense AI Contributors
+
+This product is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
+See the LICENSE file for details.
+
+===============================================================================
+THIRD-PARTY DATASET ATTRIBUTION
+===============================================================================
+
+1. RDD2022 (Road Damage Dataset 2022) / IEEE BigData Cup 2022
+   - Authors: Deeksha Arya, Hiroya Maeda, Sanjay Kumar Ghosh, Durga Toshniwal,
+              Alexander Mraz, Takehiro Kashiyama, Yoshihide Sekimoto
+   - Publication: "Crowdsensing-based Road Damage Detection: Challenges and Solutions",
+                  Big Data Mining and Analytics, IEEE / Tsinghua University Press.
+   - Dataset DOI: https://doi.org/10.6084/m9.figshare.21431547.v1
+   - License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+     https://creativecommons.org/licenses/by/4.0/
+   - Attribution: Demo images and benchmarking evaluations are derived from or
+     grounded in the RDD2022 multi-national road damage benchmark.
+
+===============================================================================
+THIRD-PARTY SOFTWARE NOTICES AND LICENSES
+===============================================================================
+
+1. Ultralytics YOLO
+   - Copyright (c) Ultralytics Inc.
+   - License: GNU Affero General Public License v3.0 (AGPL-3.0)
+   - Repository: https://github.com/ultralytics/ultralytics
+
+2. PyTorch
+   - Copyright (c) 2016-present, Facebook, Inc / Meta Platforms, Inc. and its affiliates.
+   - License: Modified BSD License
+   - Repository: https://github.com/pytorch/pytorch
+
+3. FastAPI & Starlette
+   - Copyright (c) Sebastián Ramírez and Encode OSS
+   - License: MIT License
+   - Repository: https://github.com/fastapi/fastapi
+
+4. Streamlit
+   - Copyright (c) Snowflake Inc. / Streamlit Inc.
+   - License: Apache License 2.0
+   - Repository: https://github.com/streamlit/streamlit
+
+5. ReportLab
+   - Copyright (c) 2000-2024, ReportLab Inc.
+   - License: BSD License
+   - Website: https://www.reportlab.com/
+
+6. Leaflet
+   - Copyright (c) 2010-2024, Volodymyr Agafonkin
+   - License: BSD 2-Clause License
+   - Website: https://leafletjs.com/
+
+7. DejaVu Fonts
+   - Copyright (c) 2003 by Bitstream, Inc. All Rights Reserved.
+   - License: Bitstream Vera Fonts License / Free Redistribution
+   - Shipped local files: core/fonts/DejaVuSans.ttf, core/fonts/DejaVuSans-Bold.ttf
+   - See core/fonts/LICENSE-DejaVu.txt for full terms.
+
+8. Argon2-cffi
+   - Copyright (c) Hynek Schlawack
+   - License: MIT License
+   - Repository: https://github.com/hynek/argon2-cffi
+
+===============================================================================
+CIVIL ENGINEERING & LEGAL ADVISORY NOTICE
+===============================================================================
+Model detection confidence scores are empirical perceptual computer-vision metrics,
+not in-situ geotechnical or structural load-bearing assessments. RoadSense AI
+assists municipal road maintenance prioritization and triage dispatch; it does not
+replace certified geotechnical road safety audits, pavement core sampling, or
+licensed professional engineering inspection sign-offs.

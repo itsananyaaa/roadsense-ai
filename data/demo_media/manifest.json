@@ -1,0 +1,384 @@
+{
+  "manifest_version": "1.0",
+  "description": "RoadSense AI Verified Demo Media & Field Capture Registry",
+  "attribution_notice": "Arya, D., Maeda, H., Ghosh, S. K., Toshniwal, D., Mraz, A., Kashiyama, T., & Sekimoto, Y. Road Damage Dataset 2022 (RDD2022), IEEE BigData Cup / CRDDC 2022. DOI: 10.6084/m9.figshare.21431547.v1",
+  "dataset_license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+  "dataset_doi": "10.6084/m9.figshare.21431547.v1",
+  "total_assets": 8,
+  "rdd_real_dataset_assets": 0,
+  "user_field_captures": 0,
+  "synthetic_demo_assets": 8,
+  "assets": [
+    {
+      "id": "fixture_demo_pothole_critical",
+      "filename": "demo_pothole_critical.jpg",
+      "relative_path": "images/demo_pothole_critical.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "source_dataset": "RoadSense Synthetic Fixture Suite",
+      "file_id": "demo_pothole_critical",
+      "country": "Synthetic Test Environment",
+      "split": "demo_synthetic",
+      "license": "RoadSense Internal Apache-2.0 / MIT Fixture",
+      "attribution": "Procedurally generated for offline test execution",
+      "has_gps": false,
+      "latitude": 12.971599,
+      "longitude": 77.594566,
+      "location_provenance": "EXPLICIT_SYNTHETIC_DEMO",
+      "road_name": "Corridor Alpha (Synthetic Location)",
+      "road_classification": "PRIMARY_ARTERIAL",
+      "width": 640,
+      "height": 640,
+      "sha256": "50c5124ca44eaf190e08528cc19d5741cecdaa97376d3fb8d1e16d77a7be49a4",
+      "caption": "Illustrative sample (not real field imagery) \u2014 Pothole",
+      "badge": "illustrative sample \u2014 synthetic location",
+      "ground_truth": [
+        {
+          "class_code": "D40",
+          "class_name": "Pothole",
+          "bbox": [
+            180,
+            220,
+            390,
+            410
+          ]
+        }
+      ],
+      "ground_truth_boxes": [
+        {
+          "class_code": "D40",
+          "class_name": "Pothole",
+          "bbox": [
+            180,
+            220,
+            390,
+            410
+          ]
+        }
+      ],
+      "consent_privacy_note": "Procedurally generated texture; zero human or geographic data."
+    },
+    {
+      "id": "fixture_demo_alligator_high",
+      "filename": "demo_alligator_high.jpg",
+      "relative_path": "images/demo_alligator_high.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "source_dataset": "RoadSense Synthetic Fixture Suite",
+      "file_id": "demo_alligator_high",
+      "country": "Synthetic Test Environment",
+      "split": "demo_synthetic",
+      "license": "RoadSense Internal Apache-2.0 / MIT Fixture",
+      "attribution": "Procedurally generated for offline test execution",
+      "has_gps": false,
+      "latitude": 12.98221,
+      "longitude": 77.60152,
+      "location_provenance": "EXPLICIT_SYNTHETIC_DEMO",
+      "road_name": "Collector Route Beta (Synthetic Location)",
+      "road_classification": "SECONDARY_COLLECTOR",
+      "width": 640,
+      "height": 640,
+      "sha256": "75487ade98ea6f114d06b37629fa2b2895c5206c2a570617eb8e9905dba9921c",
+      "caption": "Illustrative sample (not real field imagery) \u2014 Alligator Crack",
+      "badge": "illustrative sample \u2014 synthetic location",
+      "ground_truth": [
+        {
+          "class_code": "D20",
+          "class_name": "Alligator Crack",
+          "bbox": [
+            120,
+            160,
+            480,
+            450
+          ]
+        }
+      ],
+      "ground_truth_boxes": [
+        {
+          "class_code": "D20",
+          "class_name": "Alligator Crack",
+          "bbox": [
+            120,
+            160,
+            480,
+            450
+          ]
+        }
+      ],
+      "consent_privacy_note": "Procedurally generated texture; zero human or geographic data."
+    },
+    {
+      "id": "fixture_demo_transverse_moderate",
+      "filename": "demo_transverse_moderate.jpg",
+      "relative_path": "images/demo_transverse_moderate.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "source_dataset": "RoadSense Synthetic Fixture Suite",
+      "file_id": "demo_transverse_moderate",
+      "country": "Synthetic Test Environment",
+      "split": "demo_synthetic",
+      "license": "RoadSense Internal Apache-2.0 / MIT Fixture",
+      "attribution": "Procedurally generated for offline test execution",
+      "has_gps": false,
+      "latitude": 12.9641,
+      "longitude": 77.5852,
+      "location_provenance": "EXPLICIT_SYNTHETIC_DEMO",
+      "road_name": "Local Road Gamma (Synthetic Location)",
+      "road_classification": "RESIDENTIAL_LOCAL",
+      "width": 640,
+      "height": 640,
+      "sha256": "70afc909d7e21ee22753aa35f1cbc0bd3758040321453ceb11d4e7cb00c30027",
+      "caption": "Illustrative sample (not real field imagery) \u2014 Transverse Crack",
+      "badge": "illustrative sample \u2014 synthetic location",
+      "ground_truth": [
+        {
+          "class_code": "D10",
+          "class_name": "Transverse Crack",
+          "bbox": [
+            80,
+            290,
+            560,
+            330
+          ]
+        }
+      ],
+      "ground_truth_boxes": [
+        {
+          "class_code": "D10",
+          "class_name": "Transverse Crack",
+          "bbox": [
+            80,
+            290,
+            560,
+            330
+          ]
+        }
+      ],
+      "consent_privacy_note": "Procedurally generated texture; zero human or geographic data."
+    },
+    {
+      "id": "fixture_demo_longitudinal_low",
+      "filename": "demo_longitudinal_low.jpg",
+      "relative_path": "images/demo_longitudinal_low.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "source_dataset": "RoadSense Synthetic Fixture Suite",
+      "file_id": "demo_longitudinal_low",
+      "country": "Synthetic Test Environment",
+      "split": "demo_synthetic",
+      "license": "RoadSense Internal Apache-2.0 / MIT Fixture",
+      "attribution": "Procedurally generated for offline test execution",
+      "has_gps": false,
+      "latitude": 12.978,
+      "longitude": 77.612,
+      "location_provenance": "EXPLICIT_SYNTHETIC_DEMO",
+      "road_name": "Local Road Delta (Synthetic Location)",
+      "road_classification": "RESIDENTIAL_LOCAL",
+      "width": 640,
+      "height": 640,
+      "sha256": "ce8b78b1a97de0447f7fca9625ca45773713eacd8a5d4eab5099db9245659410",
+      "caption": "Illustrative sample (not real field imagery) \u2014 Longitudinal Crack",
+      "badge": "illustrative sample \u2014 synthetic location",
+      "ground_truth": [
+        {
+          "class_code": "D00",
+          "class_name": "Longitudinal Crack",
+          "bbox": [
+            280,
+            140,
+            320,
+            520
+          ]
+        }
+      ],
+      "ground_truth_boxes": [
+        {
+          "class_code": "D00",
+          "class_name": "Longitudinal Crack",
+          "bbox": [
+            280,
+            140,
+            320,
+            520
+          ]
+        }
+      ],
+      "consent_privacy_note": "Procedurally generated texture; zero human or geographic data."
+    },
+    {
+      "id": "fixture_demo_undamaged_clean",
+      "filename": "demo_undamaged_clean.jpg",
+      "relative_path": "images/demo_undamaged_clean.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "source_dataset": "RoadSense Synthetic Fixture Suite",
+      "file_id": "demo_undamaged_clean",
+      "country": "Synthetic Test Environment",
+      "split": "demo_synthetic",
+      "license": "RoadSense Internal Apache-2.0 / MIT Fixture",
+      "attribution": "Procedurally generated for offline test execution",
+      "has_gps": false,
+      "latitude": 13.0125,
+      "longitude": 77.654,
+      "location_provenance": "EXPLICIT_SYNTHETIC_DEMO",
+      "road_name": "Expressway Epsilon (Synthetic Location)",
+      "road_classification": "PRIMARY_ARTERIAL",
+      "width": 640,
+      "height": 640,
+      "sha256": "39bd5f6d06dcde84d870cc427fdf620d2d7cec8ff3da985a350c0bccc1e5805b",
+      "caption": "Illustrative sample (not real field imagery) \u2014 Undamaged Pavement",
+      "badge": "illustrative sample \u2014 synthetic location",
+      "ground_truth": [],
+      "ground_truth_boxes": [],
+      "consent_privacy_note": "Procedurally generated texture; zero human or geographic data."
+    },
+    {
+      "id": "fixture_demo_pothole_historical_1",
+      "filename": "demo_pothole_historical_1.jpg",
+      "relative_path": "images/demo_pothole_historical_1.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "source_dataset": "RoadSense Synthetic Fixture Suite",
+      "file_id": "demo_pothole_historical_1",
+      "country": "Synthetic Test Environment",
+      "split": "demo_synthetic",
+      "license": "RoadSense Internal Apache-2.0 / MIT Fixture",
+      "attribution": "Procedurally generated for offline test execution",
+      "has_gps": false,
+      "latitude": 12.9754,
+      "longitude": 77.5982,
+      "location_provenance": "EXPLICIT_SYNTHETIC_DEMO",
+      "road_name": "Corridor Zeta (Synthetic Location)",
+      "road_classification": "PRIMARY_ARTERIAL",
+      "width": 640,
+      "height": 640,
+      "sha256": "b28c55190c6298d9dbade66a6e67288d184d72fd008827d16999c4b984989e4c",
+      "caption": "Illustrative sample (not real field imagery) \u2014 Pothole",
+      "badge": "illustrative sample \u2014 synthetic location",
+      "ground_truth": [
+        {
+          "class_code": "D40",
+          "class_name": "Pothole",
+          "bbox": [
+            150,
+            200,
+            370,
+            390
+          ]
+        }
+      ],
+      "ground_truth_boxes": [
+        {
+          "class_code": "D40",
+          "class_name": "Pothole",
+          "bbox": [
+            150,
+            200,
+            370,
+            390
+          ]
+        }
+      ],
+      "consent_privacy_note": "Procedurally generated texture; zero human or geographic data."
+    },
+    {
+      "id": "fixture_demo_alligator_historical_2",
+      "filename": "demo_alligator_historical_2.jpg",
+      "relative_path": "images/demo_alligator_historical_2.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "source_dataset": "RoadSense Synthetic Fixture Suite",
+      "file_id": "demo_alligator_historical_2",
+      "country": "Synthetic Test Environment",
+      "split": "demo_synthetic",
+      "license": "RoadSense Internal Apache-2.0 / MIT Fixture",
+      "attribution": "Procedurally generated for offline test execution",
+      "has_gps": false,
+      "latitude": 12.986,
+      "longitude": 77.608,
+      "location_provenance": "EXPLICIT_SYNTHETIC_DEMO",
+      "road_name": "Highway Eta (Synthetic Location)",
+      "road_classification": "PRIMARY_ARTERIAL",
+      "width": 640,
+      "height": 640,
+      "sha256": "0a4841a9eb58bc4dbef85455db275569281d9f3247c849898a81f5d8e1adf9ce",
+      "caption": "Illustrative sample (not real field imagery) \u2014 Alligator Crack",
+      "badge": "illustrative sample \u2014 synthetic location",
+      "ground_truth": [
+        {
+          "class_code": "D20",
+          "class_name": "Alligator Crack",
+          "bbox": [
+            140,
+            180,
+            460,
+            430
+          ]
+        }
+      ],
+      "ground_truth_boxes": [
+        {
+          "class_code": "D20",
+          "class_name": "Alligator Crack",
+          "bbox": [
+            140,
+            180,
+            460,
+            430
+          ]
+        }
+      ],
+      "consent_privacy_note": "Procedurally generated texture; zero human or geographic data."
+    },
+    {
+      "id": "fixture_demo_transverse_historical_3",
+      "filename": "demo_transverse_historical_3.jpg",
+      "relative_path": "images/demo_transverse_historical_3.jpg",
+      "origin": "synthetic_demo",
+      "is_real_imagery": false,
+      "source_dataset": "RoadSense Synthetic Fixture Suite",
+      "file_id": "demo_transverse_historical_3",
+      "country": "Synthetic Test Environment",
+      "split": "demo_synthetic",
+      "license": "RoadSense Internal Apache-2.0 / MIT Fixture",
+      "attribution": "Procedurally generated for offline test execution",
+      "has_gps": false,
+      "latitude": 12.968,
+      "longitude": 77.589,
+      "location_provenance": "EXPLICIT_SYNTHETIC_DEMO",
+      "road_name": "Avenue Theta (Synthetic Location)",
+      "road_classification": "SECONDARY_COLLECTOR",
+      "width": 640,
+      "height": 640,
+      "sha256": "ac85b79175d8dae632d115c93a8b0796f47a9456d153f0b95aa8d90a41222851",
+      "caption": "Illustrative sample (not real field imagery) \u2014 Transverse Crack",
+      "badge": "illustrative sample \u2014 synthetic location",
+      "ground_truth": [
+        {
+          "class_code": "D10",
+          "class_name": "Transverse Crack",
+          "bbox": [
+            100,
+            260,
+            520,
+            310
+          ]
+        }
+      ],
+      "ground_truth_boxes": [
+        {
+          "class_code": "D10",
+          "class_name": "Transverse Crack",
+          "bbox": [
+            100,
+            260,
+            520,
+            310
+          ]
+        }
+      ],
+      "consent_privacy_note": "Procedurally generated texture; zero human or geographic data."
+    }
+  ],
+  "videos": []
+}

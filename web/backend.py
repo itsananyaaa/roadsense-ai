@@ -412,10 +412,10 @@ def api_overview(user: str = Depends(require_authenticated_user)):
     # Offline-safe SVG avatar for municipal highway lead
     lead_avatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><circle cx='80' cy='80' r='80' fill='%231e293b'/><text x='80' y='96' font-size='42' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23ff2a85'>AI</text></svg>"
     inspector_profiles = [
-        {"name": "Chief Inspector Ananya", "email": "ananya.civic@gov.in", "avatar": lead_avatar},
-        {"name": "Municipal Officer T. White", "email": "t.white@civic.gov.in", "avatar": lead_avatar},
-        {"name": "Field Engineer E. Belle", "email": "e.belle@civic.gov.in", "avatar": lead_avatar},
-        {"name": "Highway Specialist M. Vance", "email": "m.vance@civic.gov.in", "avatar": lead_avatar},
+        {"name": "Chief Inspector Ananya", "email": "ananya@roadsense.example", "avatar": lead_avatar},
+        {"name": "Municipal Officer T. White", "email": "t.white@roadsense.example", "avatar": lead_avatar},
+        {"name": "Field Engineer E. Belle", "email": "e.belle@roadsense.example", "avatar": lead_avatar},
+        {"name": "Highway Specialist M. Vance", "email": "m.vance@roadsense.example", "avatar": lead_avatar},
     ]
 
     # Active incidents list (top 4 recent or pending)

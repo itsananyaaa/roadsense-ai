@@ -1,8 +1,34 @@
-# RoadSense AI - .gitignore
-# Strictly exclude data, weights, secrets, and caches
+# RoadSense AI — .gitignore
+# Strictly exclude sensitive credentials, local databases, runtime uploads, and large caches
 
-# Model weights and checkpoints
+# ==============================================================================
+# 1. Credentials, Secrets & Local Environments
+# ==============================================================================
+.env
+.env.*
+!.env.example
+.secrets.baseline
+.streamlit/secrets.toml
+*.pem
+*.key
+*.p12
+
+# ==============================================================================
+# 2. Local Databases & Persistence (SQLite runtime state)
+# ==============================================================================
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+instance/
+
+# ==============================================================================
+# 3. Model Weights & Checkpoints (> 50 MB or temporary smoke/run models)
+# ==============================================================================
 *.pt
+*.pth
 *.onnx
 *.engine
 *.tflite
@@ -12,25 +38,43 @@ runs/
 models/*.pt
 models/checkpoints/
 
-# Datasets and raw downloads
-data/
+# ==============================================================================
+# 4. Runtime Data, Evidence Uploads & Datasets
+# ==============================================================================
+data/*
+!data/demo_media/
+!data/demo_media/**
+!data/manifests/
+data/evidence/
+data/field_samples/
+data/smoke/
+scratch/
 datasets/
 RDD2022/
 *.zip
 *.tar.gz
 *.bin
 *.xml
-*.jpg
-*.jpeg
-*.png
+
+# Runtime media uploads
 *.mp4
 *.avi
 *.mov
+*.mkv
+*.jpg
+*.jpeg
+*.png
+*.webp
 !reports/*.png
 !docs/*.png
-/tmp/
+!data/demo_media/images/*.jpg
+!core/fonts/*.ttf
+!core/fonts/*.txt
+!web/static/assets/leaflet/*
 
-# Python & virtual environments
+# ==============================================================================
+# 5. Python & Virtual Environments
+# ==============================================================================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -41,12 +85,16 @@ venv/
 .venv/
 miniconda/
 
-# SQLite databases (local runtime state)
-*.db
-*.sqlite3
-instance/
+# ==============================================================================
+# 6. Test & Coverage Caches
+# ==============================================================================
+.pytest_cache/
+.coverage
+htmlcov/
 
-# IDE & OS
+# ==============================================================================
+# 7. IDE & Operating System Metadata
+# ==============================================================================
 .DS_Store
 .AppleDouble
 .LSOverride
@@ -55,16 +103,4 @@ instance/
 .idea/
 *.swp
 *.swo
-
-# Streamlit runtime
-.streamlit/secrets.toml
-
-# Test & coverage caches
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Environment and Secrets
-.env
-.env.*
-!.env.example
+/tmp/

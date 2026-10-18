@@ -38,11 +38,11 @@ The notebook contains self-contained cells that execute in sequence:
 
 Once Colab finishes training:
 1. Download `roadsense_artifacts.zip` from your Google Drive.
-2. Unzip the contents into your local workspace root `/Users/ananyabiju/Desktop/roadsense-ai`:
+2. Unzip the contents into your local repository workspace root:
    ```bash
-   cp ~/Downloads/best.pt /Users/ananyabiju/Desktop/roadsense-ai/models/best.pt
-   cp ~/Downloads/eval_*.json /Users/ananyabiju/Desktop/roadsense-ai/reports/
-   cp ~/Downloads/*.png /Users/ananyabiju/Desktop/roadsense-ai/reports/
+   cp ~/Downloads/best.pt models/best.pt
+   cp ~/Downloads/eval_*.json reports/
+   cp ~/Downloads/*.png reports/
    ```
 3. Verify local loading:
    ```bash

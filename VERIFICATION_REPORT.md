@@ -10,7 +10,7 @@
 
 ## 1. Executive Summary
 
-This verification report provides an exhaustive, evidence-backed evaluation of the **RoadSense AI** platform against all 16 mandatory acceptance criteria defined in [PLAN.md](file:///Users/ananyabiju/Desktop/roadsense-ai/PLAN.md) as well as the complete code audit and hardening priorities.
+This verification report provides an exhaustive, evidence-backed evaluation of the **RoadSense AI** platform against all 16 mandatory acceptance criteria defined in [PLAN.md](PLAN.md) as well as the complete code audit and hardening priorities.
 
 In accordance with strict verification standards, findings are separated into three transparent categories:
 - **Section 2:** Verified & Passed Criteria (Supported by automated test logs and physical artifacts)
@@ -49,7 +49,7 @@ The following items are designed for execution by human operators on external cl
 
 ### 3.1 Full 50-Epoch Cloud GPU Training (`ml/colab_train.ipynb`)
 - **Reason Not Executed Locally:** Full model training across the entire RDD2022 dataset (47,420 images, 526 MB India archive + 257 MB Czech archive) requires approximately 1.5–2.5 hours on an Nvidia T4/V100/A100 GPU. Training locally on a laptop battery/CPU would consume 10+ hours and thermal throttling.
-- **Operator Instructions Provided:** Complete instructions are documented in [MANUAL_STEPS.md](file:///Users/ananyabiju/Desktop/roadsense-ai/MANUAL_STEPS.md) and in the self-contained [ml/colab_train.ipynb](file:///Users/ananyabiju/Desktop/roadsense-ai/ml/colab_train.ipynb) notebook.
+- **Operator Instructions Provided:** Complete instructions are documented in [MANUAL_STEPS.md](MANUAL_STEPS.md) and in the self-contained [ml/colab_train.ipynb](ml/colab_train.ipynb) notebook.
 - **Local Validation Completed:** A 1-epoch local smoke training run on Apple Silicon MPS was successfully executed via `ml/train.py --mode smoke`, producing `models/smoke_test.pt` (5.2 MB) and verified checkpoint loading.
 
 ---
@@ -83,15 +83,15 @@ The following items are designed for execution by human operators on external cl
 
 ---
 
-## 6. Full Repository Automated Test Execution (82 Passed)
+## 6. Full Repository Automated Test Execution (91 Passed)
 
 ```text
 ============================= test session starts ==============================
-platform darwin -- Python 3.10.20, pytest-9.1.1, pluggy-1.7.0 -- /opt/miniconda3/envs/ml/bin/python3.10
+platform darwin -- Python 3.10.20, pytest-8.4.2, pluggy-1.5.0 -- /opt/miniconda3/envs/ml/bin/python3.10
 cachedir: .pytest_cache
-rootdir: /Users/ananyabiju/Desktop/roadsense-ai
-plugins: anyio-4.14.1
-collected 82 items
+rootdir: .
+plugins: anyio-4.10.0
+collected 91 items
 
 tests/test_all_pages.py::test_page_1_detect_damage PASSED                [  1%]
 tests/test_all_pages.py::test_page_2_video_intelligence PASSED           [  2%]

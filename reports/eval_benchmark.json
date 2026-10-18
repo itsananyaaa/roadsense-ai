@@ -2,7 +2,7 @@
   "evaluation_id": "eval_1792084161",
   "evaluated_at": "2026-10-15T21:09:21.940402",
   "model_architecture": "yolo26n",
-  "model_path": "/Users/ananyabiju/Desktop/roadsense-ai/models/smoke_test.pt",
+  "model_path": "models/smoke_test.pt",
   "model_file_size_mb": 5.2,
   "parameter_count": 2535344,
   "primary_inference_device": "mps",
