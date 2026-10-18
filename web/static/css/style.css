@@ -474,11 +474,32 @@ body {
   box-shadow: var(--shadow-card);
   position: relative;
   overflow: hidden;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.14);
+/* Universal Pinkish Aura Glow on Box Hover Across All Pages */
+.glass-card:hover,
+.telemetry-glass-card:hover,
+.hazard-highlight-card:hover,
+.analytics-metric-card:hover,
+.pipeline-flowchart-card:hover,
+.keyframe-card:hover,
+.login-card:hover,
+.copilot-assistant-card:hover,
+.report-preview-card:hover,
+.kpi-metric-card:hover,
+.methodology-card:hover,
+.metric-card:hover,
+.data-card:hover,
+.algo-benchmark-card:hover,
+.apriori-rule-card:hover,
+.posting-flow-card:hover,
+.data-table-wrapper:hover {
+  border-color: rgba(255, 42, 133, 0.65) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 24px rgba(255, 42, 133, 0.28) !important;
+  transform: translateY(-2px);
 }
 
 .card-header-flex {
@@ -693,6 +714,9 @@ body {
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 24px rgba(255, 42, 133, 0.12);
   position: relative;
   overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .hazard-highlight-card::before {
@@ -2998,3 +3022,428 @@ body.authenticated .app-container {
   }
 }
 
+/* =========================================================================
+   Data Tables & Methodology Visual Structures
+   ========================================================================= */
+
+/* Container wrapper with visible border outline and subtle inner shadow */
+.data-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(13, 16, 26, 0.7);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  margin-top: 14px;
+  margin-bottom: 14px;
+}
+
+/* Base Data Table Styling with Explicit Gridlines and High-Contrast Borders */
+.data-table,
+.methodology-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.82rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(15, 18, 30, 0.85);
+}
+
+.data-table thead tr,
+.methodology-table thead tr {
+  background: linear-gradient(180deg, #1f2438 0%, #16192a 100%);
+}
+
+.data-table th,
+.methodology-table th {
+  padding: 12px 14px;
+  color: #f8fafc;
+  font-weight: 700;
+  text-align: left;
+  font-size: 0.74rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.16);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background-clip: padding-box;
+}
+
+.data-table th:last-child,
+.methodology-table th:last-child {
+  border-right: none;
+}
+
+.data-table td,
+.methodology-table td {
+  padding: 12px 14px;
+  color: #cbd5e1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  vertical-align: middle;
+  line-height: 1.5;
+}
+
+.data-table td:last-child,
+.methodology-table td:last-child {
+  border-right: none;
+}
+
+.data-table tbody tr:last-child td,
+.methodology-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:nth-child(even),
+.methodology-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.data-table tbody tr:hover,
+.methodology-table tbody tr:hover {
+  background: rgba(255, 42, 133, 0.06);
+}
+
+.data-table tbody tr:hover td,
+.methodology-table tbody tr:hover td {
+  color: #fff;
+}
+
+/* Phase Badges for 5-Stage Pipeline */
+.phase-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 0.76rem;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  white-space: nowrap;
+}
+.phase-pill.p1 { background: rgba(239, 68, 68, 0.18); color: #f87171; border-color: rgba(239, 68, 68, 0.35); }
+.phase-pill.p2 { background: rgba(249, 115, 22, 0.18); color: #fb923c; border-color: rgba(249, 115, 22, 0.35); }
+.phase-pill.p3 { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border-color: rgba(245, 158, 11, 0.35); }
+.phase-pill.p4 { background: rgba(56, 189, 248, 0.18); color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); }
+.phase-pill.p5 { background: rgba(16, 185, 129, 0.18); color: #34d399; border-color: rgba(16, 185, 129, 0.35); }
+
+/* Format Chips */
+.format-chip {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-family: monospace;
+}
+.format-chip.in {
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+.format-chip.out {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Benefit Tags */
+.benefit-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-right: 6px;
+  white-space: nowrap;
+}
+.benefit-tag.success { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.benefit-tag.info { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+.benefit-tag.warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.benefit-tag.purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+
+/* Pipeline KPI Banner */
+.pipeline-kpi-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(19, 22, 36, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.kpi-bar-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+}
+.kpi-bar-chip .chip-label {
+  color: #94a3b8;
+}
+.kpi-bar-chip .chip-val {
+  font-weight: 700;
+  color: #fff;
+  font-family: monospace;
+}
+
+/* Metric Progress Cell (used in Apriori & Inverted Index) */
+.metric-progress-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mini-bar-track {
+  width: 55px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.mini-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+.mini-bar-fill.blue { background: #38bdf8; }
+.mini-bar-fill.green { background: #10b981; }
+.mini-bar-fill.pink { background: #ff2a85; }
+.mini-bar-fill.purple { background: #a855f7; }
+
+/* Apriori Token Badges */
+.defect-token {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+.defect-token.d00 { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+.defect-token.d10 { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
+.defect-token.d20 { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+.defect-token.d40 { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+/* Apriori Lift Badges */
+.lift-pill {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.lift-pill.lift-high {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(255, 42, 133, 0.25));
+  color: #f472b6;
+  border: 1px solid rgba(255, 42, 133, 0.4);
+}
+.lift-pill.lift-med {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+.lift-pill.lift-base {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+/* Deterioration Progression Flowchart */
+.deterioration-flowchart {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #111422;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+.flowchart-stage-box {
+  background: #181c2e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px 14px;
+  min-width: 175px;
+  flex: 1;
+}
+.flowchart-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.flowchart-connector .rule-metric-chip {
+  font-size: 0.68rem;
+  background: rgba(255, 42, 133, 0.15);
+  color: #ff2a85;
+  border: 1px solid rgba(255, 42, 133, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.flowchart-connector .rule-arrow-symbol {
+  color: #64748b;
+  font-size: 1.2rem;
+}
+
+/* Suitability Badges for Clustering */
+.suitability-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.suitability-pill.optimal {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+.suitability-pill.moderate {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+.suitability-pill.sub-optimal {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+.suitability-pill.poor {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+/* Clustering Algorithm Comparison Grid */
+.clustering-benchmark-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.algo-benchmark-card {
+  background: #121524;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+.algo-benchmark-card.chosen {
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.08) 0%, rgba(18, 21, 36, 0.95) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+}
+
+/* Inverted Index Posting Node Chips */
+.posting-chip {
+  display: inline-flex;
+  align-items: center;
+  background: #141726;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  padding: 2px 7px;
+  margin: 2px 3px 2px 0;
+  font-size: 0.72rem;
+  font-family: monospace;
+}
+.posting-chip .post-id {
+  color: #38bdf8;
+  margin-right: 5px;
+}
+.posting-chip .post-tf {
+  background: rgba(255, 42, 133, 0.18);
+  color: #f472b6;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+.posting-chip.more {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* Inverted Index Graphical Node Chain */
+.inverted-index-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #0f121d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.inverted-index-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.dict-term-badge {
+  width: 110px;
+  flex-shrink: 0;
+  background: #1c2035;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.78rem;
+  color: #38bdf8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.dict-arrow {
+  color: #ff2a85;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.posting-nodes-list {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.posting-node-box {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #171b2e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 0.72rem;
+  font-family: monospace;
+}
+.posting-node-box .node-doc { color: #f1f5f9; }
+.posting-node-box .node-tf {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+.node-link-arrow {
+  color: #64748b;
+  font-size: 0.75rem;
+}

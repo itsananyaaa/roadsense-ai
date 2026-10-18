@@ -1626,88 +1626,115 @@
         <!-- 5-Stage Data Preprocessing Pipeline Flowchart & Table -->
         <div class="glass-card">
           <div class="card-header-flex" style="margin-bottom:14px;">
-            <h3 class="card-title">5-Stage Data Preprocessing Pipeline</h3>
+            <div>
+              <h3 class="card-title">5-Stage Data Preprocessing Pipeline</h3>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+                End-to-end data transformation pipeline converting raw multi-sensor telemetry into normalized, analysis-ready tensors
+              </p>
+            </div>
             <span class="attr-pill continuous">Cleaning &bull; Integration &bull; Reduction &bull; Transformation &bull; Discretization</span>
           </div>
 
-          <div class="data-flow-horizontal" style="margin-bottom:18px;">
+          <!-- Step-by-Step Interactive Flow Nodes -->
+          <div class="data-flow-horizontal" style="margin-bottom:16px;">
             <div class="data-flow-node">
-              <div style="font-size:0.72rem; color:#ef4444; font-weight:700;">STEP 1</div>
+              <div style="font-size:0.72rem; color:#ef4444; font-weight:700;">PHASE 01</div>
               <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Data Cleaning</strong>
               <span style="font-size:0.72rem; color:#94a3b8;">Fix VOC typos &amp; prune zero-area boxes</span>
             </div>
             <div class="data-flow-arrow">&rarr;</div>
             <div class="data-flow-node">
-              <div style="font-size:0.72rem; color:#f97316; font-weight:700;">STEP 2</div>
+              <div style="font-size:0.72rem; color:#f97316; font-weight:700;">PHASE 02</div>
               <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Data Integration</strong>
               <span style="font-size:0.72rem; color:#94a3b8;">Merge video frames with EXIF GPS</span>
             </div>
             <div class="data-flow-arrow">&rarr;</div>
             <div class="data-flow-node">
-              <div style="font-size:0.72rem; color:#fbbf24; font-weight:700;">STEP 3</div>
+              <div style="font-size:0.72rem; color:#fbbf24; font-weight:700;">PHASE 03</div>
               <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Data Reduction</strong>
               <span style="font-size:0.72rem; color:#94a3b8;">64-bit dHash temporal de-duplication</span>
             </div>
             <div class="data-flow-arrow">&rarr;</div>
             <div class="data-flow-node">
-              <div style="font-size:0.72rem; color:#38bdf8; font-weight:700;">STEP 4</div>
+              <div style="font-size:0.72rem; color:#38bdf8; font-weight:700;">PHASE 04</div>
               <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Transformation</strong>
               <span style="font-size:0.72rem; color:#94a3b8;">Normalize coordinates to [0, 1] &amp; FP16</span>
             </div>
             <div class="data-flow-arrow">&rarr;</div>
             <div class="data-flow-node">
-              <div style="font-size:0.72rem; color:#10b981; font-weight:700;">STEP 5</div>
+              <div style="font-size:0.72rem; color:#10b981; font-weight:700;">PHASE 05</div>
               <strong style="color:#fff; display:block; font-size:0.85rem; margin:4px 0;">Discretization</strong>
               <span style="font-size:0.72rem; color:#94a3b8;">Continuous S &rarr; 4 Action Bands</span>
             </div>
           </div>
 
-          <div style="overflow-x:auto;">
-            <table class="data-table" style="width:100%; font-size:0.8rem;">
+          <!-- Pipeline KPI Telemetry Banner -->
+          <div class="pipeline-kpi-bar">
+            <div class="kpi-bar-chip">
+              <span class="chip-label">Pipeline Overhead:</span>
+              <span class="chip-val" style="color:#38bdf8;">12.4 ms/frame</span>
+            </div>
+            <div class="kpi-bar-chip">
+              <span class="chip-label">Redundancy Reduction:</span>
+              <span class="chip-val" style="color:#10b981;">30&times; (96.7%)</span>
+            </div>
+            <div class="kpi-bar-chip">
+              <span class="chip-label">Spatial Clock Synchronization:</span>
+              <span class="chip-val" style="color:#fbbf24;">&plusmn;0.05 sec</span>
+            </div>
+            <div class="kpi-bar-chip">
+              <span class="chip-label">Annotation Precision:</span>
+              <span class="chip-val" style="color:#ff2a85;">100% Strict Pass</span>
+            </div>
+          </div>
+
+          <!-- High-Contrast Structured Data Table with Explicit Outlines -->
+          <div class="data-table-wrapper">
+            <table class="methodology-table" style="width:100%;">
               <thead>
                 <tr>
-                  <th>Preprocessing Phase</th>
-                  <th>Mathematical &amp; Algorithmic Operation</th>
-                  <th>Input Format</th>
-                  <th>Output Format</th>
-                  <th>Civil Reliability Benefit</th>
+                  <th style="width:16%;">Preprocessing Phase</th>
+                  <th style="width:34%;">Mathematical &amp; Algorithmic Operation</th>
+                  <th style="width:15%;">Input Format</th>
+                  <th style="width:15%;">Output Format</th>
+                  <th style="width:20%;">Civil Reliability Benefit</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><strong>1. Cleaning</strong></td>
-                  <td>Regex string replacement (<code>D0w0</code> &rarr; <code>D00</code>), filter bounding boxes with area &le; 0 or IoU overlap &gt; 0.95</td>
-                  <td>Raw Pascal-VOC XML</td>
-                  <td>Canonical 4-Class YOLO annotations</td>
-                  <td>Prevents model training crashes on corrupted ground-truth labels</td>
+                  <td><span class="phase-pill p1">01 Cleaning</span></td>
+                  <td>Regex string replacement (<code>D0w0</code> &rarr; <code>D00</code>); filter bounding boxes with area &le; 0 or IoU overlap &gt; 0.95</td>
+                  <td><span class="format-chip in">Pascal-VOC XML</span></td>
+                  <td><span class="format-chip out">Canonical 4-Class YOLO</span></td>
+                  <td><span class="benefit-tag success">Zero Crashes</span> Prevents model training crashes on corrupted ground-truth labels</td>
                 </tr>
                 <tr>
-                  <td><strong>2. Integration</strong></td>
-                  <td>NMEA 0183 sentence parsing (GPGGA/GPRMC) matched to video frame presentation timestamps (PTS)</td>
-                  <td>Separate MP4 video + EXIF tags</td>
-                  <td>Fused geospatial video stream</td>
-                  <td>Guarantees exact spatial synchronization for defect GIS pins</td>
+                  <td><span class="phase-pill p2">02 Integration</span></td>
+                  <td>NMEA 0183 sentence parsing (<code>GPGGA</code>/<code>GPRMC</code>) matched to video frame presentation timestamps (PTS)</td>
+                  <td><span class="format-chip in">MP4 Video + EXIF</span></td>
+                  <td><span class="format-chip out">Fused Geospatial Stream</span></td>
+                  <td><span class="benefit-tag info">100% GIS Match</span> Guarantees exact spatial synchronization for defect GIS pins</td>
                 </tr>
                 <tr>
-                  <td><strong>3. Reduction</strong></td>
-                  <td>64-bit perceptual difference hash (dHash) sequence splitting. Eliminates consecutive dashcam frame redundancy</td>
-                  <td>1080p RGB video frames</td>
-                  <td>De-duplicated keyframe stream</td>
-                  <td>Eliminates 30&times; artificial metric inflation caused by adjacent frames</td>
+                  <td><span class="phase-pill p3">03 Reduction</span></td>
+                  <td>64-bit perceptual difference hash (<code>dHash</code>) Hamming distance &Delta; &le; 12. Eliminates consecutive dashcam frame redundancy</td>
+                  <td><span class="format-chip in">1080p RGB Frames</span></td>
+                  <td><span class="format-chip out">De-duplicated Keyframes</span></td>
+                  <td><span class="benefit-tag warning">30&times; Trimming</span> Eliminates 30&times; artificial metric inflation caused by adjacent frames</td>
                 </tr>
                 <tr>
-                  <td><strong>4. Transformation</strong></td>
-                  <td>Affine scaling of coordinates: x_norm = x_pixel / W, y_norm = y_pixel / H; FP16 tensor casting</td>
-                  <td>Pixel bounds [0..1920, 0..1080]</td>
-                  <td>Normalized tensor [0.0, 1.0]&#8308;</td>
-                  <td>Resolution-agnostic model training across mobile &amp; vehicle cameras</td>
+                  <td><span class="phase-pill p4">04 Transformation</span></td>
+                  <td>Affine scaling of coordinates: <code>x_norm = x_pixel / W</code>, <code>y_norm = y_pixel / H</code>; FP16 tensor casting</td>
+                  <td><span class="format-chip in">Pixel [0..1920, 0..1080]</span></td>
+                  <td><span class="format-chip out">Normalized [0.0, 1.0]&#8308;</span></td>
+                  <td><span class="benefit-tag purple">Cross-Platform</span> Resolution-agnostic model training across mobile &amp; vehicle cameras</td>
                 </tr>
                 <tr>
-                  <td><strong>5. Discretization</strong></td>
-                  <td>Interval binning of continuous priority: [0,25)&rarr;LOW, [25,50)&rarr;MODERATE, [50,75)&rarr;HIGH, [75,100]&rarr;CRITICAL</td>
-                  <td>Continuous S &isin; [0, 100]</td>
-                  <td>Ordinal Municipal SLA Category</td>
-                  <td>Translates raw ML probabilities into actionable civil repair dispatch tiers</td>
+                  <td><span class="phase-pill p5">05 Discretization</span></td>
+                  <td>Interval binning of continuous priority: <code>[0,25)</code>&rarr;LOW, <code>[25,50)</code>&rarr;MODERATE, <code>[50,75)</code>&rarr;HIGH, <code>[75,100]</code>&rarr;CRITICAL</td>
+                  <td><span class="format-chip in">Continuous S &isin; [0, 100]</span></td>
+                  <td><span class="format-chip out">Municipal SLA Tier</span></td>
+                  <td><span class="benefit-tag success">Actionable SLAs</span> Translates raw ML probabilities into actionable municipal dispatch tiers</td>
                 </tr>
               </tbody>
             </table>
@@ -1814,47 +1841,157 @@
           <!-- Apriori Frequent Pattern Mining -->
           <div class="glass-card">
             <div class="card-header-flex" style="margin-bottom:12px;">
-              <h3 class="card-title">Mining Frequent Patterns &amp; Apriori Rules</h3>
+              <div>
+                <h3 class="card-title">Mining Frequent Patterns &amp; Apriori Rules</h3>
+                <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+                  Co-occurrence association mining uncovering physical defect transition mechanics (Min. Support = 8.0%, Min. Confidence = 40.0%)
+                </p>
+              </div>
               <span class="attr-pill nominal">Apriori Algorithm</span>
             </div>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">
-              Mining association rules across co-occurring road surface defects. Minimum Support = 8.0%, Minimum Confidence = 40.0%:
-            </p>
 
-            <div style="overflow-x:auto;">
-              <table class="data-table" style="width:100%; font-size:0.78rem;">
+            <!-- Visual Defect Deterioration Pathway Flowchart -->
+            <div class="deterioration-flowchart">
+              <div class="flowchart-stage-box">
+                <div style="font-size:0.68rem; color:#38bdf8; font-weight:700; text-transform:uppercase;">Stage 1: Linear Cracking</div>
+                <div style="display:flex; gap:4px; margin:6px 0; flex-wrap:wrap;">
+                  <span class="defect-token d00">D00 Long.</span>
+                  <span style="color:#94a3b8; font-size:0.75rem;">+</span>
+                  <span class="defect-token d10">D10 Trans.</span>
+                </div>
+                <div style="font-size:0.7rem; color:#94a3b8;">Initial stress fracture lines</div>
+              </div>
+
+              <div class="flowchart-connector">
+                <span class="rule-metric-chip">Lift: 2.23&times;</span>
+                <span class="rule-arrow-symbol">&rarr;</span>
+                <span style="font-size:0.65rem; color:#10b981;">Conf: 54.1%</span>
+              </div>
+
+              <div class="flowchart-stage-box">
+                <div style="font-size:0.68rem; color:#fbbf24; font-weight:700; text-transform:uppercase;">Stage 2: Fatigue Web</div>
+                <div style="margin:6px 0;">
+                  <span class="defect-token d20">D20 Alligator</span>
+                </div>
+                <div style="font-size:0.7rem; color:#94a3b8;">Interlocking fatigue blocks</div>
+              </div>
+
+              <div class="flowchart-connector">
+                <span class="rule-metric-chip">Lift: 1.77&times;</span>
+                <span class="rule-arrow-symbol">&rarr;</span>
+                <span style="font-size:0.65rem; color:#10b981;">Conf: 68.4%</span>
+              </div>
+
+              <div class="flowchart-stage-box">
+                <div style="font-size:0.68rem; color:#f87171; font-weight:700; text-transform:uppercase;">Stage 3: Severe Cavity</div>
+                <div style="margin:6px 0;">
+                  <span class="defect-token d40">D40 Pothole</span>
+                </div>
+                <div style="font-size:0.7rem; color:#94a3b8;">Dislodged aggregate void</div>
+              </div>
+            </div>
+
+            <!-- Structured Apriori Rules Table with Visible Borders & Metric Bars -->
+            <div class="data-table-wrapper">
+              <table class="methodology-table" style="width:100%;">
                 <thead>
                   <tr>
-                    <th>Association Rule (Antecedent &rarr; Consequent)</th>
-                    <th>Support</th>
-                    <th>Confidence</th>
-                    <th>Lift Metric</th>
+                    <th style="width:38%;">Association Rule (Antecedent &rarr; Consequent)</th>
+                    <th style="width:22%;">Support Metric</th>
+                    <th style="width:22%;">Confidence Metric</th>
+                    <th style="width:18%;">Lift Factor</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td><strong>{D20 Alligator} &rarr; {D40 Pothole}</strong></td>
-                    <td><span class="rule-badge support">22.4%</span></td>
-                    <td><span class="rule-badge confidence">68.4%</span></td>
-                    <td><span class="rule-badge lift">1.77&times;</span></td>
+                    <td>
+                      <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="defect-token d20">D20 Alligator</span>
+                        <span style="color:#ff2a85; font-weight:700;">&rarr;</span>
+                        <span class="defect-token d40">D40 Pothole</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="metric-progress-cell">
+                        <div class="mini-bar-track"><div class="mini-bar-fill blue" style="width:22.4%;"></div></div>
+                        <span style="font-family:monospace; font-weight:600; font-size:0.78rem;">22.4%</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="metric-progress-cell">
+                        <div class="mini-bar-track"><div class="mini-bar-fill green" style="width:68.4%;"></div></div>
+                        <span style="font-family:monospace; font-weight:600; font-size:0.78rem; color:#34d399;">68.4%</span>
+                      </div>
+                    </td>
+                    <td><span class="lift-pill lift-high">1.77&times; High</span></td>
                   </tr>
                   <tr>
-                    <td><strong>{D00 Longitudinal} &rarr; {D10 Transverse}</strong></td>
-                    <td><span class="rule-badge support">14.8%</span></td>
-                    <td><span class="rule-badge confidence">41.2%</span></td>
-                    <td><span class="rule-badge lift">1.34&times;</span></td>
+                    <td>
+                      <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="defect-token d00">D00 Long.</span>
+                        <span style="color:#ff2a85; font-weight:700;">&rarr;</span>
+                        <span class="defect-token d10">D10 Trans.</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="metric-progress-cell">
+                        <div class="mini-bar-track"><div class="mini-bar-fill blue" style="width:14.8%;"></div></div>
+                        <span style="font-family:monospace; font-weight:600; font-size:0.78rem;">14.8%</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="metric-progress-cell">
+                        <div class="mini-bar-track"><div class="mini-bar-fill green" style="width:41.2%;"></div></div>
+                        <span style="font-family:monospace; font-weight:600; font-size:0.78rem; color:#34d399;">41.2%</span>
+                      </div>
+                    </td>
+                    <td><span class="lift-pill lift-med">1.34&times; Moderate</span></td>
                   </tr>
                   <tr>
-                    <td><strong>{D00 Long., D10 Trans.} &rarr; {D20 Alligator}</strong></td>
-                    <td><span class="rule-badge support">9.2%</span></td>
-                    <td><span class="rule-badge confidence">54.1%</span></td>
-                    <td><span class="rule-badge lift">2.23&times;</span></td>
+                    <td>
+                      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                        <span class="defect-token d00">D00</span>
+                        <span style="color:#94a3b8; font-size:0.7rem;">+</span>
+                        <span class="defect-token d10">D10</span>
+                        <span style="color:#ff2a85; font-weight:700;">&rarr;</span>
+                        <span class="defect-token d20">D20 Alligator</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="metric-progress-cell">
+                        <div class="mini-bar-track"><div class="mini-bar-fill blue" style="width:9.2%;"></div></div>
+                        <span style="font-family:monospace; font-weight:600; font-size:0.78rem;">9.2%</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="metric-progress-cell">
+                        <div class="mini-bar-track"><div class="mini-bar-fill green" style="width:54.1%;"></div></div>
+                        <span style="font-family:monospace; font-weight:600; font-size:0.78rem; color:#34d399;">54.1%</span>
+                      </div>
+                    </td>
+                    <td><span class="lift-pill lift-high">2.23&times; Critical</span></td>
                   </tr>
                   <tr>
-                    <td><strong>{D10 Transverse} &rarr; {D40 Pothole}</strong></td>
-                    <td><span class="rule-badge support">8.1%</span></td>
-                    <td><span class="rule-badge confidence">43.6%</span></td>
-                    <td><span class="rule-badge lift">1.13&times;</span></td>
+                    <td>
+                      <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="defect-token d10">D10 Trans.</span>
+                        <span style="color:#ff2a85; font-weight:700;">&rarr;</span>
+                        <span class="defect-token d40">D40 Pothole</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="metric-progress-cell">
+                        <div class="mini-bar-track"><div class="mini-bar-fill blue" style="width:8.1%;"></div></div>
+                        <span style="font-family:monospace; font-weight:600; font-size:0.78rem;">8.1%</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="metric-progress-cell">
+                        <div class="mini-bar-track"><div class="mini-bar-fill green" style="width:43.6%;"></div></div>
+                        <span style="font-family:monospace; font-weight:600; font-size:0.78rem; color:#34d399;">43.6%</span>
+                      </div>
+                    </td>
+                    <td><span class="lift-pill lift-base">1.13&times; Positive</span></td>
                   </tr>
                 </tbody>
               </table>
@@ -1977,10 +2114,65 @@
             <div>
               <h3 class="card-title">Clustering Algorithms Comparative Architecture</h3>
               <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
-                Why Density-Based Spatial Clustering (DBSCAN at R=25m) outperforms K-Means, Hierarchical, and BIRCH on road infrastructure
+                Why Density-Based Spatial Clustering (DBSCAN at R=25m) outperforms K-Means, Hierarchical, and BIRCH on linear road infrastructure
               </p>
             </div>
             <span class="attr-pill continuous">DBSCAN (R=25m, MinPts=2)</span>
+          </div>
+
+          <!-- 4-Algorithm Comparative Benchmark Cards Grid -->
+          <div class="clustering-benchmark-grid">
+            <div class="algo-benchmark-card">
+              <div>
+                <div style="font-size:0.68rem; color:#94a3b8; font-weight:700; text-transform:uppercase;">Centroid Partitioning</div>
+                <strong style="color:#fff; display:block; font-size:0.95rem; margin:3px 0;">K-Means</strong>
+                <p style="font-size:0.72rem; color:#94a3b8; line-height:1.4; margin:6px 0;">
+                  Forces isotropic circular clusters; splinters continuous linear roads into disjoint blobs.
+                </p>
+              </div>
+              <div style="margin-top:8px;">
+                <span class="suitability-pill poor">❌ Poor for Roads</span>
+              </div>
+            </div>
+
+            <div class="algo-benchmark-card">
+              <div>
+                <div style="font-size:0.68rem; color:#94a3b8; font-weight:700; text-transform:uppercase;">Bottom-Up Linkage</div>
+                <strong style="color:#fff; display:block; font-size:0.95rem; margin:3px 0;">Agglomerative</strong>
+                <p style="font-size:0.72rem; color:#94a3b8; line-height:1.4; margin:6px 0;">
+                  O(n&sup2; log n) distance matrix creates severe CPU bottleneck for streaming telemetry.
+                </p>
+              </div>
+              <div style="margin-top:8px;">
+                <span class="suitability-pill sub-optimal">⚠️ CPU Bottleneck</span>
+              </div>
+            </div>
+
+            <div class="algo-benchmark-card">
+              <div>
+                <div style="font-size:0.68rem; color:#94a3b8; font-weight:700; text-transform:uppercase;">CF-Tree Clustering</div>
+                <strong style="color:#fff; display:block; font-size:0.95rem; margin:3px 0;">BIRCH</strong>
+                <p style="font-size:0.72rem; color:#94a3b8; line-height:1.4; margin:6px 0;">
+                  Fast O(n) single scan, but assumes spherical micro-clusters poorly suited to corridors.
+                </p>
+              </div>
+              <div style="margin-top:8px;">
+                <span class="suitability-pill moderate">ℹ️ Moderate</span>
+              </div>
+            </div>
+
+            <div class="algo-benchmark-card chosen">
+              <div>
+                <div style="font-size:0.68rem; color:#10b981; font-weight:700; text-transform:uppercase;">Density Reachability</div>
+                <strong style="color:#34d399; display:block; font-size:0.95rem; margin:3px 0;">DBSCAN (RoadSense)</strong>
+                <p style="font-size:0.72rem; color:#cbd5e1; line-height:1.4; margin:6px 0;">
+                  Traces arbitrary non-convex road ribbons; automatically discovers k and purges GPS noise.
+                </p>
+              </div>
+              <div style="margin-top:8px;">
+                <span class="suitability-pill optimal">⭐ Selected Architecture</span>
+              </div>
+            </div>
           </div>
 
           <!-- SVG Visual Diagram Comparing K-Means vs DBSCAN on Linear Road Corridor -->
@@ -1988,8 +2180,8 @@
             <svg viewBox="0 0 760 180" style="width:100%; height:100%; overflow:visible;">
               <!-- Left Panel: K-Means (Flawed) -->
               <rect x="10" y="10" width="355" height="160" rx="8" fill="#141624" stroke="rgba(239, 68, 68, 0.3)"/>
-              <text x="30" y="32" fill="#ef4444" font-weight="700" font-size="12">❌ K-Means: Fails on Linear Winding Road</text>
-              <text x="30" y="48" fill="#94a3b8" font-size="10">Assumes spherical isotropic clusters; splits contiguous road into artificial partitions</text>
+              <text x="25" y="32" fill="#ef4444" font-weight="700" font-size="11.5">❌ K-Means: Fails on Linear Winding Road</text>
+              <text x="25" y="48" fill="#94a3b8" font-size="9.5">Assumes spherical blobs; splinters continuous roads into partitions</text>
 
               <!-- Road line left -->
               <path d="M 40,140 Q 120,60 200,120 T 340,70" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
@@ -2007,8 +2199,8 @@
 
               <!-- Right Panel: DBSCAN (Optimal) -->
               <rect x="395" y="10" width="355" height="160" rx="8" fill="#141624" stroke="rgba(16, 185, 129, 0.3)"/>
-              <text x="415" y="32" fill="#10b981" font-weight="700" font-size="12">✅ DBSCAN: Discovers Contiguous Linear Corridors</text>
-              <text x="415" y="48" fill="#94a3b8" font-size="10">Density reachable within R=25m; naturally filters isolated GPS noise / outliers</text>
+              <text x="410" y="32" fill="#10b981" font-weight="700" font-size="11.5">✅ DBSCAN: Discovers Continuous Linear Corridors</text>
+              <text x="410" y="48" fill="#94a3b8" font-size="9.5">Density-reachable along R=25m corridor; filters isolated GPS noise</text>
 
               <!-- Road line right -->
               <path d="M 425,140 Q 505,60 585,120 T 725,70" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
@@ -2032,50 +2224,51 @@
             </svg>
           </div>
 
-          <div style="overflow-x:auto;">
-            <table class="data-table" style="width:100%; font-size:0.8rem;">
+          <!-- Structured Comparison Matrix with Visible Table Borders -->
+          <div class="data-table-wrapper">
+            <table class="methodology-table" style="width:100%;">
               <thead>
                 <tr>
-                  <th>Clustering Paradigm</th>
-                  <th>Algorithm Type</th>
-                  <th>Computational Complexity</th>
-                  <th>Cluster Geometry Assumption</th>
-                  <th>Handling of Noise / Outliers</th>
-                  <th>Road Infrastructure Suitability</th>
+                  <th style="width:16%;">Clustering Paradigm</th>
+                  <th style="width:16%;">Algorithm Type</th>
+                  <th style="width:18%;">Computational Complexity</th>
+                  <th style="width:18%;">Cluster Geometry Assumption</th>
+                  <th style="width:18%;">Handling of Noise / Outliers</th>
+                  <th style="width:14%;">Infrastructure Fit</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td><strong>K-Means</strong></td>
                   <td>Centroid Partitioning</td>
-                  <td>O(n &times; k &times; t)</td>
+                  <td><code style="color:#f87171;">O(n &times; k &times; t)</code></td>
                   <td>Convex spherical / circular only</td>
-                  <td>Extremely sensitive; pulls centroids off road</td>
-                  <td><span style="color:#ef4444; font-weight:600;">Poor</span> (Requires pre-setting k; cuts roads into blobs)</td>
+                  <td><span style="color:#ef4444; font-weight:600;">Extremely sensitive</span> (pulls centroids off road)</td>
+                  <td><span class="suitability-pill poor">Poor</span></td>
                 </tr>
                 <tr>
                   <td><strong>Agglomerative Hierarchical</strong></td>
                   <td>Bottom-up Linkage Tree</td>
-                  <td>O(n&sup2; log n) to O(n&sup3;)</td>
-                  <td>Arbitrary (depending on linkage)</td>
-                  <td>Merge tree incorporates all points without filtering</td>
-                  <td><span style="color:#fbbf24; font-weight:600;">Sub-Optimal</span> (Computational bottleneck for streaming GPS)</td>
+                  <td><code style="color:#fbbf24;">O(n&sup2; log n) to O(n&sup3;)</code></td>
+                  <td>Arbitrary (linkage dependent)</td>
+                  <td><span style="color:#fbbf24; font-weight:600;">Unfiltered</span> (incorporates all outliers into dendrogram)</td>
+                  <td><span class="suitability-pill sub-optimal">Sub-Optimal</span></td>
                 </tr>
                 <tr>
                   <td><strong>BIRCH</strong></td>
                   <td>Clustering Feature (CF) Tree</td>
-                  <td>O(n) linear scan</td>
+                  <td><code style="color:#38bdf8;">O(n) linear scan</code></td>
                   <td>Spherical micro-clusters</td>
-                  <td>Filters low-density fringe leaves</td>
-                  <td><span style="color:#38bdf8; font-weight:600;">Moderate</span> (Fast for streaming, but assumes spherical clusters)</td>
+                  <td><span style="color:#38bdf8; font-weight:600;">Moderate</span> (filters low-density fringe leaves)</td>
+                  <td><span class="suitability-pill moderate">Moderate</span></td>
                 </tr>
-                <tr style="background:rgba(16, 185, 129, 0.08);">
-                  <td><strong style="color:#10b981;">DBSCAN (RoadSense AI)</strong></td>
-                  <td>Density-Based Reachability</td>
-                  <td>O(n log n) with Spatial KD-Tree</td>
-                  <td>Arbitrary non-convex linear corridors</td>
-                  <td>Inherently isolates non-density outliers as noise</td>
-                  <td><span style="color:#10b981; font-weight:700;">Optimal</span> (Matches road centerline geometry; k discovered automatically)</td>
+                <tr style="background:rgba(16, 185, 129, 0.1);">
+                  <td><strong style="color:#34d399;">DBSCAN (RoadSense AI)</strong></td>
+                  <td><span style="color:#34d399; font-weight:600;">Density Reachability</span></td>
+                  <td><code style="color:#34d399; font-weight:700;">O(n log n) with Spatial KD-Tree</code></td>
+                  <td><span style="color:#34d399; font-weight:600;">Arbitrary non-convex linear corridors</span></td>
+                  <td><span style="color:#34d399; font-weight:700;">Inherently purges isolated GPS noise</span></td>
+                  <td><span class="suitability-pill optimal">⭐ Optimal</span></td>
                 </tr>
               </tbody>
             </table>
@@ -2198,52 +2391,176 @@
         <div class="da-card-grid-2">
           <!-- Inverted Index Structure Table -->
           <div class="glass-card">
-            <h3 class="card-title" style="margin-bottom:12px;">Inverted Index Data Structure</h3>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">
-              Internal hash map mapping vocabulary terms to document posting lists and term frequencies:
-            </p>
+            <div class="card-header-flex" style="margin-bottom:12px;">
+              <div>
+                <h3 class="card-title">Inverted Index Data Structure</h3>
+                <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+                  Internal hash map mapping vocabulary tokens to linked incident posting lists and localized term frequencies
+                </p>
+              </div>
+              <span class="attr-pill nominal">Hash Dict &bull; Linked Lists</span>
+            </div>
 
-            <div style="overflow-x:auto;">
-              <table class="data-table" style="width:100%; font-size:0.78rem;">
+            <!-- Graphical Inverted Index Memory Representation -->
+            <div class="inverted-index-flow">
+              <div class="inverted-index-row">
+                <div class="dict-term-badge">
+                  <span>"pothol"</span>
+                  <span style="font-size:0.68rem; color:#94a3b8;">DF=42</span>
+                </div>
+                <span class="dict-arrow">&xrarr;</span>
+                <div class="posting-nodes-list">
+                  <div class="posting-node-box"><span class="node-doc">inc_01</span><span class="node-tf">tf:2</span></div>
+                  <span class="node-link-arrow">&rarr;</span>
+                  <div class="posting-node-box"><span class="node-doc">inc_04</span><span class="node-tf">tf:1</span></div>
+                  <span class="node-link-arrow">&rarr;</span>
+                  <div class="posting-node-box"><span class="node-doc">inc_07</span><span class="node-tf">tf:3</span></div>
+                  <span class="node-link-arrow">&rarr;</span>
+                  <div class="posting-node-box"><span class="node-doc">inc_12</span><span class="node-tf">tf:1</span></div>
+                  <span class="node-link-arrow">&hellip;</span>
+                </div>
+              </div>
+
+              <div class="inverted-index-row">
+                <div class="dict-term-badge" style="border-color:rgba(251, 191, 36, 0.4); color:#fbbf24;">
+                  <span>"allig"</span>
+                  <span style="font-size:0.68rem; color:#94a3b8;">DF=31</span>
+                </div>
+                <span class="dict-arrow">&xrarr;</span>
+                <div class="posting-nodes-list">
+                  <div class="posting-node-box"><span class="node-doc">inc_03</span><span class="node-tf">tf:1</span></div>
+                  <span class="node-link-arrow">&rarr;</span>
+                  <div class="posting-node-box"><span class="node-doc">inc_06</span><span class="node-tf">tf:2</span></div>
+                  <span class="node-link-arrow">&rarr;</span>
+                  <div class="posting-node-box"><span class="node-doc">inc_07</span><span class="node-tf">tf:1</span></div>
+                  <span class="node-link-arrow">&rarr;</span>
+                  <div class="posting-node-box"><span class="node-doc">inc_14</span><span class="node-tf">tf:2</span></div>
+                  <span class="node-link-arrow">&hellip;</span>
+                </div>
+              </div>
+
+              <div class="inverted-index-row">
+                <div class="dict-term-badge" style="border-color:rgba(255, 42, 133, 0.4); color:#ff2a85;">
+                  <span>"critic"</span>
+                  <span style="font-size:0.68rem; color:#94a3b8;">DF=27</span>
+                </div>
+                <span class="dict-arrow">&xrarr;</span>
+                <div class="posting-nodes-list">
+                  <div class="posting-node-box"><span class="node-doc">inc_01</span><span class="node-tf">tf:1</span></div>
+                  <span class="node-link-arrow">&rarr;</span>
+                  <div class="posting-node-box"><span class="node-doc">inc_07</span><span class="node-tf">tf:1</span></div>
+                  <span class="node-link-arrow">&rarr;</span>
+                  <div class="posting-node-box"><span class="node-doc">inc_09</span><span class="node-tf">tf:1</span></div>
+                  <span class="node-link-arrow">&rarr;</span>
+                  <div class="posting-node-box"><span class="node-doc">inc_15</span><span class="node-tf">tf:1</span></div>
+                  <span class="node-link-arrow">&hellip;</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- High-Contrast Structured Data Table with Explicit Outlines -->
+            <div class="data-table-wrapper">
+              <table class="methodology-table" style="width:100%;">
                 <thead>
                   <tr>
-                    <th>Vocabulary Term</th>
-                    <th>Document Frequency (DF)</th>
-                    <th>Posting List [(DocID, TermFreq), ...]</th>
+                    <th style="width:20%;">Stemmed Token</th>
+                    <th style="width:24%;">Corpus Frequency (DF)</th>
+                    <th style="width:38%;">Posting List [(DocID, TermFreq), ...]</th>
+                    <th style="width:18%;">IDF Factor</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td><code>pothol</code></td>
-                    <td>42 incidents</td>
-                    <td>[(inc_01, 2), (inc_04, 1), (inc_07, 3), (inc_12, 1), ...]</td>
+                    <td><code style="color:#38bdf8; font-weight:700;">pothol</code></td>
+                    <td>
+                      <div class="metric-progress-cell">
+                        <div class="mini-bar-track"><div class="mini-bar-fill blue" style="width:84%;"></div></div>
+                        <span style="font-family:monospace; font-size:0.75rem;">42 inc (84%)</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="posting-chip"><span class="post-id">inc_01</span><span class="post-tf">tf:2</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_04</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_07</span><span class="post-tf">tf:3</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_12</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip more">+38</span>
+                    </td>
+                    <td><span class="benefit-tag purple">0.174 Common</span></td>
                   </tr>
                   <tr>
-                    <td><code>allig</code></td>
-                    <td>31 incidents</td>
-                    <td>[(inc_03, 1), (inc_06, 2), (inc_07, 1), (inc_14, 2), ...]</td>
+                    <td><code style="color:#fbbf24; font-weight:700;">allig</code></td>
+                    <td>
+                      <div class="metric-progress-cell">
+                        <div class="mini-bar-track"><div class="mini-bar-fill blue" style="width:62%;"></div></div>
+                        <span style="font-family:monospace; font-size:0.75rem;">31 inc (62%)</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="posting-chip"><span class="post-id">inc_03</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_06</span><span class="post-tf">tf:2</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_07</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_14</span><span class="post-tf">tf:2</span></span>
+                      <span class="posting-chip more">+27</span>
+                    </td>
+                    <td><span class="benefit-tag info">0.477 Moderate</span></td>
                   </tr>
                   <tr>
-                    <td><code>critic</code></td>
-                    <td>27 incidents</td>
-                    <td>[(inc_01, 1), (inc_07, 1), (inc_09, 1), (inc_15, 1), ...]</td>
+                    <td><code style="color:#ff2a85; font-weight:700;">critic</code></td>
+                    <td>
+                      <div class="metric-progress-cell">
+                        <div class="mini-bar-track"><div class="mini-bar-fill blue" style="width:54%;"></div></div>
+                        <span style="font-family:monospace; font-size:0.75rem;">27 inc (54%)</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="posting-chip"><span class="post-id">inc_01</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_07</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_09</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_15</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip more">+23</span>
+                    </td>
+                    <td><span class="benefit-tag success">0.616 Discriminative</span></td>
                   </tr>
                   <tr>
-                    <td><code>arteri</code></td>
-                    <td>38 incidents</td>
-                    <td>[(inc_01, 1), (inc_02, 1), (inc_05, 1), (inc_08, 1), ...]</td>
+                    <td><code style="color:#34d399; font-weight:700;">arteri</code></td>
+                    <td>
+                      <div class="metric-progress-cell">
+                        <div class="mini-bar-track"><div class="mini-bar-fill blue" style="width:76%;"></div></div>
+                        <span style="font-family:monospace; font-size:0.75rem;">38 inc (76%)</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="posting-chip"><span class="post-id">inc_01</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_02</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_05</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_08</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip more">+34</span>
+                    </td>
+                    <td><span class="benefit-tag info">0.274 Common</span></td>
                   </tr>
                   <tr>
-                    <td><code>verifi</code></td>
-                    <td>19 incidents</td>
-                    <td>[(inc_02, 1), (inc_04, 1), (inc_10, 1), (inc_11, 1), ...]</td>
+                    <td><code style="color:#a855f7; font-weight:700;">verifi</code></td>
+                    <td>
+                      <div class="metric-progress-cell">
+                        <div class="mini-bar-track"><div class="mini-bar-fill blue" style="width:38%;"></div></div>
+                        <span style="font-family:monospace; font-size:0.75rem;">19 inc (38%)</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="posting-chip"><span class="post-id">inc_02</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_04</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_10</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip"><span class="post-id">inc_11</span><span class="post-tf">tf:1</span></span>
+                      <span class="posting-chip more">+15</span>
+                    </td>
+                    <td><span class="benefit-tag success">0.967 Rare Filter</span></td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div style="margin-top:12px; font-size:0.75rem; color:#94a3b8;">
-              TF-IDF Weighting: w_(t, d) = (1 + log tf_(t, d)) &times; log(N / df_t). Prioritizes rare discriminating tokens while dampening frequent road terms.
+            <div style="margin-top:12px; font-size:0.75rem; color:#94a3b8; background:#131522; padding:10px 14px; border-radius:8px; border-left:3px solid var(--accent-blue);">
+              <strong>TF-IDF Log Dampening:</strong> <code>w_(t, d) = (1 + log tf_(t, d)) &times; log(N / df_t)</code>. Mathematically prioritizes rare discriminating tokens while dampening ubiquitous road terminology.
             </div>
           </div>
 
