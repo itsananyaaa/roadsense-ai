@@ -161,6 +161,8 @@ class DamageDetector:
                         "No model checkpoint found. Please download best.pt into models/ or use Guided Demo Mode."
                     )
                 self.load_model()
+            if self._model is None:
+                raise ModelWeightsNotFoundError("Failed to load model checkpoint.")
 
             # Run inference under torch.inference_mode with device fallback
             with torch.inference_mode():
@@ -311,7 +313,7 @@ class DamageDetector:
                 return img
 
         if isinstance(image_input, Image.Image):
-            if image_input.size[0] * image_input.size[1] > Image.MAX_IMAGE_PIXELS:
+            if Image.MAX_IMAGE_PIXELS is not None and image_input.size[0] * image_input.size[1] > Image.MAX_IMAGE_PIXELS:
                 raise InvalidImageInputError(f"Image dimensions ({image_input.size[0]}x{image_input.size[1]}) exceed safety limits.")
             pil_img = ImageOps.exif_transpose(image_input)
             if pil_img.mode != "RGB":

@@ -294,7 +294,7 @@ def seed_demo_database(reset_existing: bool = True) -> int:
         assets = DEMO_FIXTURES
 
     count = 0
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
 
     for idx, item in enumerate(assets):
         fname = item["filename"]
@@ -352,7 +352,7 @@ def seed_demo_database(reset_existing: bool = True) -> int:
             max_conf = 0.0
 
         days_ago = item.get("days_ago", idx * 5)
-        ts_str = (datetime.utcnow() - timedelta(days=days_ago)).strftime("%Y-%m-%d %H:%M:%S")
+        ts_str = (datetime.now(timezone.utc) - timedelta(days=days_ago)).strftime("%Y-%m-%d %H:%M:%S")
 
         badge = item.get("badge", "illustrative sample — synthetic location")
         notes = f"[{badge}] {item.get('notes', item.get('caption', 'Demonstration survey incident'))}"

@@ -114,8 +114,13 @@ def convert_voc_xml_to_yolo(xml_path: Path, output_txt_path: Path) -> int:
     if size_elem is None:
         raise ValueError(f"Missing <size> tag in {xml_path}")
 
-    img_w = float(size_elem.find("width").text)
-    img_h = float(size_elem.find("height").text)
+    w_elem = size_elem.find("width")
+    h_elem = size_elem.find("height")
+    if w_elem is None or not w_elem.text or h_elem is None or not h_elem.text:
+        raise ValueError(f"Missing <width> or <height> tag in {xml_path}")
+
+    img_w = float(w_elem.text)
+    img_h = float(h_elem.text)
 
     yolo_lines: List[str] = []
     for obj in root.findall("object"):
@@ -134,10 +139,22 @@ def convert_voc_xml_to_yolo(xml_path: Path, output_txt_path: Path) -> int:
             continue
 
         try:
-            xmin = float(bnd.find("xmin").text)
-            ymin = float(bnd.find("ymin").text)
-            xmax = float(bnd.find("xmax").text)
-            ymax = float(bnd.find("ymax").text)
+            xmin_elem = bnd.find("xmin")
+            ymin_elem = bnd.find("ymin")
+            xmax_elem = bnd.find("xmax")
+            ymax_elem = bnd.find("ymax")
+            if (
+                xmin_elem is None or xmin_elem.text is None
+                or ymin_elem is None or ymin_elem.text is None
+                or xmax_elem is None or xmax_elem.text is None
+                or ymax_elem is None or ymax_elem.text is None
+            ):
+                continue
+
+            xmin = float(xmin_elem.text)
+            ymin = float(ymin_elem.text)
+            xmax = float(xmax_elem.text)
+            ymax = float(ymax_elem.text)
 
             xc, yc, w, h = voc_box_to_yolo(xmin, ymin, xmax, ymax, img_w, img_h)
             yolo_lines.append(f"{cls_id} {xc:.6f} {yc:.6f} {w:.6f} {h:.6f}")

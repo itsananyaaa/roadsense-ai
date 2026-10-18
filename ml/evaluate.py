@@ -186,7 +186,7 @@ def plot_confusion_matrix(
 
 
 def plot_precision_recall_curve(
-    pr_data: Dict[str, Dict[str, List[float]]],
+    pr_data: Dict[str, Dict[str, Any]],
     output_path: Path,
     title: str = "RoadSense AI - Precision-Recall Curves by Distress Category"
 ) -> None:
@@ -215,8 +215,8 @@ def plot_precision_recall_curve(
         line_width = 2.5 if cls_code == "all" else 1.8
         ax.plot(recalls, precisions, label=label_text, color=color, linestyle=line_style, linewidth=line_width)
 
-    ax.set_xlim([0.0, 1.0])
-    ax.set_ylim([0.0, 1.05])
+    ax.set_xlim((0.0, 1.0))
+    ax.set_ylim((0.0, 1.05))
     ax.set_xlabel("Recall", color="#e2e8f0", fontsize=11, labelpad=8)
     ax.set_ylabel("Precision", color="#e2e8f0", fontsize=11, labelpad=8)
     ax.set_title(title, color="#ffffff", fontsize=13, fontweight="bold", pad=12)

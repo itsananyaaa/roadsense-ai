@@ -9,7 +9,7 @@ Implements the civil engineering command-center visual language:
 """
 
 import streamlit as st
-from typing import Optional
+from typing import Optional, Literal
 
 # SVG Brand Icon (Road contour with detection reticle)
 ROADSENSE_LOGO_SVG = """
@@ -221,7 +221,7 @@ def render_safety_notice() -> None:
     )
 
 
-def setup_page(page_title: str, page_icon: str = "🛣️", layout: str = "wide") -> None:
+def setup_page(page_title: str, page_icon: str = "🛣️", layout: Literal["centered", "wide"] = "wide") -> None:
     """Safely configure page metadata and inject theme and brand headers."""
     try:
         st.set_page_config(

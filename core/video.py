@@ -17,7 +17,7 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple, Callable
+from typing import Dict, Any, List, Optional, Tuple, Callable, Sequence, Union
 
 # Ensure project root is in sys.path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -91,7 +91,7 @@ def format_timestamp(seconds: float) -> str:
     return f"{mins:02d}:{secs:02d}.{millis:02d}"
 
 
-def calculate_iou(box1: List[float], box2: List[float]) -> float:
+def calculate_iou(box1: Sequence[Union[int, float]], box2: Sequence[Union[int, float]]) -> float:
     """Calculate Intersection over Union (IoU) between two bounding boxes [x1, y1, x2, y2]."""
     x1 = max(box1[0], box2[0])
     y1 = max(box1[1], box2[1])
