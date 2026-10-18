@@ -86,7 +86,7 @@ body {
 .app-container {
   max-width: 1480px;
   margin: 0 auto;
-  padding: 20px 32px 60px 32px;
+  padding: 16px 20px 60px 20px;
 }
 
 /* -------------------------------------------------------------------------
@@ -96,30 +96,30 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 0 20px 0;
+  gap: 10px;
+  padding: 10px 0 18px 0;
   border-bottom: 1px solid var(--border-subtle);
   margin-bottom: 24px;
   position: sticky;
   top: 0;
   z-index: 100;
   backdrop-filter: blur(16px);
-  background: rgba(12, 13, 20, 0.85);
+  background: rgba(12, 13, 20, 0.88);
 }
 
 .brand-section {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
   flex-shrink: 0;
 }
 
 .brand-icon {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   background: linear-gradient(135deg, var(--accent-pink), var(--accent-blue));
-  border-radius: 10px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -128,7 +128,7 @@ body {
 
 .brand-title {
   font-family: var(--font-heading);
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #fff;
@@ -143,17 +143,17 @@ body {
 }
 
 .brand-badge {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   background: rgba(255, 255, 255, 0.1);
   color: var(--text-muted);
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: var(--radius-pill);
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.05em;
 }
 
-/* Pill Navigation */
+/* Pill Navigation - NEVER SHRINK OR CLIP TABS */
 .nav-pill-container {
   background: #151722;
   border: 1px solid var(--border-subtle);
@@ -163,15 +163,7 @@ body {
   align-items: center;
   gap: 2px;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
-  flex-shrink: 1;
-  min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.nav-pill-container::-webkit-scrollbar {
-  display: none;
+  flex-shrink: 0;
 }
 
 .nav-tab-btn {
@@ -179,16 +171,22 @@ body {
   border: none;
   color: var(--text-muted);
   font-family: var(--font-sans);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 500;
-  padding: 5px 10px;
+  padding: 4px 6px;
   border-radius: var(--radius-pill);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 3px;
   white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.nav-tab-btn svg {
+  width: 12px;
+  height: 12px;
   flex-shrink: 0;
 }
 
@@ -208,20 +206,20 @@ body {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
 .user-account-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
 .icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: #171924;
   border: 1px solid var(--border-subtle);
@@ -232,6 +230,12 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  flex-shrink: 0;
+}
+
+.icon-btn svg {
+  width: 14px;
+  height: 14px;
 }
 
 .icon-btn:hover {
@@ -242,13 +246,13 @@ body {
 
 .icon-badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 16px;
-  height: 16px;
+  top: -3px;
+  right: -3px;
+  width: 14px;
+  height: 14px;
   background: var(--accent-pink);
   color: #fff;
-  font-size: 0.65rem;
+  font-size: 0.58rem;
   font-weight: 700;
   border-radius: 50%;
   display: flex;
@@ -261,14 +265,16 @@ body {
   background: linear-gradient(135deg, rgba(255, 42, 133, 0.15), rgba(37, 99, 235, 0.15));
   border: 1px solid rgba(255, 42, 133, 0.3);
   color: #fff;
-  font-size: 0.82rem;
+  font-size: 0.73rem;
   font-weight: 600;
-  padding: 8px 14px;
+  padding: 4px 8px;
   border-radius: var(--radius-pill);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: all 0.2s ease;
 }
 
@@ -281,12 +287,13 @@ body {
 .user-profile-chip {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 4px 6px 4px 12px;
+  gap: 6px;
+  padding: 3px 8px 3px 4px;
   background: #171924;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-pill);
   cursor: pointer;
+  flex-shrink: 0;
   transition: border-color 0.2s;
 }
 
@@ -295,17 +302,24 @@ body {
 }
 
 .user-profile-avatar {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #f59e0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: #fff;
+  border: 1.5px solid #f59e0b;
+  flex-shrink: 0;
 }
 
 .user-profile-name {
-  font-size: 0.85rem;
+  font-size: 0.76rem;
   font-weight: 600;
   color: #fff;
+  white-space: nowrap;
 }
 
 /* -------------------------------------------------------------------------
@@ -2935,15 +2949,15 @@ body.authenticated .app-container {
 .logout-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 12px;
+  gap: 5px;
+  height: 32px;
+  padding: 0 10px;
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.28);
   border-radius: var(--radius-pill);
   color: #fca5a5;
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -2968,55 +2982,74 @@ body.authenticated .app-container {
    ------------------------------------------------------------------------- */
 @media (max-width: 1450px) {
   .app-container {
-    padding: 16px 20px 60px 20px;
+    padding: 14px 16px 60px 16px;
   }
   .nav-tab-btn {
-    padding: 5px 9px;
-    font-size: 0.78rem;
-    gap: 4px;
+    padding: 4px 6px;
+    font-size: 0.72rem;
+    gap: 3px;
   }
   .nav-tab-btn svg {
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
   }
   .demo-seed-btn {
-    padding: 6px 10px;
-    font-size: 0.77rem;
+    padding: 4px 8px;
+    font-size: 0.72rem;
   }
   .logout-btn {
-    padding: 0 10px;
-    height: 34px;
-    font-size: 0.78rem;
-  }
-}
-
-@media (max-width: 1280px) {
-  .brand-title {
-    font-size: 1.22rem;
-  }
-  .nav-tab-btn {
-    padding: 5px 7px;
-    font-size: 0.74rem;
-  }
-  .demo-seed-btn {
-    padding: 5px 8px;
+    padding: 0 8px;
+    height: 30px;
     font-size: 0.73rem;
   }
-  .user-profile-name {
-    font-size: 0.78rem;
-  }
 }
 
-@media (max-width: 1140px) {
+@media (max-width: 1380px) {
   .user-profile-name {
     display: none;
   }
   .user-profile-chip {
     padding: 3px;
   }
+  .brand-title {
+    font-size: 1.18rem;
+  }
+  .top-header {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 1320px) {
+  .app-container {
+    padding: 12px 14px 60px 14px;
+  }
   .nav-tab-btn {
-    padding: 4px 6px;
-    font-size: 0.72rem;
+    padding: 3px 5px;
+    font-size: 0.70rem;
+    gap: 2px;
+  }
+  .nav-tab-btn svg {
+    width: 11px;
+    height: 11px;
+  }
+  .brand-title {
+    font-size: 1.12rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .top-header {
+    flex-wrap: wrap;
+    row-gap: 10px;
+    justify-content: space-between;
+  }
+  .nav-pill-container {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    background: #151722;
   }
 }
 @media (max-width: 1040px) {
