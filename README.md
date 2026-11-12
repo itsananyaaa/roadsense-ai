@@ -8,6 +8,7 @@
 
 > **"See the Damage. Understand the Risk. Prioritize the Repair."**  
 > An automated computer vision, geospatial intelligence, and deterministic triage platform for municipal pavement maintenance, based on the **RDD2022 / IEEE BigData Cup Multi-National Road Damage Benchmark**.
+> Won 1st Prize in Project Expo, 2026
 
 ---
 
